@@ -107,6 +107,16 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     .id-cell .multi .v a { color: var(--ink-900); border-bottom: 1px solid var(--ink-300); }
     .id-cell .multi .v a:hover { color: var(--moss-700); border-bottom-color: var(--moss-500); }
     .id-cell .multi .v.accent { color: var(--clay-600); }
+    .operator-cell { display: flex; align-items: center; gap: 20px; }
+    .operator-portrait {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--r-sm);
+      object-fit: cover;
+      object-position: center top;
+      flex-shrink: 0;
+      border: 1px solid var(--card-border);
+    }
 
     .summary {
       max-width: 1280px;
@@ -402,6 +412,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       .id-grid { grid-template-columns: 1fr; }
       .id-cell { border-right: none; border-bottom: 1px solid var(--border-subtle); }
       .id-cell:last-child { border-bottom: none; }
+      .operator-portrait { width: 64px; height: 64px; }
       .page-intro { grid-template-columns: 1fr; }
       .page-intro h1 { font-size: 40px; }
       .lower { grid-template-columns: 1fr; gap: 40px; }
@@ -434,10 +445,13 @@ import InnerLayout from '../layouts/InnerLayout.astro';
   <section class="id-card">
     <div class="id-card-inner">
       <div class="id-grid">
-        <div class="id-cell">
-          <div class="key">Operator</div>
-          <div class="name">Michael A. Bos</div>
-          <div class="sub">Senior Software Engineering Manager · Guidepoint Global</div>
+        <div class="id-cell operator-cell">
+          <img src="/michael-bos-portrait.JPEG" alt="Michael A. Bos" class="operator-portrait" />
+          <div>
+            <div class="key">Operator</div>
+            <div class="name">Michael A. Bos</div>
+            <div class="sub">Senior Software Engineering Manager · Guidepoint Global</div>
+          </div>
         </div>
         <div class="id-cell">
           <div class="key">Posting</div>
