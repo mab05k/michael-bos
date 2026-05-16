@@ -1,0 +1,805 @@
+---
+import InnerLayout from '../layouts/InnerLayout.astro';
+---
+<InnerLayout title="Resume" activePage="resume">
+  <style is:global>
+    .page-intro {
+      max-width: 1280px;
+      margin: 32px auto 0;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 32px;
+      align-items: end;
+    }
+    .page-intro .eyebrow { margin-bottom: 12px; }
+    .page-intro h1 {
+      font-family: var(--font-sans);
+      font-size: 56px;
+      font-weight: var(--fw-medium);
+      letter-spacing: -0.025em;
+      line-height: 1;
+      color: var(--ink-900);
+    }
+    .page-intro .dek {
+      max-width: 60ch;
+      margin-top: 18px;
+      color: var(--ink-700);
+      font-size: var(--fs-16);
+      line-height: 1.55;
+      text-wrap: pretty;
+    }
+    .page-intro .actions { display: flex; gap: 12px; align-items: center; }
+    .page-intro .actions button,
+    .page-intro .actions a {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 16px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      text-transform: uppercase;
+      letter-spacing: var(--tr-caps);
+      border-radius: var(--r-sm);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--ink-800);
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease-out);
+    }
+    .page-intro .actions button:hover,
+    .page-intro .actions a:hover { background: var(--card-bg-deep); }
+    .page-intro .actions .primary {
+      background: var(--moss-500);
+      color: var(--ink-50);
+      border-color: var(--moss-700);
+    }
+    .page-intro .actions .primary:hover { background: var(--moss-600); }
+
+    .id-card {
+      max-width: 1280px;
+      margin: 40px auto 0;
+      padding: 0 24px;
+    }
+    .id-card-inner {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .id-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 0; }
+    .id-cell {
+      padding: 28px 32px;
+      border-right: 1px solid var(--card-border);
+    }
+    .id-cell:last-child { border-right: none; }
+    .id-cell .key {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-500);
+      margin-bottom: 10px;
+    }
+    .id-cell .name {
+      font-family: var(--font-sans);
+      font-weight: var(--fw-medium);
+      font-size: 30px;
+      letter-spacing: -0.02em;
+      color: var(--ink-900);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .id-cell .sub {
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      color: var(--ink-700);
+      letter-spacing: 0.01em;
+    }
+    .id-cell .multi {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px 14px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+    }
+    .id-cell .multi .k { color: var(--ink-500); text-transform: uppercase; letter-spacing: var(--tr-caps); font-size: var(--fs-11); }
+    .id-cell .multi .v { color: var(--ink-900); }
+    .id-cell .multi .v a { color: var(--ink-900); border-bottom: 1px solid var(--ink-300); }
+    .id-cell .multi .v a:hover { color: var(--moss-700); border-bottom-color: var(--moss-500); }
+    .id-cell .multi .v.accent { color: var(--clay-600); }
+
+    .summary {
+      max-width: 1280px;
+      margin: 40px auto 0;
+      padding: 0 24px;
+    }
+    .summary .head {
+      display: flex; align-items: baseline; gap: 16px;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--rule-strong);
+    }
+    .summary .head h2 {
+      font-family: var(--font-sans);
+      font-size: 22px;
+      font-weight: var(--fw-medium);
+      letter-spacing: -0.015em;
+      color: var(--ink-900);
+    }
+    .summary .head .meta {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      text-transform: uppercase;
+      letter-spacing: var(--tr-caps);
+      color: var(--ink-500);
+    }
+    .summary p {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--ink-700);
+      max-width: 85ch;
+      margin: 0;
+      text-wrap: pretty;
+    }
+    .summary p strong { color: var(--ink-900); font-weight: var(--fw-semibold); }
+
+    .record {
+      max-width: 1280px;
+      margin: 56px auto 0;
+      padding: 0 24px;
+    }
+    .record-head {
+      display: flex; align-items: baseline; gap: 16px;
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--rule-strong);
+    }
+    .record-head h2 {
+      font-family: var(--font-sans);
+      font-size: 26px;
+      font-weight: var(--fw-medium);
+      letter-spacing: -0.02em;
+      color: var(--ink-900);
+    }
+    .record-head .meta {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      text-transform: uppercase;
+      letter-spacing: var(--tr-caps);
+      color: var(--ink-500);
+    }
+
+    .tour { margin-bottom: 8px; }
+    .tour-band {
+      display: grid;
+      grid-template-columns: 200px 1fr auto;
+      column-gap: 32px;
+      align-items: baseline;
+      padding: 14px 0;
+      border-top: 1px solid var(--rule-strong);
+    }
+    .tour-band .idx {
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      font-weight: var(--fw-semibold);
+      color: var(--ink-500);
+      letter-spacing: var(--tr-caps);
+    }
+    .tour-band .org { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+    .tour-band .org .name {
+      font-family: var(--font-sans);
+      font-size: 22px;
+      font-weight: var(--fw-medium);
+      letter-spacing: -0.015em;
+      color: var(--ink-900);
+    }
+    .tour-band .org .place {
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-500);
+    }
+    .tour-band .dates {
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-700);
+      white-space: nowrap;
+    }
+
+    .role {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      column-gap: 32px;
+      padding: 18px 0 24px;
+      border-top: 1px dashed var(--border-subtle);
+    }
+    .role .role-meta {
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      letter-spacing: 0.02em;
+      color: var(--ink-700);
+      line-height: 1.5;
+    }
+    .role .role-meta .label {
+      color: var(--ink-500);
+      margin-bottom: 4px;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: var(--tr-caps);
+      font-size: var(--fs-11);
+    }
+    .role .role-meta .pill-row { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+
+    .role .role-body { padding-top: 0; }
+    .role .role-body .title {
+      font-family: var(--font-sans);
+      font-weight: var(--fw-semibold);
+      font-size: 18px;
+      color: var(--ink-900);
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+    .role .role-body .dates {
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--clay-600);
+      margin-bottom: 10px;
+    }
+    .role .role-body .desc {
+      color: var(--ink-700);
+      font-size: var(--fs-14);
+      line-height: 1.55;
+      margin: 0 0 14px;
+      max-width: 75ch;
+      text-wrap: pretty;
+    }
+    .role .role-body .desc strong { color: var(--ink-900); font-weight: var(--fw-semibold); }
+
+    .role .role-body ul.actions-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .role .role-body ul.actions-list li {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      column-gap: 12px;
+      align-items: baseline;
+      font-size: var(--fs-14);
+      line-height: 1.55;
+      color: var(--ink-700);
+      max-width: 80ch;
+      text-wrap: pretty;
+    }
+    .role .role-body ul.actions-list li .num {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      color: var(--ink-400);
+      padding-top: 2px;
+    }
+    .role .role-body ul.actions-list li strong { color: var(--ink-900); font-weight: var(--fw-semibold); }
+    .role .role-body ul.actions-list li .clay { color: var(--clay-600); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+    .lower {
+      max-width: 1280px;
+      margin: 64px auto 0;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+    }
+    .lower section .head {
+      display: flex; align-items: baseline; gap: 16px;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--rule-strong);
+    }
+    .lower section .head h2 {
+      font-family: var(--font-sans);
+      font-size: 22px;
+      font-weight: var(--fw-medium);
+      letter-spacing: -0.015em;
+      color: var(--ink-900);
+    }
+    .lower section .head .meta {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      text-transform: uppercase;
+      letter-spacing: var(--tr-caps);
+      color: var(--ink-500);
+    }
+
+    .skills-group { margin-bottom: 22px; }
+    .skills-group .gk {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-500);
+      margin-bottom: 8px;
+    }
+    .skills-group .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .skill-tag {
+      display: inline-flex; align-items: center;
+      padding: 4px 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-sm);
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      color: var(--ink-800);
+      letter-spacing: 0.01em;
+    }
+    .skill-tag.primary { background: var(--moss-50); border-color: var(--moss-200); color: var(--moss-700); }
+    .skill-tag.clay    { background: var(--clay-50); border-color: var(--clay-100); color: var(--clay-700); }
+
+    .row-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      padding: 14px 0;
+      border-top: 1px dashed var(--border-subtle);
+    }
+    .row-item:first-of-type { border-top: 1px solid var(--rule-strong); padding-top: 14px; }
+    .row-item .a { display: flex; flex-direction: column; gap: 4px; }
+    .row-item .a .title {
+      font-family: var(--font-sans);
+      font-size: var(--fs-16);
+      color: var(--ink-900);
+      font-weight: var(--fw-medium);
+    }
+    .row-item .a .sub {
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-500);
+    }
+    .row-item .b {
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-700);
+      text-align: right;
+      white-space: nowrap;
+      padding-top: 4px;
+    }
+    .row-item .b .accent { color: var(--clay-600); }
+
+    .notes {
+      max-width: 1280px;
+      margin: 64px auto 0;
+      padding: 0 24px;
+      color: var(--ink-500);
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+    }
+
+    @media print {
+      body { background: white; background-image: none; }
+      .sitenav, .classmark, .site-footer, .page-intro .actions, .notes { display: none !important; }
+      .id-card-inner, .role, .tour-band { box-shadow: none !important; page-break-inside: avoid; }
+      .record, .lower, .summary { page-break-inside: auto; }
+      .page-intro h1 { font-size: 36px; }
+    }
+
+    @media (max-width: 900px) {
+      .id-grid { grid-template-columns: 1fr; }
+      .id-cell { border-right: none; border-bottom: 1px solid var(--border-subtle); }
+      .id-cell:last-child { border-bottom: none; }
+      .page-intro { grid-template-columns: 1fr; }
+      .page-intro h1 { font-size: 40px; }
+      .lower { grid-template-columns: 1fr; gap: 40px; }
+      .tour-band { grid-template-columns: 1fr; gap: 6px; }
+      .role { grid-template-columns: 1fr; gap: 12px; }
+      .role .role-meta { display: flex; flex-wrap: wrap; gap: 12px; }
+    }
+  </style>
+
+  <!-- Intro -->
+  <header class="page-intro">
+    <div>
+      <div class="eyebrow">03 / Resume</div>
+      <h1>The operational record.</h1>
+      <p class="dek">
+        Engineering leader with <strong>10+ years</strong> building production
+        platforms and infrastructure, and <strong>4+ years</strong> running
+        high-performing teams. Prior <strong>six years</strong> in U.S. Naval
+        Special Warfare intelligence. Current focus: agentic platforms, MCP
+        tooling, and the reliability work that lets production AI ship.
+      </p>
+    </div>
+    <div class="actions">
+      <button class="primary" onclick="window.print()">Print / Save PDF</button>
+      <a href="mailto:mab05k@gmail.com">Email</a>
+    </div>
+  </header>
+
+  <!-- Identity card -->
+  <section class="id-card">
+    <div class="id-card-inner">
+      <div class="id-grid">
+        <div class="id-cell">
+          <div class="key">Operator</div>
+          <div class="name">Michael A. Bos</div>
+          <div class="sub">Senior Software Engineering Manager · Guidepoint Global</div>
+        </div>
+        <div class="id-cell">
+          <div class="key">Posting</div>
+          <div class="multi">
+            <div class="k">Base</div>   <div class="v">Las Vegas, NV <span style="color: var(--ink-500);">·</span> remote</div>
+            <div class="k">Coords</div> <div class="v">36.17° N · 115.14° W</div>
+            <div class="k">Teams</div>  <div class="v">Distributed US &amp; India</div>
+            <div class="k">Status</div> <div class="v accent">Active · in role since Jan '26</div>
+          </div>
+        </div>
+        <div class="id-cell">
+          <div class="key">Comms</div>
+          <div class="multi">
+            <div class="k">Mail</div>     <div class="v"><a href="mailto:mab05k@gmail.com">mab05k@gmail.com</a></div>
+            <div class="k">Phone</div>    <div class="v">(305) 304-8599</div>
+            <div class="k">LinkedIn</div> <div class="v"><a href="https://www.linkedin.com/in/michael-a-bos/" target="_blank" rel="noopener">michael-a-bos</a></div>
+            <div class="k">GitHub</div>   <div class="v"><a href="https://github.com/mab05k" target="_blank" rel="noopener">mab05k</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Summary -->
+  <section class="summary">
+    <div class="head">
+      <h2>Summary</h2>
+      <span class="meta">01 / 06</span>
+    </div>
+    <p>
+      Track record of owning reliability-critical platforms at scale, including a
+      <strong>company-wide cloud-native migration</strong> across 10+ teams and 20+ services,
+      and building <strong>observability and incident response programs</strong> from the
+      ground up. Experienced in Kubernetes, CI/CD, distributed systems, and the
+      cross-functional collaboration required to turn internal developer
+      infrastructure into a force multiplier for an engineering organization.
+      Currently leading architecture and delivery for an enterprise
+      <strong>agentic platform</strong> &mdash; MCP tooling, integration with the core CRM,
+      and the auth and reliability patterns production AI needs.
+    </p>
+  </section>
+
+  <!-- Professional experience -->
+  <section class="record" aria-label="Experience">
+    <div class="record-head">
+      <h2>Experience</h2>
+      <span class="meta">02 / 06 · 2010 — present</span>
+    </div>
+
+    <!-- TOUR 1 — GUIDEPOINT -->
+    <div class="tour">
+      <div class="tour-band">
+        <div class="idx">Tour 01</div>
+        <div class="org">
+          <span class="name">Guidepoint Global</span>
+          <span class="place">Las Vegas, NV · Remote</span>
+        </div>
+        <div class="dates">Apr 2023 — Present</div>
+      </div>
+
+      <article class="role">
+        <div class="role-meta">
+          <span class="label">Designation</span>
+          Sr. Software Engineering Manager
+          <div class="pill-row">
+            <span class="pill active"><span class="dot"></span>Active</span>
+            <span class="pill info"><span class="dot"></span>AI · Agentic platform</span>
+          </div>
+        </div>
+        <div class="role-body">
+          <div class="title">Senior Software Engineering Manager</div>
+          <div class="dates">Jan 2026 — Present</div>
+          <p class="desc">
+            Leading architecture and engineering delivery for Guidepoint&rsquo;s
+            next-generation agentic platform as part of the company&rsquo;s AI
+            transformation initiatives.
+          </p>
+          <ul class="actions-list">
+            <li><span class="num">01</span><span>Defined the <strong>integration architecture</strong> between Guidepoint&rsquo;s agentic platform and core CRM.</span></li>
+            <li><span class="num">02</span><span>Designing <strong>MCP-based tooling</strong> as a model-agnostic interface layer serving both internal and third-party LLM consumers.</span></li>
+            <li><span class="num">03</span><span>Leading a team building production MCP tools that abstract CRM operations for agent-driven workflows.</span></li>
+            <li><span class="num">04</span><span>Scoping tool boundaries, defining input/output contracts, and establishing <strong>reliability patterns for non-deterministic callers</strong>.</span></li>
+            <li><span class="num">05</span><span>Partnering on auth strategies for agentic systems &mdash; <strong>OAuth2-based delegation</strong> and scoped service credentials for tool-level access control.</span></li>
+            <li><span class="num">06</span><span>Collaborating cross-functionally with product and leadership to sequence AI-driven initiatives against business constraints and operational readiness.</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="role">
+        <div class="role-meta">
+          <span class="label">Designation</span>
+          Software Engineering Manager
+          <div class="pill-row">
+            <span class="pill"><span class="dot"></span>11 direct reports</span>
+          </div>
+        </div>
+        <div class="role-body">
+          <div class="title">Software Engineering Manager</div>
+          <div class="dates">Jan 2025 — Dec 2025</div>
+          <p class="desc">
+            Led two engineering teams (<strong>11 direct reports</strong>) delivering
+            AI-powered features and platform modernization initiatives as part of a
+            broader transformation effort.
+          </p>
+          <ul class="actions-list">
+            <li><span class="num">01</span><span>Delivered <strong>LLM-powered features</strong> to automate Request intake workflows; reduced <span class="clay">time-to-market by 67%</span> while addressing prompt reliability and output consistency.</span></li>
+            <li><span class="num">02</span><span>Redesigned the employee-facing Request interface, streamlining Advisor workflows and contributing to a <span class="clay">30–40% increase in revenue per Request</span>.</span></li>
+            <li><span class="num">03</span><span><strong>Established engineering on-call from scratch</strong> &mdash; ownership models, alerting thresholds, escalation paths, and postmortem practices via Datadog and Squadcast. Reduced mean time to response across distributed systems at scale.</span></li>
+            <li><span class="num">04</span><span>Hired and developed a globally distributed team across the U.S. and India &mdash; <span class="clay">3 strategic hires, 2 internal promotions</span>, performance management with full retention.</span></li>
+            <li><span class="num">05</span><span>Mentored engineers on designing systems that integrate external services and AI components.</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="role">
+        <div class="role-meta">
+          <span class="label">Designation</span>
+          Lead Software Engineer
+          <div class="pill-row">
+            <span class="pill"><span class="dot"></span>6 direct reports</span>
+          </div>
+        </div>
+        <div class="role-body">
+          <div class="title">Lead Software Engineer</div>
+          <div class="dates">Apr 2023 — Dec 2024</div>
+          <p class="desc">
+            Led six direct reports in delivering microservice architecture and
+            cloud-native deployment practices across Guidepoint&rsquo;s engineering
+            organization.
+          </p>
+          <ul class="actions-list">
+            <li><span class="num">01</span><span>Spearheaded company-wide platform migration to containerized, cloud-native workflows &mdash; deployment standards, CI/CD integration, and operational runbooks that enabled <span class="clay">10+ teams and 20+ services</span> to ship on Azure Kubernetes Service.</span></li>
+            <li><span class="num">02</span><span>Architected and delivered an <strong>Identity Verification system</strong> integrated directly into Guidepoint&rsquo;s core CRM &mdash; strengthening data integrity across <span class="clay">60,000+ in-network advisors</span>.</span></li>
+            <li><span class="num">03</span><span>Designed and implemented a company-wide <strong>notes management service</strong>, unifying how all employees manage projects, advisors, and client interactions.</span></li>
+            <li><span class="num">04</span><span>Built a <strong>mail-hook service</strong> automating note creation from inbound emails using Azure Event Grid, Graph API, and Service Bus &mdash; eliminating manual data entry on a high-frequency workflow.</span></li>
+          </ul>
+        </div>
+      </article>
+    </div>
+
+    <!-- TOUR 2 — SWITCH -->
+    <div class="tour">
+      <div class="tour-band">
+        <div class="idx">Tour 02</div>
+        <div class="org">
+          <span class="name">Switch, Inc.</span>
+          <span class="place">Las Vegas, NV</span>
+        </div>
+        <div class="dates">Jan 2019 — Apr 2023</div>
+      </div>
+
+      <article class="role">
+        <div class="role-meta">
+          <span class="label">Designation</span>
+          Technical Project Manager
+        </div>
+        <div class="role-body">
+          <div class="title">Technical Project Manager</div>
+          <div class="dates">Jul 2021 — Apr 2023</div>
+          <p class="desc">
+            Applied technical expertise to strategic company initiatives under the
+            direction of the CTO and EVP of Strategy.
+          </p>
+          <ul class="actions-list">
+            <li><span class="num">01</span><span>Coordinated delivery of Switch&rsquo;s <strong>first iOS mobile application</strong> with a third-party development team &mdash; doubled productivity at shipping &amp; receiving locations upon release.</span></li>
+            <li><span class="num">02</span><span>Served as program lead for the <strong>Power Program</strong>, identifying efficiencies and systematizing how Switch forecasts, purchases, and sells power across its data-center portfolio.</span></li>
+            <li><span class="num">03</span><span>Led weekly Portfolio Command meetings with senior leadership, providing visibility and coordination across strategic objectives.</span></li>
+            <li><span class="num">04</span><span>Managed personnel, contracts, and facilities integration following the acquisition of Data Foundry.</span></li>
+            <li><span class="num">05</span><span>Drove implementation of data analytics and process mining capabilities to improve operational decision-making.</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="role">
+        <div class="role-meta">
+          <span class="label">Designation</span>
+          Software Engineer III
+        </div>
+        <div class="role-body">
+          <div class="title">Software Engineer III</div>
+          <div class="dates">Feb 2020 — Jul 2021</div>
+          <p class="desc">
+            Technical leader and hands-on contributor building back-end systems and
+            APIs across Switch&rsquo;s application suite.
+          </p>
+          <ul class="actions-list">
+            <li><span class="num">01</span><span>Architected a metrics gathering and alerting ecosystem using <strong>Prometheus and Grafana</strong> &mdash; real-time visibility into application, API, and infrastructure performance.</span></li>
+            <li><span class="num">02</span><span>Designed and built an <strong>Apollo / GraphQL back-end</strong> aggregating messages from queueing systems for real-time interaction with a robotics platform.</span></li>
+            <li><span class="num">03</span><span>Developed a custom <strong>OAuth2 authentication system</strong> &mdash; reusable client library standardizing auth across all of Switch&rsquo;s applications, APIs, and message queues.</span></li>
+            <li><span class="num">04</span><span>Mentored and coached engineers on software best practices and internal architecture standards.</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="role">
+        <div class="role-meta">
+          <span class="label">Designation</span>
+          Manager of Software Engineering
+          <div class="pill-row">
+            <span class="pill"><span class="dot"></span>8 direct reports</span>
+          </div>
+        </div>
+        <div class="role-body">
+          <div class="title">Manager of Software Engineering</div>
+          <div class="dates">Jan 2019 — Feb 2020</div>
+          <p class="desc">
+            Led a team of eight senior Software Engineers building APIs and back-end
+            systems supporting Switch&rsquo;s core business operations and customer
+            interactions.
+          </p>
+          <ul class="actions-list">
+            <li><span class="num">01</span><span><span class="clay">Grew the team from three to eight engineers</span> through structured hiring, onboarding, and training.</span></li>
+            <li><span class="num">02</span><span>Established a culture of code quality and accountability &mdash; introduced code-review standards and automated testing frameworks.</span></li>
+            <li><span class="num">03</span><span>Planned and coordinated development of <strong>Identity Access Management (IAM)</strong> and <strong>Data Center Infrastructure Management (DCIM)</strong> systems.</span></li>
+            <li><span class="num">04</span><span>Designed and implemented <strong>automated CI/CD pipelines</strong> &mdash; standardizing build, test, and deployment workflows across Switch&rsquo;s engineering org.</span></li>
+          </ul>
+        </div>
+      </article>
+    </div>
+
+    <!-- TOUR 3 — USN -->
+    <div class="tour">
+      <div class="tour-band">
+        <div class="idx">Tour 03</div>
+        <div class="org">
+          <span class="name">U.S. Navy</span>
+          <span class="place">Naval Special Warfare Development Group · Virginia Beach, VA</span>
+        </div>
+        <div class="dates">Apr 2010 — Jan 2016</div>
+      </div>
+
+      <article class="role">
+        <div class="role-meta">
+          <span class="label">Rate / Rank</span>
+          IS2 — Petty Officer 2nd Class
+          <div class="pill-row">
+            <span class="pill navy"><span class="dot"></span>Honorable disch.</span>
+            <span class="pill"><span class="dot"></span>4 combat deployments</span>
+          </div>
+        </div>
+        <div class="role-body">
+          <div class="title">Intelligence Specialist · NSWDG</div>
+          <div class="dates">Apr 2011 — Jan 2016 (active duty Apr 2010 — Jan 2016)</div>
+          <p class="desc">
+            Served in four overseas combat deployments in roles not typically
+            assigned to Intelligence Specialists. Graduated top of class at the Navy
+            and Marine Corps Intelligence Training Center (Dam Neck, VA) in both
+            general naval intelligence and ground operations courses before screening
+            into NSWDG.
+          </p>
+          <ul class="actions-list">
+            <li><span class="num">01</span><span>Served as <strong>Joint Staff Intelligence Officer</strong> for a <span class="clay">70-person task force</span> &mdash; the most senior intelligence role in the area of operations, normally assigned to commissioned officers.</span></li>
+            <li><span class="num">02</span><span>As <strong>ISR Manager</strong>, coordinated the deployment of manned and unmanned ISR assets in excess of <span class="clay">10,000 hours</span>.</span></li>
+            <li><span class="num">03</span><span>Served as <strong>Liaison Officer</strong> between the Central Intelligence Agency and the commander of NSWDG.</span></li>
+            <li><span class="num">04</span><span>As <strong>Analyst</strong>, researched and aggregated intelligence from multiple sources to support special operations missions targeting high-value individuals.</span></li>
+            <li><span class="num">05</span><span>Earned multiple awards for service prior to being honorably discharged in January 2016 at the rank of Petty Officer Second Class.</span></li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Lower: skills + education -->
+  <section class="lower">
+    <section>
+      <div class="head">
+        <h2>Skills</h2>
+        <span class="meta">03 / 06</span>
+      </div>
+
+      <div class="skills-group">
+        <div class="gk">Leadership</div>
+        <div class="tags">
+          <span class="skill-tag primary">Team building &amp; talent dev.</span>
+          <span class="skill-tag primary">Technical strategy</span>
+          <span class="skill-tag primary">Cross-functional delivery</span>
+          <span class="skill-tag primary">Hiring &amp; performance mgmt.</span>
+          <span class="skill-tag primary">Decision-making under ambiguity</span>
+          <span class="skill-tag primary">Distributed teams (US / IN)</span>
+        </div>
+      </div>
+
+      <div class="skills-group">
+        <div class="gk">AI / LLM systems</div>
+        <div class="tags">
+          <span class="skill-tag clay">Agentic system design</span>
+          <span class="skill-tag clay">MCP tooling</span>
+          <span class="skill-tag clay">LLM integrations</span>
+          <span class="skill-tag clay">Prompt reliability</span>
+          <span class="skill-tag clay">Tool / contract design</span>
+        </div>
+      </div>
+
+      <div class="skills-group">
+        <div class="gk">Platform / Infrastructure</div>
+        <div class="tags">
+          <span class="skill-tag">Kubernetes</span>
+          <span class="skill-tag">Docker</span>
+          <span class="skill-tag">Azure (AKS)</span>
+          <span class="skill-tag">Azure DevOps</span>
+          <span class="skill-tag">Jenkins</span>
+          <span class="skill-tag">CI / CD</span>
+          <span class="skill-tag">Distributed systems</span>
+          <span class="skill-tag">Datadog</span>
+          <span class="skill-tag">Squadcast</span>
+        </div>
+      </div>
+
+      <div class="skills-group">
+        <div class="gk">Engineering</div>
+        <div class="tags">
+          <span class="skill-tag">API design</span>
+          <span class="skill-tag">REST</span>
+          <span class="skill-tag">GraphQL / Apollo</span>
+          <span class="skill-tag">OAuth2 / OIDC</span>
+          <span class="skill-tag">PHP</span>
+          <span class="skill-tag">JavaScript / TypeScript</span>
+          <span class="skill-tag">Prometheus / Grafana</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="head">
+        <h2>Education &amp; service</h2>
+        <span class="meta">04 / 06</span>
+      </div>
+
+      <div class="row-item">
+        <div class="a">
+          <div class="title">Executive Master of Business Administration</div>
+          <div class="sub">University of Nevada, Las Vegas</div>
+        </div>
+        <div class="b">Las Vegas, NV<br><span class="accent">2022</span></div>
+      </div>
+
+      <div class="row-item">
+        <div class="a">
+          <div class="title">B.S. Finance &amp; Real Estate</div>
+          <div class="sub">Florida State University · College of Business</div>
+        </div>
+        <div class="b">Tallahassee, FL<br><span class="accent">2009</span></div>
+      </div>
+
+      <div class="row-item">
+        <div class="a">
+          <div class="title">U.S. Navy &mdash; Naval Special Warfare Development Group</div>
+          <div class="sub">Intelligence Specialist 2nd Class · Honorable discharge</div>
+        </div>
+        <div class="b">Virginia Beach, VA<br><span class="accent">2010 — 2016</span></div>
+      </div>
+
+      <div class="row-item">
+        <div class="a">
+          <div class="title">Open source · <code style="font-family: var(--font-mono); background: var(--site-paper-deep); padding: 2px 6px; border-radius: 3px; font-size: var(--fs-12);">mab05k/oanda-client</code></div>
+          <div class="sub">Maintainer · PHP client library</div>
+        </div>
+        <div class="b">GitHub<br><span class="accent">Public</span></div>
+      </div>
+    </section>
+  </section>
+
+  <div class="notes">Last revised May 2026 · Page 03 / 03</div>
+
+</InnerLayout>

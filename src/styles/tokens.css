@@ -1,0 +1,248 @@
+/* ============================================================
+   Design Tokens — Colors, type, spacing, radii, shadows.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --moss-50:  #F1F3EE;
+  --moss-100: #DDE3D6;
+  --moss-200: #BAC6AC;
+  --moss-300: #95A684;
+  --moss-400: #728663;
+  --moss-500: #4A6741;
+  --moss-600: #3D5636;
+  --moss-700: #30432A;
+  --moss-800: #23301F;
+  --moss-900: #161E14;
+
+  --clay-50:  #FBF1EC;
+  --clay-100: #F3DDD0;
+  --clay-200: #E7BBA3;
+  --clay-300: #DA9876;
+  --clay-400: #C8795A;
+  --clay-500: #B0624A;
+  --clay-600: #8F4E3B;
+  --clay-700: #6D3B2D;
+  --clay-800: #4D2A20;
+  --clay-900: #2F1A14;
+
+  --ink-50:  #F9F6F0;
+  --ink-100: #F1EDE4;
+  --ink-200: #E4DED1;
+  --ink-300: #CFC7B4;
+  --ink-400: #A69E8A;
+  --ink-500: #766F5F;
+  --ink-600: #4F4A3F;
+  --ink-700: #383530;
+  --ink-800: #2A2824;
+  --ink-900: #191814;
+
+  --success-50:  #E8F0E2;
+  --success-500: #4F7A3A;
+  --success-700: #34522A;
+
+  --warning-50:  #FBF1DB;
+  --warning-500: #C8881F;
+  --warning-700: #7E5412;
+
+  --danger-50:   #F7E2DA;
+  --danger-500:  #B3432B;
+  --danger-700:  #6F2817;
+
+  --info-50:     #E5ECEE;
+  --info-500:    #3C6772;
+  --info-700:    #264149;
+
+  --bg-canvas:      var(--ink-50);
+  --bg-surface:     #FFFFFF;
+  --bg-sunken:      var(--ink-100);
+  --bg-inverse:     var(--ink-800);
+
+  --fg-primary:     var(--ink-800);
+  --fg-secondary:   var(--ink-600);
+  --fg-tertiary:    var(--ink-500);
+  --fg-disabled:    var(--ink-400);
+  --fg-inverse:     var(--ink-50);
+  --fg-brand:       var(--moss-500);
+  --fg-accent:      var(--clay-400);
+
+  --border-subtle:  var(--ink-200);
+  --border-default: var(--ink-300);
+  --border-strong:  var(--ink-400);
+  --border-focus:   var(--moss-500);
+
+  --accent-brand:       var(--moss-500);
+  --accent-brand-hover: var(--moss-600);
+  --accent-brand-press: var(--moss-700);
+
+  --font-sans:    'Geist', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono:    'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-display: var(--font-sans);
+
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
+  --fs-10: 0.625rem;
+  --fs-11: 0.6875rem;
+  --fs-12: 0.75rem;
+  --fs-13: 0.8125rem;
+  --fs-14: 0.875rem;
+  --fs-16: 1rem;
+  --fs-18: 1.125rem;
+  --fs-20: 1.25rem;
+  --fs-24: 1.5rem;
+  --fs-30: 1.875rem;
+  --fs-40: 2.5rem;
+  --fs-56: 3.5rem;
+  --fs-72: 4.5rem;
+
+  --lh-tight:   1.1;
+  --lh-snug:    1.25;
+  --lh-normal:  1.45;
+  --lh-relaxed: 1.6;
+
+  --tr-tight:  -0.02em;
+  --tr-normal: 0;
+  --tr-wide:   0.04em;
+  --tr-caps:   0.08em;
+
+  --sp-0:  0;
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+  --sp-24: 96px;
+
+  --r-none: 0;
+  --r-xs:   2px;
+  --r-sm:   4px;
+  --r-md:   6px;
+  --r-lg:   8px;
+  --r-xl:   12px;
+  --r-pill: 999px;
+
+  --shadow-xs: 0 1px 0 0 rgba(42, 40, 36, 0.04), 0 1px 2px 0 rgba(42, 40, 36, 0.06);
+  --shadow-sm: 0 1px 2px -1px rgba(42, 40, 36, 0.08), 0 2px 4px -1px rgba(42, 40, 36, 0.06);
+  --shadow-md: 0 4px 8px -2px rgba(42, 40, 36, 0.08), 0 2px 4px -2px rgba(42, 40, 36, 0.06);
+  --shadow-lg: 0 12px 24px -8px rgba(42, 40, 36, 0.12), 0 4px 8px -4px rgba(42, 40, 36, 0.06);
+  --shadow-xl: 0 24px 48px -12px rgba(42, 40, 36, 0.18);
+  --shadow-focus: 0 0 0 3px rgba(74, 103, 65, 0.25);
+  --shadow-inset: inset 0 1px 2px 0 rgba(42, 40, 36, 0.08);
+
+  --ease-out:    cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 280ms;
+
+  --z-base:     0;
+  --z-sticky:   100;
+  --z-dropdown: 500;
+  --z-modal:    1000;
+  --z-toast:    2000;
+}
+
+html, body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  color: var(--fg-primary);
+  background: var(--bg-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+h1, .h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-40);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-tight);
+  color: var(--fg-primary);
+  margin: 0;
+}
+
+h2, .h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-30);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-tight);
+  margin: 0;
+}
+
+h3, .h3 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-24);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tr-tight);
+  margin: 0;
+}
+
+h4, .h4 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-20);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  margin: 0;
+}
+
+h5, .h5 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  margin: 0;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+  color: var(--fg-secondary);
+}
+
+.body-lg { font-size: var(--fs-16); line-height: var(--lh-relaxed); }
+.body    { font-size: var(--fs-14); line-height: var(--lh-normal); }
+.body-sm { font-size: var(--fs-13); line-height: var(--lh-normal); color: var(--fg-secondary); }
+.caption { font-size: var(--fs-12); line-height: var(--lh-normal); color: var(--fg-secondary); }
+.micro   { font-size: var(--fs-11); line-height: var(--lh-normal); color: var(--fg-tertiary); text-transform: uppercase; letter-spacing: var(--tr-wide); }
+
+.num, code, kbd, samp {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+a {
+  color: var(--fg-brand);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+a:hover { border-bottom-color: var(--fg-brand); }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+  margin: var(--sp-6) 0;
+}
+
+::selection {
+  background: var(--moss-200);
+  color: var(--ink-900);
+}

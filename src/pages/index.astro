@@ -1,17 +1,512 @@
 ---
-
+import '../styles/shared.css';
 ---
-
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+<head>
+  <meta charset="utf-8">
+  <title>Michael Bos</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" href="/favicon.ico">
+  <style is:global>
+    :root {
+      --card-bg:           #ECE6D2;
+      --card-bg-deep:      #E2DBC2;
+      --card-border:       #D2C9AC;
+      --card-border-hover: var(--moss-400);
+      --navy-50:  #E6ECF2;
+      --navy-100: #C5D0DE;
+      --navy-500: #2C3F5C;
+      --navy-700: #1D2B40;
+    }
+
+    body {
+      background-image: none;
+      background: var(--site-paper);
+    }
+
+    .top {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 32px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 12px; }
+    .brand svg.mark { width: 22px; height: 22px; color: var(--moss-600); }
+    .brand .wm {
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-700);
+    }
+    .nav {
+      display: flex;
+      gap: 28px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      text-transform: uppercase;
+      letter-spacing: var(--tr-caps);
+    }
+    .nav a {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--ink-600);
+      border: none;
+      padding: 6px 0;
+      position: relative;
+    }
+    .nav a .idxn { color: var(--ink-400); font-size: var(--fs-10); }
+    .nav a.current { color: var(--ink-900); }
+    .nav a.current::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: -6px;
+      height: 2px;
+      background: var(--clay-400);
+    }
+    .nav a:hover { color: var(--ink-900); }
+
+    .hero {
+      max-width: 1280px;
+      margin: 56px auto 0;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 80px;
+      align-items: start;
+    }
+    .hero-text { padding-top: 4px; }
+
+    .eyebrow-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .eyebrow-row .rule {
+      width: 56px;
+      height: 1px;
+      background: var(--ink-400);
+    }
+
+    .display {
+      font-family: var(--font-sans);
+      font-weight: var(--fw-medium);
+      font-size: clamp(56px, 8.4vw, 104px);
+      line-height: 0.95;
+      letter-spacing: -0.035em;
+      color: var(--ink-900);
+      margin: 0;
+      white-space: nowrap;
+    }
+    .display .accent {
+      font-style: italic;
+      font-weight: var(--fw-regular);
+      color: var(--moss-600);
+      letter-spacing: -0.03em;
+    }
+
+    .role-pills {
+      margin-top: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+    .role-pills .pill { height: 28px; padding: 0 14px; font-size: var(--fs-12); }
+
+    .lede {
+      font-size: 21px;
+      line-height: 1.55;
+      color: var(--ink-700);
+      margin: 36px 0 0;
+      max-width: 46ch;
+      text-wrap: pretty;
+    }
+    .lede strong { color: var(--ink-900); font-weight: var(--fw-semibold); }
+
+    .pill.navy {
+      background: var(--navy-50);
+      border-color: var(--navy-100);
+      color: var(--navy-700);
+    }
+    .pill.navy .dot { background: var(--navy-500); }
+
+    .portrait-card {
+      position: relative;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 18px;
+      border-radius: var(--r-md);
+      box-shadow: var(--shadow-sm);
+    }
+    .portrait-card .frame {
+      position: relative;
+      aspect-ratio: 4/5;
+      background: var(--card-bg-deep);
+      overflow: hidden;
+      border-radius: var(--r-sm);
+    }
+    .portrait-card .frame::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(42, 40, 36, 0.10) 1px, transparent 1px);
+      background-size: 12px 12px;
+      pointer-events: none;
+    }
+    .portrait-card svg.silhouette {
+      position: absolute;
+      left: 50%; bottom: 0;
+      transform: translateX(-50%);
+      width: 70%;
+      height: auto;
+      color: var(--ink-600);
+      opacity: 0.32;
+    }
+    .portrait-card .label,
+    .portrait-card .coord {
+      position: absolute;
+      font-family: var(--font-mono);
+      font-size: var(--fs-10);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-600);
+      z-index: 2;
+    }
+    .portrait-card .label { bottom: 14px; left: 14px; }
+    .portrait-card .coord { top: 14px; right: 14px; text-align: right; }
+    .portrait-card .corners > span {
+      position: absolute;
+      width: 14px; height: 14px;
+      border: 1.2px solid var(--ink-700);
+      z-index: 2;
+    }
+    .portrait-card .corners .tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+    .portrait-card .corners .tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+    .portrait-card .corners .bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+    .portrait-card .corners .br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+    .portrait-card .id {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4px 16px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+    }
+    .portrait-card .id .k { color: var(--ink-500); }
+    .portrait-card .id .v { color: var(--ink-900); }
+
+    .facts {
+      max-width: 1280px;
+      margin: 110px auto 0;
+      padding: 0 32px;
+    }
+    .facts-head {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--ink-300);
+      margin-bottom: 0;
+    }
+    .facts-head h2 {
+      font-family: var(--font-sans);
+      font-weight: var(--fw-medium);
+      font-size: 22px;
+      letter-spacing: -0.01em;
+      color: var(--ink-900);
+    }
+    .facts-head .num {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-500);
+    }
+
+    .facts-list { display: flex; flex-direction: column; }
+    .fact-row {
+      display: grid;
+      grid-template-columns: 200px minmax(0, 1fr);
+      column-gap: 48px;
+      padding: 22px 0;
+      border-bottom: 1px dashed var(--ink-200);
+    }
+    .fact-row:last-child { border-bottom: none; }
+    .fact-row .k {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      text-transform: uppercase;
+      letter-spacing: var(--tr-caps);
+      color: var(--ink-500);
+      padding-top: 4px;
+    }
+    .fact-row .v { font-size: 18px; line-height: 1.45; color: var(--ink-900); text-wrap: pretty; }
+    .fact-row .v .muted { color: var(--ink-500); }
+    .fact-row .v .clay { color: var(--clay-600); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+    .fact-row .v .sep { color: var(--ink-300); padding: 0 6px; }
+
+    .principle {
+      max-width: 1280px;
+      margin: 110px auto 0;
+      padding: 0 32px;
+    }
+    .principle blockquote {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      font-weight: var(--fw-regular);
+      font-size: clamp(28px, 4.2vw, 56px);
+      line-height: 1.18;
+      letter-spacing: -0.025em;
+      color: var(--ink-800);
+      max-width: none;
+      text-wrap: balance;
+    }
+    .principle blockquote .quoteopen {
+      color: var(--clay-400);
+      font-family: var(--font-mono);
+      margin-right: 2px;
+    }
+    .principle .attribution {
+      margin-top: 22px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-500);
+    }
+
+    .forward {
+      max-width: 1280px;
+      margin: 110px auto 0;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    a.forward-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 28px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-xs);
+      color: inherit;
+      transition:
+        background var(--dur-base) var(--ease-out),
+        border-color var(--dur-base) var(--ease-out),
+        transform var(--dur-base) var(--ease-out),
+        box-shadow var(--dur-base) var(--ease-out);
+      min-height: 220px;
+      position: relative;
+    }
+    a.forward-card:hover {
+      background: var(--moss-50);
+      border-color: var(--moss-400);
+      box-shadow: var(--shadow-md);
+    }
+    .forward-card .idn {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--clay-600);
+    }
+    .forward-card .title {
+      font-family: var(--font-sans);
+      font-weight: var(--fw-medium);
+      font-size: 26px;
+      letter-spacing: -0.02em;
+      color: var(--ink-900);
+    }
+    .forward-card .blurb {
+      color: var(--ink-600);
+      font-size: var(--fs-14);
+      line-height: 1.5;
+      max-width: 30ch;
+    }
+    .forward-card .open {
+      margin-top: auto;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--moss-600);
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .forward-card .open::after {
+      content: '→';
+      transition: transform var(--dur-fast) var(--ease-out);
+    }
+    .forward-card:hover .open::after { transform: translateX(3px); }
+    .forward-card:hover .open { color: var(--moss-700); }
+
+    @media (max-width: 980px) {
+      .hero { grid-template-columns: 1fr; gap: 48px; }
+      .display { font-size: clamp(48px, 11vw, 88px); white-space: normal; }
+      .fact-row { grid-template-columns: 1fr; gap: 6px; padding: 18px 0; }
+      .fact-row .k { padding-top: 0; }
+      .forward { grid-template-columns: 1fr; }
+      .role-pills { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="top">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+        <circle cx="12" cy="12" r="9"></circle>
+        <circle cx="12" cy="12" r="3.5"></circle>
+        <line x1="12" y1="1" x2="12" y2="6"></line>
+        <line x1="12" y1="18" x2="12" y2="23"></line>
+        <line x1="1" y1="12" x2="6" y2="12"></line>
+        <line x1="18" y1="12" x2="23" y2="12"></line>
+      </svg>
+      <span class="wm">M.A. Bos</span>
+    </div>
+    <nav class="nav">
+      <a href="/" class="current"><span class="idxn">01</span>Home</a>
+      <a href="/biography"><span class="idxn">02</span>Biography</a>
+      <a href="/resume"><span class="idxn">03</span>Resume</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-text">
+        <div class="eyebrow-row">
+          <span class="rule"></span>
+          <span class="eyebrow">Las Vegas, NV · 36.17° N · 115.14° W</span>
+        </div>
+
+        <h1 class="display">Michael <span class="accent">Bos.</span></h1>
+
+        <div class="role-pills">
+          <span class="pill active"><span class="dot"></span>Sr. Engineering Manager · Guidepoint</span>
+          <span class="pill navy"><span class="dot"></span>USN Veteran · NSWDG</span>
+        </div>
+
+        <p class="lede">
+          I build <strong>platforms</strong> &mdash; and the <strong>teams</strong> that run them.
+          Sixteen years in: six in Naval Special Warfare intelligence, ten in software.
+          Both taught me the same things matter &mdash; clear ownership, calm execution,
+          and people who trust each other under pressure.
+        </p>
+      </div>
+
+      <aside class="portrait-card">
+        <div class="frame">
+          <span class="corners">
+            <span class="tl"></span><span class="tr"></span>
+            <span class="bl"></span><span class="br"></span>
+          </span>
+          <div class="coord">36.17° N<br>115.14° W</div>
+          <div class="label">Portrait // pending</div>
+          <svg class="silhouette" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+            <path fill="currentColor" d="M50,12 C62,12 71,22 71,35 C71,46 65,55 57,58 C57,62 57,66 58,68 C72,72 88,80 92,98 C93,104 93,116 92,124 L8,124 C7,116 7,104 8,98 C12,80 28,72 42,68 C43,66 43,62 43,58 C35,55 29,46 29,35 C29,22 38,12 50,12 Z"></path>
+          </svg>
+        </div>
+        <div class="id">
+          <div class="k">Callsign</div>     <div class="v">mab05k</div>
+          <div class="k">Element</div>      <div class="v">Guidepoint · AI Platform</div>
+          <div class="k">Prior svc.</div>   <div class="v">USN · NSWDG · IS2</div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- QUICK FACTS -->
+    <section class="facts">
+      <div class="facts-head">
+        <h2>Quick facts</h2>
+        <span class="num">07 / dossier</span>
+      </div>
+      <div class="facts-list">
+        <div class="fact-row">
+          <div class="k">Designation</div>
+          <div class="v">Senior Software Engineering Manager <span class="muted">— AI &amp; Agentic Platform</span></div>
+        </div>
+        <div class="fact-row">
+          <div class="k">Element</div>
+          <div class="v">Guidepoint Global <span class="sep">·</span> <span class="clay">Jan 2026 — present</span></div>
+        </div>
+        <div class="fact-row">
+          <div class="k">Posture</div>
+          <div class="v">Remote out of Las Vegas, NV <span class="sep">·</span> distributed teams across US &amp; India</div>
+        </div>
+        <div class="fact-row">
+          <div class="k">Tenure</div>
+          <div class="v"><span class="clay">10 yr</span> software <span class="sep">·</span> <span class="clay">6 yr</span> naval intelligence <span class="sep">·</span> <span class="muted">4+ yr managing engineers</span></div>
+        </div>
+        <div class="fact-row">
+          <div class="k">Education</div>
+          <div class="v">Executive MBA <span class="muted">— UNLV '22</span> <span class="sep">·</span> B.S. Finance &amp; Real Estate <span class="muted">— FSU '09</span></div>
+        </div>
+        <div class="fact-row">
+          <div class="k">Prior service</div>
+          <div class="v">U.S. Navy <span class="sep">·</span> Naval Special Warfare Development Group <span class="sep">·</span> Intelligence Specialist, 2nd Class <span class="sep">·</span> <span class="clay">2010 — 2016</span></div>
+        </div>
+        <div class="fact-row">
+          <div class="k">Focus</div>
+          <div class="v">Platform engineering <span class="sep">·</span> agentic / MCP tooling <span class="sep">·</span> reliability programs <span class="sep">·</span> building teams</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OPERATING PRINCIPLE -->
+    <section class="principle">
+      <blockquote>
+        <span class="quoteopen">&ldquo;</span>Build the team you&rsquo;d want to be on. Give them air cover, clear ownership,
+        and the smallest possible amount of process &mdash; then trust them to ship.&rdquo;
+      </blockquote>
+      <div class="attribution">— Operating principle</div>
+    </section>
+
+    <!-- FORWARD LINKS -->
+    <nav class="forward" aria-label="Sections">
+      <a class="forward-card" href="/biography">
+        <span class="idn">02 / Biography</span>
+        <span class="title">How I got here.</span>
+        <span class="blurb">Islamorada to Tallahassee, Dam Neck to Virginia Beach, Las Vegas to now. The route map.</span>
+        <span class="open">Read the long version</span>
+      </a>
+      <a class="forward-card" href="/resume">
+        <span class="idn">03 / Resume</span>
+        <span class="title">The operational record.</span>
+        <span class="blurb">Roles, contributions, education, skills. Built like a service record. Print-ready.</span>
+        <span class="open">View the record</span>
+      </a>
+      <a class="forward-card" href="mailto:mab05k@gmail.com">
+        <span class="idn">04 / Contact</span>
+        <span class="title">A direct line.</span>
+        <span class="blurb">Best for hiring conversations, technical advisory, or anything that needs a real reply.</span>
+        <span class="open">Open mail</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer" style="margin-top: 96px;">
+    <div class="site-footer-inner">
+      <div>© 2026 · Michael A. Bos · Las&nbsp;Vegas, NV</div>
+      <div style="display:flex; gap:18px;">
+        <a href="mailto:mab05k@gmail.com">mab05k@gmail.com</a>
+        <a href="https://www.linkedin.com/in/michael-a-bos/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/mab05k" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
 </html>

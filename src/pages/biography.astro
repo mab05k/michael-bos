@@ -1,0 +1,722 @@
+---
+import InnerLayout from '../layouts/InnerLayout.astro';
+---
+<InnerLayout title="Biography" activePage="biography">
+  <style is:global>
+    .page-intro {
+      max-width: 1280px;
+      margin: 32px auto 0;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 32px;
+      align-items: end;
+    }
+    .page-intro .eyebrow { margin-bottom: 12px; }
+    .page-intro h1 {
+      font-family: var(--font-sans);
+      font-size: 56px;
+      font-weight: var(--fw-medium);
+      letter-spacing: -0.025em;
+      line-height: 1;
+      color: var(--ink-900);
+    }
+    .page-intro .dek {
+      max-width: 60ch;
+      margin-top: 18px;
+      color: var(--ink-700);
+      font-size: var(--fs-16);
+      line-height: 1.55;
+      text-wrap: pretty;
+    }
+    .page-intro .legend {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--label-mono);
+      text-align: right;
+      line-height: 1.7;
+    }
+    .page-intro .legend .num { color: var(--ink-800); }
+
+    .map-card {
+      max-width: 1280px;
+      margin: 40px auto 0;
+      padding: 0 24px;
+    }
+    .map-frame {
+      position: relative;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .map-band {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 18px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+    }
+    .map-band .left { display: inline-flex; align-items: center; gap: 10px; }
+    .map-band .right .sep { color: var(--ink-300); padding: 0 8px; }
+
+    .chart-wrap {
+      position: relative;
+      background: var(--site-paper-deep);
+      background-image:
+        linear-gradient(rgba(42,40,36,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(42,40,36,0.05) 1px, transparent 1px);
+      background-size: 20px 20px;
+      padding: 24px 16px 16px;
+    }
+    .chart {
+      width: 100%;
+      height: auto;
+      display: block;
+      color: var(--ink-700);
+    }
+
+    .chart .grid-major { stroke: rgba(42,40,36,0.08); stroke-width: 1; }
+    .chart .grid-axis-label { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-500); letter-spacing: 0.06em; text-transform: uppercase; }
+    .chart .us-outline {
+      fill: var(--ink-50);
+      stroke: var(--ink-400);
+      stroke-width: 1.1;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    .chart .us-outline-shadow { fill: rgba(74, 103, 65, 0.05); stroke: none; }
+    .chart .route { fill: none; stroke: var(--clay-400); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0.85; }
+    .chart .route-glow { fill: none; stroke: var(--clay-400); stroke-width: 6; opacity: 0.12; stroke-linecap: round; }
+    .chart .bearing-label { font-family: var(--font-mono); font-size: 9px; fill: var(--clay-700); letter-spacing: 0.05em; text-transform: uppercase; }
+    .chart .marker .ring { fill: var(--card-bg); stroke: var(--ink-900); stroke-width: 1.2; }
+    .chart .marker .ring-active { fill: var(--moss-500); stroke: var(--moss-700); }
+    .chart .marker .num { font-family: var(--font-mono); font-weight: 600; font-size: 10px; fill: var(--ink-900); text-anchor: middle; }
+    .chart .marker .num-on { fill: var(--ink-50); }
+    .chart .marker .pin-label { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; fill: var(--ink-900); letter-spacing: 0.04em; }
+    .chart .marker .pin-coord { font-family: var(--font-mono); font-size: 8px; fill: var(--ink-500); letter-spacing: 0.04em; }
+    .chart .marker .pin-year { font-family: var(--font-mono); font-size: 8.5px; fill: var(--clay-600); letter-spacing: 0.06em; }
+    .chart .compass { fill: var(--ink-700); }
+    .chart .compass-bg { fill: var(--card-bg); stroke: var(--ink-300); stroke-width: 1; }
+    .chart .compass-label { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-700); text-anchor: middle; font-weight: 600; }
+    .chart .scalebar-line { stroke: var(--ink-700); stroke-width: 1.5; }
+    .chart .scalebar-tick { stroke: var(--ink-700); stroke-width: 1; }
+    .chart .scalebar-label { font-family: var(--font-mono); font-size: 8.5px; fill: var(--ink-700); }
+
+    .chapters {
+      max-width: 1280px;
+      margin: 64px auto 0;
+      padding: 0 24px;
+    }
+    .chapters-head {
+      display: flex; align-items: baseline; gap: 16px;
+      padding-bottom: 14px;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--rule-strong);
+    }
+    .chapters-head h2 {
+      font-family: var(--font-sans);
+      font-size: 26px;
+      font-weight: var(--fw-medium);
+      letter-spacing: -0.02em;
+      color: var(--ink-900);
+    }
+    .chapters-head .meta {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      text-transform: uppercase;
+      letter-spacing: var(--tr-caps);
+      color: var(--label-mono);
+    }
+
+    .chapter {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 48px;
+      padding: 32px 0 36px;
+      border-top: 1px solid var(--border-subtle);
+      position: relative;
+    }
+    .chapter:first-of-type { border-top: 1px solid var(--rule-strong); }
+
+    .chapter .meta-col { position: sticky; top: 24px; align-self: start; }
+    .chapter .marker {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px;
+    }
+    .chapter .marker .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--moss-500);
+      color: var(--ink-50);
+      font-family: var(--font-mono);
+      font-weight: var(--fw-semibold);
+      font-size: var(--fs-13);
+    }
+    .chapter .marker .target {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-500);
+    }
+    .chapter .loc {
+      font-family: var(--font-sans);
+      font-size: 28px;
+      font-weight: var(--fw-medium);
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--ink-900);
+      margin-bottom: 8px;
+    }
+    .chapter .state {
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-600);
+    }
+    .chapter .meta-list {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px 14px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+    }
+    .chapter .meta-list .k { color: var(--ink-500); }
+    .chapter .meta-list .v { color: var(--ink-800); }
+    .chapter .meta-list .v.accent { color: var(--clay-600); }
+
+    .chapter .body { padding-top: 4px; }
+    .chapter .role-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 0 0 12px;
+      color: var(--clay-600);
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--clay-100);
+      margin-bottom: 18px;
+    }
+    .chapter .body p {
+      margin: 0 0 14px;
+      font-size: var(--fs-16);
+      line-height: 1.6;
+      color: var(--ink-700);
+      max-width: 65ch;
+      text-wrap: pretty;
+    }
+    .chapter .body p:last-child { margin-bottom: 0; }
+
+    .chapter .highlights {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      max-width: 880px;
+    }
+    .chapter .hi {
+      background: var(--site-paper-deep);
+      border-left: 2px solid var(--moss-400);
+      padding: 12px 14px;
+      border-radius: var(--r-sm);
+    }
+    .chapter .hi .k {
+      font-family: var(--font-mono);
+      font-size: var(--fs-10);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-500);
+      margin-bottom: 4px;
+    }
+    .chapter .hi .v {
+      font-family: var(--font-mono);
+      font-size: var(--fs-13);
+      font-weight: var(--fw-semibold);
+      color: var(--ink-900);
+    }
+    .chapter .hi .v .unit { font-size: var(--fs-11); color: var(--ink-500); font-weight: var(--fw-regular); letter-spacing: var(--tr-wide); }
+
+    .bio-cta {
+      max-width: 1280px;
+      margin: 48px auto 0;
+      padding: 0 24px;
+    }
+    .bio-cta-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 32px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-lg);
+    }
+    .bio-cta .lead {
+      font-family: var(--font-sans);
+      font-size: 22px;
+      letter-spacing: -0.015em;
+      color: var(--ink-900);
+      font-weight: var(--fw-medium);
+    }
+    .bio-cta .sub {
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-500);
+      margin-top: 4px;
+    }
+    .bio-cta .actions { display: flex; gap: 12px; }
+    .bio-cta a {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 18px;
+      background: var(--moss-500);
+      color: var(--ink-50);
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--moss-700);
+      transition: background var(--dur-fast) var(--ease-out);
+    }
+    .bio-cta a.secondary {
+      background: var(--card-bg);
+      color: var(--ink-800);
+      border: 1px solid var(--card-border);
+    }
+    .bio-cta a:hover { background: var(--moss-600); border-bottom-color: var(--moss-700); }
+    .bio-cta a.secondary:hover { background: var(--card-bg-deep); }
+    .bio-cta a::after { content: '→'; transition: transform var(--dur-fast) var(--ease-out); }
+    .bio-cta a:hover::after { transform: translateX(3px); }
+
+    @media (max-width: 880px) {
+      .chapter { grid-template-columns: 1fr; gap: 20px; }
+      .chapter .meta-col { position: static; }
+      .page-intro { grid-template-columns: 1fr; }
+      .page-intro h1 { font-size: 40px; }
+      .page-intro .legend { text-align: left; }
+      .bio-cta-inner { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+
+  <!-- Intro -->
+  <header class="page-intro">
+    <div>
+      <div class="eyebrow">02 / Biography</div>
+      <h1>The route map.</h1>
+      <p class="dek">
+        Four chapters. One story, plotted by where it happened.
+        Islamorada to Tallahassee, Virginia to Las Vegas &mdash; from a Florida Keys
+        swim team, through six years in Naval Special Warfare intelligence, into
+        a decade of building software and the teams that ship it.
+      </p>
+    </div>
+    <div class="legend">
+      <div><span class="num">01</span> · Islamorada, FL</div>
+      <div><span class="num">02</span> · Tallahassee, FL</div>
+      <div><span class="num">03</span> · Virginia Beach, VA</div>
+      <div><span class="num">04</span> · Las Vegas, NV</div>
+    </div>
+  </header>
+
+  <!-- Map -->
+  <section class="map-card" aria-label="Route map">
+    <div class="map-frame">
+      <div class="map-band" style="background: var(--card-bg-deep); color: var(--ink-700); border-bottom: 1px solid var(--card-border);">
+        <div class="left" style="color: var(--ink-700);">
+          <span>Route map · Continental US · 1987 — present</span>
+        </div>
+        <div class="right" style="color: var(--ink-500);">
+          <span>4 markers · 3 legs</span>
+          <span class="sep" style="color: var(--ink-300);">·</span>
+          <span>~5,200 mi traveled</span>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <svg class="chart" viewBox="-40 0 1240 550" xmlns="http://www.w3.org/2000/svg" aria-hidden="false">
+          <rect x="30" y="30" width="1120" height="494" fill="none" stroke="rgba(42,40,36,0.18)" stroke-width="1"></rect>
+
+          <g class="grid-major">
+            <line x1="144" y1="30" x2="144" y2="524"></line>
+            <line x1="334" y1="30" x2="334" y2="524"></line>
+            <line x1="524" y1="30" x2="524" y2="524"></line>
+            <line x1="714" y1="30" x2="714" y2="524"></line>
+            <line x1="904" y1="30" x2="904" y2="524"></line>
+            <line x1="1094" y1="30" x2="1094" y2="524"></line>
+            <line x1="30" y1="125" x2="1150" y2="125"></line>
+            <line x1="30" y1="220" x2="1150" y2="220"></line>
+            <line x1="30" y1="315" x2="1150" y2="315"></line>
+            <line x1="30" y1="410" x2="1150" y2="410"></line>
+            <line x1="30" y1="505" x2="1150" y2="505"></line>
+          </g>
+
+          <g class="grid-axis-label">
+            <text x="144"  y="22" text-anchor="middle">120° W</text>
+            <text x="334"  y="22" text-anchor="middle">110° W</text>
+            <text x="524"  y="22" text-anchor="middle">100° W</text>
+            <text x="714"  y="22" text-anchor="middle">90° W</text>
+            <text x="904"  y="22" text-anchor="middle">80° W</text>
+            <text x="1094" y="22" text-anchor="middle">70° W</text>
+            <text x="24" y="128" text-anchor="end">45° N</text>
+            <text x="24" y="223" text-anchor="end">40° N</text>
+            <text x="24" y="318" text-anchor="end">35° N</text>
+            <text x="24" y="413" text-anchor="end">30° N</text>
+            <text x="24" y="508" text-anchor="end">25° N</text>
+          </g>
+
+          <!-- CONUS outline -->
+          <path class="us-outline-shadow" transform="translate(2,3)" d="
+            M 54.7,60.4 L 92.7,58.5 L 96.5,87.0 L 68.0,102.2 L 68.0,134.5
+            L 64.2,182.0 L 68.0,220.0 L 90.2,248.5 L 97.8,267.5 L 125.0,305.5
+            L 153.5,326.4 L 172.5,334.0 L 199.1,358.7 L 202.9,362.5 L 246.4,362.5
+            L 308.0,385.3 L 361.2,385.3 L 393.5,375.8 L 431.5,398.6 L 460.0,429.0
+            L 488.5,413.8 L 509.4,436.6 L 526.5,457.5 L 568.3,487.9 L 572.1,457.5
+            L 604.4,434.7 L 631.0,419.5 L 659.5,413.8 L 688.0,423.3 L 716.5,429.0
+            L 722.2,410.0 L 745.0,406.2 L 754.5,404.3 L 792.5,410.0 L 815.3,413.8
+            L 830.5,419.5 L 840.0,429.0 L 845.7,448.0 L 855.2,476.5 L 862.8,489.8
+            L 872.3,499.3 L 879.9,503.1 L 887.5,503.1 L 893.2,497.4 L 895.1,491.7
+            L 897.0,472.7 L 885.6,438.5 L 872.3,400.5 L 878.0,381.5 L 898.9,356.8
+            L 917.9,339.7 L 953.0,324.5 L 981.5,309.3 L 979.6,286.5 L 972.0,279.1
+            L 966.3,263.9 L 983.4,258.0 L 989.1,244.7 L 1002.4,231.4 L 1010.0,210.5
+            L 1019.5,210.5 L 1029.0,201.0 L 1051.8,201.0 L 1078.4,191.5 L 1087.9,185.8
+            L 1076.5,176.3 L 1072.7,163.0 L 1080.3,153.5 L 1086.0,149.7 L 1105.0,144.0
+            L 1124.0,138.3 L 1143.0,128.8 L 1143.0,113.6 L 1127.8,96.5 L 1120.2,79.4
+            L 1105.0,79.4 L 1076.5,115.5 L 1057.5,119.3 L 1019.5,125.0 L 1000.5,125.0
+            L 991.0,134.5 L 962.5,144.0 L 933.0,153.5 L 914.0,157.3 L 914.0,172.5
+            L 876.0,185.8 L 847.5,189.6 L 838.0,185.8 L 838.0,144.0 L 828.5,125.0
+            L 803.9,109.8 L 761.0,96.5 L 713.5,87.0 L 666.0,90.8 L 637.5,77.5
+            L 628.0,58.5 L 609.0,49.0 L 533.0,49.0 L 438.0,49.0 L 324.0,49.0
+            L 210.0,49.0 L 106.0,49.0 L 87.0,49.0 Z"></path>
+
+          <path class="us-outline" d="
+            M 54.7,60.4 L 92.7,58.5 L 96.5,87.0 L 68.0,102.2 L 68.0,134.5
+            L 64.2,182.0 L 68.0,220.0 L 90.2,248.5 L 97.8,267.5 L 125.0,305.5
+            L 153.5,326.4 L 172.5,334.0 L 199.1,358.7 L 202.9,362.5 L 246.4,362.5
+            L 308.0,385.3 L 361.2,385.3 L 393.5,375.8 L 431.5,398.6 L 460.0,429.0
+            L 488.5,413.8 L 509.4,436.6 L 526.5,457.5 L 568.3,487.9 L 572.1,457.5
+            L 604.4,434.7 L 631.0,419.5 L 659.5,413.8 L 688.0,423.3 L 716.5,429.0
+            L 722.2,410.0 L 745.0,406.2 L 754.5,404.3 L 792.5,410.0 L 815.3,413.8
+            L 830.5,419.5 L 840.0,429.0 L 845.7,448.0 L 855.2,476.5 L 862.8,489.8
+            L 872.3,499.3 L 879.9,503.1 L 887.5,503.1 L 893.2,497.4 L 895.1,491.7
+            L 897.0,472.7 L 885.6,438.5 L 872.3,400.5 L 878.0,381.5 L 898.9,356.8
+            L 917.9,339.7 L 953.0,324.5 L 981.5,309.3 L 979.6,286.5 L 972.0,279.1
+            L 966.3,263.9 L 983.4,258.0 L 989.1,244.7 L 1002.4,231.4 L 1010.0,210.5
+            L 1019.5,210.5 L 1029.0,201.0 L 1051.8,201.0 L 1078.4,191.5 L 1087.9,185.8
+            L 1076.5,176.3 L 1072.7,163.0 L 1080.3,153.5 L 1086.0,149.7 L 1105.0,144.0
+            L 1124.0,138.3 L 1143.0,128.8 L 1143.0,113.6 L 1127.8,96.5 L 1120.2,79.4
+            L 1105.0,79.4 L 1076.5,115.5 L 1057.5,119.3 L 1019.5,125.0 L 1000.5,125.0
+            L 991.0,134.5 L 962.5,144.0 L 933.0,153.5 L 914.0,157.3 L 914.0,172.5
+            L 876.0,185.8 L 847.5,189.6 L 838.0,185.8 L 838.0,144.0 L 828.5,125.0
+            L 803.9,109.8 L 761.0,96.5 L 713.5,87.0 L 666.0,90.8 L 637.5,77.5
+            L 628.0,58.5 L 609.0,49.0 L 533.0,49.0 L 438.0,49.0 L 324.0,49.0
+            L 210.0,49.0 L 106.0,49.0 L 87.0,49.0 Z"></path>
+
+          <!-- Compass rose -->
+          <g transform="translate(75,80)">
+            <circle class="compass-bg" cx="0" cy="0" r="24"></circle>
+            <path class="compass" d="M0,-20 L4,-2 L0,0 L-4,-2 Z" fill-opacity="0.85"></path>
+            <path class="compass" d="M0,20 L4,2 L0,0 L-4,2 Z" fill-opacity="0.25"></path>
+            <text class="compass-label" x="0" y="-28">N</text>
+          </g>
+
+          <!-- Scale bar -->
+          <g transform="translate(990,530)">
+            <line class="scalebar-line" x1="0" y1="0" x2="152" y2="0"></line>
+            <line class="scalebar-tick" x1="0" y1="-3" x2="0" y2="3"></line>
+            <line class="scalebar-tick" x1="76" y1="-3" x2="76" y2="3"></line>
+            <line class="scalebar-tick" x1="152" y1="-3" x2="152" y2="3"></line>
+            <text class="scalebar-label" x="0" y="14">0</text>
+            <text class="scalebar-label" x="76" y="14" text-anchor="middle">300</text>
+            <text class="scalebar-label" x="152" y="14" text-anchor="end">600 mi</text>
+          </g>
+
+          <!-- Route line: 01 → 02 → 03 → 04 -->
+          <g>
+            <path class="route-glow" d="M 892.2,506.5 L 822.7,401.6 L 980.4,279.9 L 236.3,292.8"></path>
+            <path class="route" d="M 892.2,506.5 L 822.7,401.6 L 980.4,279.9 L 236.3,292.8">
+              <animate attributeName="stroke-dashoffset" from="200" to="0" dur="1.8s" fill="freeze"></animate>
+            </path>
+            <text class="bearing-label" x="825" y="452">+ 380 mi · NW</text>
+            <text class="bearing-label" x="908" y="335">+ 740 mi · NE</text>
+            <text class="bearing-label" x="580" y="276">+ 2,090 mi · W</text>
+          </g>
+
+          <!-- 01 Islamorada -->
+          <g class="marker" transform="translate(892.2,506.5)">
+            <circle class="ring" r="10"></circle>
+            <text class="num" y="4">01</text>
+            <text class="pin-label" x="-14" y="-7" text-anchor="end">Islamorada, FL</text>
+            <text class="pin-coord" x="-14" y="6" text-anchor="end">24.92° N · 80.62° W</text>
+            <text class="pin-year" x="-14" y="19" text-anchor="end">1987 — 2005</text>
+          </g>
+
+          <!-- 02 Tallahassee -->
+          <g class="marker" transform="translate(822.7,401.6)">
+            <circle class="ring" r="10"></circle>
+            <text class="num" y="4">02</text>
+            <text class="pin-label" x="-14" y="-7" text-anchor="end">Tallahassee, FL</text>
+            <text class="pin-coord" x="-14" y="6" text-anchor="end">30.44° N · 84.28° W</text>
+            <text class="pin-year" x="-14" y="19" text-anchor="end">2005 — 2009</text>
+          </g>
+
+          <!-- 03 Virginia Beach -->
+          <g class="marker" transform="translate(980.4,279.9)">
+            <circle class="ring" r="10"></circle>
+            <text class="num" y="4">03</text>
+            <text class="pin-label" x="16" y="-2">Virginia Beach, VA</text>
+            <text class="pin-coord" x="16" y="11">36.85° N · 75.98° W</text>
+            <text class="pin-year" x="16" y="24">2010 — 2016</text>
+          </g>
+
+          <!-- 04 Las Vegas (active) -->
+          <g class="marker" transform="translate(236.3,292.8)">
+            <circle class="ring-active ring" r="12"></circle>
+            <circle r="22" fill="none" stroke="var(--moss-500)" stroke-width="1" opacity="0.4">
+              <animate attributeName="r" from="12" to="28" dur="2.2s" repeatCount="indefinite"></animate>
+              <animate attributeName="opacity" from="0.5" to="0" dur="2.2s" repeatCount="indefinite"></animate>
+            </circle>
+            <text class="num num-on" y="4">04</text>
+            <text class="pin-label" x="18" y="-2">Las Vegas, NV</text>
+            <text class="pin-coord" x="18" y="11">36.17° N · 115.14° W</text>
+            <text class="pin-year" x="18" y="24">2016 — present · active</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chapters -->
+  <section class="chapters">
+    <div class="chapters-head">
+      <h2>Chapters</h2>
+      <span class="meta">4 locations · 39 yr</span>
+    </div>
+
+    <!-- 01 ISLAMORADA -->
+    <article class="chapter">
+      <div class="meta-col">
+        <div class="marker">
+          <span class="num">01</span>
+          <span class="target">Chapter one</span>
+        </div>
+        <div class="loc">Islamorada</div>
+        <div class="state">Florida Keys · USA</div>
+        <div class="meta-list">
+          <div class="k">Years</div>   <div class="v">1987 — 2005</div>
+          <div class="k">Coords</div>  <div class="v">24.92° N · 80.62° W</div>
+          <div class="k">School</div>  <div class="v">Coral Shores HS · '05</div>
+          <div class="k">Status</div>  <div class="v accent">Origin</div>
+        </div>
+      </div>
+      <div class="body">
+        <span class="role-tag">Growing up in the Keys</span>
+        <p>
+          A six-mile stretch of islands in the Florida Keys is hard to leave but harder
+          to take seriously as a base of operations. Growing up there meant the water was
+          always close and the ceiling was always low &mdash; if you wanted somewhere bigger,
+          you had to go find it.
+        </p>
+        <p>
+          Sports filled most of the days that school didn&rsquo;t &mdash; soccer, baseball,
+          basketball, tennis, ping pong, chess. The saxophone in middle and high school.
+          The four years at Coral Shores High School ended as co-captain of the swim team,
+          competing at the district and regional levels in the 200&nbsp;m freestyle and
+          100&nbsp;m butterfly.
+        </p>
+        <div class="highlights">
+          <div class="hi"><div class="k">Sports</div><div class="v">6+ <span class="unit">disciplines</span></div></div>
+          <div class="hi"><div class="k">Swim team</div><div class="v">Co-captain</div></div>
+          <div class="hi"><div class="k">Best events</div><div class="v">200 FR / 100 FLY</div></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 02 TALLAHASSEE -->
+    <article class="chapter">
+      <div class="meta-col">
+        <div class="marker">
+          <span class="num">02</span>
+          <span class="target">Chapter two</span>
+        </div>
+        <div class="loc">Tallahassee</div>
+        <div class="state">Florida · USA</div>
+        <div class="meta-list">
+          <div class="k">Years</div>       <div class="v">2005 — 2009</div>
+          <div class="k">Coords</div>      <div class="v">30.44° N · 84.28° W</div>
+          <div class="k">Institution</div> <div class="v">Florida State Univ.</div>
+          <div class="k">Degree</div>      <div class="v accent">B.S. Fin. &amp; RE</div>
+        </div>
+      </div>
+      <div class="body">
+        <span class="role-tag">Florida State University · College of Business</span>
+        <p>
+          Four years at Florida State&rsquo;s College of Business, finishing in 2009
+          with a B.S. in Finance and Real Estate. The classroom was half of it; the
+          other half was Theta Chi &mdash; at the time, the fraternity with the highest
+          overall GPA on campus, and the one that took its philanthropic work and
+          intramural athletics seriously.
+        </p>
+        <p>
+          Brotherhood Chairman for one year (running the annual retreat and internal
+          programming), Athletic Chairman for two (assembling teams and coordinating
+          participation across intramural sports). A lot of what came later &mdash;
+          organizing people, sequencing work, keeping a group moving in the same
+          direction &mdash; got its first rep here.
+        </p>
+        <div class="highlights">
+          <div class="hi"><div class="k">Degree</div><div class="v">B.S. <span class="unit">Finance + Real Estate</span></div></div>
+          <div class="hi"><div class="k">Theta Chi</div><div class="v">Brotherhood / Athletic Chair</div></div>
+          <div class="hi"><div class="k">Tenure</div><div class="v">4 <span class="unit">yr</span></div></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 03 VIRGINIA BEACH -->
+    <article class="chapter">
+      <div class="meta-col">
+        <div class="marker">
+          <span class="num">03</span>
+          <span class="target">Chapter three</span>
+        </div>
+        <div class="loc">Virginia&nbsp;Beach</div>
+        <div class="state">Virginia · USA</div>
+        <div class="meta-list">
+          <div class="k">Years</div>   <div class="v">2010 — 2016</div>
+          <div class="k">Coords</div>  <div class="v">36.85° N · 75.98° W</div>
+          <div class="k">Service</div> <div class="v">U.S. Navy</div>
+          <div class="k">Unit</div>    <div class="v">NSWDG</div>
+          <div class="k">Rate</div>    <div class="v accent">IS2</div>
+          <div class="k">Status</div>  <div class="v">Honorable disch.</div>
+        </div>
+      </div>
+      <div class="body">
+        <span class="role-tag">U.S. Navy · Naval Special Warfare Development Group</span>
+        <p>
+          Enlisted in 2010 with the goal of becoming a SEAL. Made it through boot camp
+          and several weeks of additional physical training, then was not selected to
+          continue. Pivoted to the Intelligence Specialist rating and reported to the
+          Navy and Marine Corps Intelligence Training Center in Dam&nbsp;Neck, Virginia,
+          where the previous failure became the motivation &mdash; graduated at the top
+          of the class in both general naval intelligence and the follow-on ground
+          operations course.
+        </p>
+        <p>
+          That earned an invitation to screen for an intelligence position with an
+          elite special missions unit. After a week of psychological evaluations,
+          physical and written tests, and a series of boards, joined Naval Special
+          Warfare Development Group (NSWDG) in April&nbsp;2011.
+        </p>
+        <p>
+          Over four overseas combat deployments, took on roles not typically assigned
+          to Intelligence Specialists. As an <strong>Analyst</strong>, researched and
+          aggregated intelligence to support special operations missions targeting
+          high-value individuals. As an <strong>ISR Manager</strong>, coordinated the
+          deployment of manned and unmanned ISR assets in excess of 10,000&nbsp;hours.
+          Served as a <strong>Liaison Officer</strong> between the Central Intelligence
+          Agency and the commander of NSWDG. Most notably, served as
+          <strong>Joint Staff Intelligence Officer</strong> for a 70-person task force
+          &mdash; a position normally reserved for military officers as the most senior
+          intelligence role in the area of operations.
+        </p>
+        <p>
+          Honorably discharged in January&nbsp;2016 at the rank of Petty Officer
+          Second Class.
+        </p>
+        <div class="highlights">
+          <div class="hi"><div class="k">Deployments</div><div class="v">04 <span class="unit">combat tours</span></div></div>
+          <div class="hi"><div class="k">ISR coordinated</div><div class="v">10,000+ <span class="unit">hrs</span></div></div>
+          <div class="hi"><div class="k">Task force</div><div class="v">70 <span class="unit">pax · JSIO</span></div></div>
+          <div class="hi"><div class="k">Rank at EAS</div><div class="v">PO2 · IS2</div></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 04 LAS VEGAS -->
+    <article class="chapter">
+      <div class="meta-col">
+        <div class="marker">
+          <span class="num">04</span>
+          <span class="target">Chapter four · Active</span>
+        </div>
+        <div class="loc">Las&nbsp;Vegas</div>
+        <div class="state">Nevada · USA</div>
+        <div class="meta-list">
+          <div class="k">Years</div>     <div class="v">2016 — present</div>
+          <div class="k">Coords</div>    <div class="v">36.17° N · 115.14° W</div>
+          <div class="k">Vertical</div>  <div class="v">Software</div>
+          <div class="k">Current</div>   <div class="v accent">Sr. Eng. Mgr.</div>
+          <div class="k">Element</div>   <div class="v">Guidepoint Global</div>
+          <div class="k">Education</div> <div class="v">UNLV EMBA '22</div>
+        </div>
+      </div>
+      <div class="body">
+        <span class="role-tag">Software engineering · ten years · engineer → lead → manager</span>
+        <p>
+          Started writing code as a hobby while still in the Navy. Building small
+          websites turned into a strong-enough interest that engineering became the
+          next career on purpose. First role was Junior PHP Developer at
+          Partner&nbsp;Weekly &mdash; a marketing agency in the consumer specialty
+          finance space &mdash; learning the fundamentals, attending and speaking at
+          local PHP meetups, and contributing to open source.
+        </p>
+        <p>
+          From there, Switch,&nbsp;Inc. &mdash; the data center company &mdash; for a
+          long run that went Software Engineer → Manager of Software Engineering
+          (2019) → Software Engineer III → Technical Project Manager. Built APIs and
+          back-end systems supporting day-to-day operations, then a team of eight
+          building them. The most lasting contribution was an automated CI/CD
+          pipeline that became how the engineering org shipped.
+        </p>
+        <p>
+          Joined Guidepoint Global in April&nbsp;2023 as Lead Software Engineer,
+          architecting a company-wide migration to containerized, cloud-native
+          workflows across 10+ teams and 20+ services on Azure Kubernetes Service.
+          Promoted to Software Engineering Manager in 2025, leading two teams (11
+          direct reports) delivering AI-powered features. Promoted again in
+          January&nbsp;2026 to <strong>Senior Software Engineering Manager</strong>,
+          leading architecture and delivery for Guidepoint&rsquo;s next-generation
+          agentic platform &mdash; defining MCP-based tooling, integration patterns
+          with the core CRM, and the reliability and auth models that production
+          agentic systems demand.
+        </p>
+        <p>
+          UNLV Executive&nbsp;MBA in 2022 along the way. Climbing rock for the last
+          stretch of it, on whatever weekends will allow.
+        </p>
+        <div class="highlights">
+          <div class="hi"><div class="k">Migration</div><div class="v">20+ <span class="unit">services · 10+ teams</span></div></div>
+          <div class="hi"><div class="k">Org built</div><div class="v">11 <span class="unit">direct reports</span></div></div>
+          <div class="hi"><div class="k">Tenure</div><div class="v">10 <span class="unit">yr software</span></div></div>
+          <div class="hi"><div class="k">Degree</div><div class="v">EMBA <span class="unit">UNLV '22</span></div></div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- CTA -->
+  <section class="bio-cta">
+    <div class="bio-cta-inner">
+      <div>
+        <div class="lead">The summarized version lives next door.</div>
+        <div class="sub">Sheet 03 · Operational history · printable</div>
+      </div>
+      <div class="actions">
+        <a href="/resume">Open resume</a>
+        <a class="secondary" href="mailto:mab05k@gmail.com">Contact</a>
+      </div>
+    </div>
+  </section>
+
+</InnerLayout>
