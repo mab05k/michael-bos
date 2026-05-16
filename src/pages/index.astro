@@ -1,72 +1,12 @@
 ---
-import '../styles/shared.css';
+import InnerLayout from '../layouts/InnerLayout.astro';
 ---
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Michael Bos</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="icon" href="/favicon.ico">
+<InnerLayout activePage="home">
   <style is:global>
-    :root {
-      --card-bg:           #ECE6D2;
-      --card-bg-deep:      #E2DBC2;
-      --card-border:       #D2C9AC;
-      --card-border-hover: var(--moss-400);
-      --navy-50:  #E6ECF2;
-      --navy-100: #C5D0DE;
-      --navy-500: #2C3F5C;
-      --navy-700: #1D2B40;
-    }
-
     body {
       background-image: none;
       background: var(--site-paper);
     }
-
-    .top {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 28px 32px 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .brand { display: inline-flex; align-items: center; gap: 12px; }
-    .brand svg.mark { width: 22px; height: 22px; color: var(--moss-600); }
-    .brand .wm {
-      font-family: var(--font-mono);
-      font-size: var(--fs-12);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--ink-700);
-    }
-    .nav {
-      display: flex;
-      gap: 28px;
-      font-family: var(--font-mono);
-      font-size: var(--fs-12);
-      text-transform: uppercase;
-      letter-spacing: var(--tr-caps);
-    }
-    .nav a {
-      display: inline-flex; align-items: center; gap: 8px;
-      color: var(--ink-600);
-      border: none;
-      padding: 6px 0;
-      position: relative;
-    }
-    .nav a .idxn { color: var(--ink-400); font-size: var(--fs-10); }
-    .nav a.current { color: var(--ink-900); }
-    .nav a.current::after {
-      content: '';
-      position: absolute;
-      left: 0; right: 0; bottom: -6px;
-      height: 2px;
-      background: var(--clay-400);
-    }
-    .nav a:hover { color: var(--ink-900); }
 
     .hero {
       max-width: 1280px;
@@ -122,17 +62,10 @@ import '../styles/shared.css';
       line-height: 1.55;
       color: var(--ink-700);
       margin: 36px 0 0;
-      max-width: 46ch;
+      //max-width: 46ch;
       text-wrap: pretty;
     }
     .lede strong { color: var(--ink-900); font-weight: var(--fw-semibold); }
-
-    .pill.navy {
-      background: var(--navy-50);
-      border-color: var(--navy-100);
-      color: var(--navy-700);
-    }
-    .pill.navy .dot { background: var(--navy-500); }
 
     .portrait-card {
       position: relative;
@@ -152,35 +85,35 @@ import '../styles/shared.css';
     .portrait-card .frame::after {
       content: '';
       position: absolute; inset: 0;
-      background-image: radial-gradient(rgba(42, 40, 36, 0.10) 1px, transparent 1px);
+      background-image: radial-gradient(rgba(42, 40, 36, 0.08) 1px, transparent 1px);
       background-size: 12px 12px;
       pointer-events: none;
     }
-    .portrait-card svg.silhouette {
+    .portrait-card .frame img {
       position: absolute;
-      left: 50%; bottom: 0;
-      transform: translateX(-50%);
-      width: 70%;
-      height: auto;
-      color: var(--ink-600);
-      opacity: 0.32;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
     }
-    .portrait-card .label,
     .portrait-card .coord {
       position: absolute;
       font-family: var(--font-mono);
       font-size: var(--fs-10);
       letter-spacing: var(--tr-caps);
       text-transform: uppercase;
-      color: var(--ink-600);
+      color: var(--ink-50);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
       z-index: 2;
+      top: 14px; right: 14px; text-align: right;
     }
-    .portrait-card .label { bottom: 14px; left: 14px; }
-    .portrait-card .coord { top: 14px; right: 14px; text-align: right; }
     .portrait-card .corners > span {
       position: absolute;
       width: 14px; height: 14px;
-      border: 1.2px solid var(--ink-700);
+      border: 1.2px solid var(--ink-50);
+      opacity: 0.7;
       z-index: 2;
     }
     .portrait-card .corners .tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
@@ -246,7 +179,7 @@ import '../styles/shared.css';
       color: var(--ink-500);
       padding-top: 4px;
     }
-    .fact-row .v { font-size: 18px; line-height: 1.45; color: var(--ink-900); text-wrap: pretty; }
+    .fact-row .v { font-size: var(--fs-18); line-height: 1.45; color: var(--ink-900); text-wrap: pretty; }
     .fact-row .v .muted { color: var(--ink-500); }
     .fact-row .v .clay { color: var(--clay-600); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
     .fact-row .v .sep { color: var(--ink-300); padding: 0 6px; }
@@ -266,7 +199,6 @@ import '../styles/shared.css';
       letter-spacing: -0.025em;
       color: var(--ink-800);
       max-width: none;
-      text-wrap: balance;
     }
     .principle blockquote .quoteopen {
       color: var(--clay-400);
@@ -309,8 +241,8 @@ import '../styles/shared.css';
       position: relative;
     }
     a.forward-card:hover {
-      background: var(--moss-50);
-      border-color: var(--moss-400);
+      background: var(--card-bg-deep);
+      border-color: #BDB59B;
       box-shadow: var(--shadow-md);
     }
     .forward-card .idn {
@@ -360,27 +292,6 @@ import '../styles/shared.css';
       .role-pills { gap: 8px; }
     }
   </style>
-</head>
-<body>
-
-  <header class="top">
-    <div class="brand">
-      <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-        <circle cx="12" cy="12" r="9"></circle>
-        <circle cx="12" cy="12" r="3.5"></circle>
-        <line x1="12" y1="1" x2="12" y2="6"></line>
-        <line x1="12" y1="18" x2="12" y2="23"></line>
-        <line x1="1" y1="12" x2="6" y2="12"></line>
-        <line x1="18" y1="12" x2="23" y2="12"></line>
-      </svg>
-      <span class="wm">M.A. Bos</span>
-    </div>
-    <nav class="nav">
-      <a href="/" class="current"><span class="idxn">01</span>Home</a>
-      <a href="/biography"><span class="idxn">02</span>Biography</a>
-      <a href="/resume"><span class="idxn">03</span>Resume</a>
-    </nav>
-  </header>
 
   <main>
 
@@ -414,10 +325,7 @@ import '../styles/shared.css';
             <span class="bl"></span><span class="br"></span>
           </span>
           <div class="coord">36.17° N<br>115.14° W</div>
-          <div class="label">Portrait // pending</div>
-          <svg class="silhouette" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
-            <path fill="currentColor" d="M50,12 C62,12 71,22 71,35 C71,46 65,55 57,58 C57,62 57,66 58,68 C72,72 88,80 92,98 C93,104 93,116 92,124 L8,124 C7,116 7,104 8,98 C12,80 28,72 42,68 C43,66 43,62 43,58 C35,55 29,46 29,35 C29,22 38,12 50,12 Z"></path>
-          </svg>
+          <img src="/michael-bos-action.jpg" alt="Michael A. Bos">
         </div>
         <div class="id">
           <div class="k">Callsign</div>     <div class="v">mab05k</div>
@@ -431,7 +339,7 @@ import '../styles/shared.css';
     <section class="facts">
       <div class="facts-head">
         <h2>Quick facts</h2>
-        <span class="num">07 / dossier</span>
+        <span class="num">dossier</span>
       </div>
       <div class="facts-list">
         <div class="fact-row">
@@ -452,7 +360,7 @@ import '../styles/shared.css';
         </div>
         <div class="fact-row">
           <div class="k">Education</div>
-          <div class="v">Executive MBA <span class="muted">— UNLV '22</span> <span class="sep">·</span> B.S. Finance &amp; Real Estate <span class="muted">— FSU '09</span></div>
+          <div class="v">Executive MBA <span class="clay">— UNLV '22</span> <span class="sep">·</span> B.S. Finance &amp; Real Estate <span class="clay">— FSU '09</span></div>
         </div>
         <div class="fact-row">
           <div class="k">Prior service</div>
@@ -460,7 +368,7 @@ import '../styles/shared.css';
         </div>
         <div class="fact-row">
           <div class="k">Focus</div>
-          <div class="v">Platform engineering <span class="sep">·</span> agentic / MCP tooling <span class="sep">·</span> reliability programs <span class="sep">·</span> building teams</div>
+          <div class="v">Platform engineering <span class="sep">·</span> Agentic / MCP tooling <span class="sep">·</span> Reliability programs <span class="sep">·</span> Building teams</div>
         </div>
       </div>
     </section>
@@ -497,16 +405,4 @@ import '../styles/shared.css';
     </nav>
   </main>
 
-  <footer class="site-footer" style="margin-top: 96px;">
-    <div class="site-footer-inner">
-      <div>© 2026 · Michael A. Bos · Las&nbsp;Vegas, NV</div>
-      <div style="display:flex; gap:18px;">
-        <a href="mailto:mab05k@gmail.com">mab05k@gmail.com</a>
-        <a href="https://www.linkedin.com/in/michael-a-bos/" target="_blank" rel="noopener">LinkedIn</a>
-        <a href="https://github.com/mab05k" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </div>
-  </footer>
-
-</body>
-</html>
+</InnerLayout>

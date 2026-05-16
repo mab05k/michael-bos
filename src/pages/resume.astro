@@ -22,7 +22,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       color: var(--ink-900);
     }
     .page-intro .dek {
-      max-width: 60ch;
+      max-width: 90ch;
       margin-top: 18px;
       color: var(--ink-700);
       font-size: var(--fs-16);
@@ -138,7 +138,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       font-size: 17px;
       line-height: 1.6;
       color: var(--ink-700);
-      max-width: 85ch;
+      //max-width: 85ch;
       margin: 0;
       text-wrap: pretty;
     }
@@ -392,7 +392,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
     @media print {
       body { background: white; background-image: none; }
-      .sitenav, .classmark, .site-footer, .page-intro .actions, .notes { display: none !important; }
+      .site-header, .classmark, .site-footer, .page-intro .actions, .notes { display: none !important; }
       .id-card-inner, .role, .tour-band { box-shadow: none !important; page-break-inside: avoid; }
       .record, .lower, .summary { page-break-inside: auto; }
       .page-intro h1 { font-size: 36px; }
@@ -463,9 +463,9 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
   <!-- Summary -->
   <section class="summary">
-    <div class="head">
+    <div class="record-head">
       <h2>Summary</h2>
-      <span class="meta">01 / 06</span>
+      <!--<span class="meta">01 / 06</span>-->
     </div>
     <p>
       Track record of owning reliability-critical platforms at scale, including a
@@ -484,13 +484,13 @@ import InnerLayout from '../layouts/InnerLayout.astro';
   <section class="record" aria-label="Experience">
     <div class="record-head">
       <h2>Experience</h2>
-      <span class="meta">02 / 06 · 2010 — present</span>
+      <span class="meta">2010 — present</span>
     </div>
 
-    <!-- TOUR 1 — GUIDEPOINT -->
+    <!-- TOUR 3 — GUIDEPOINT -->
     <div class="tour">
-      <div class="tour-band">
-        <div class="idx">Tour 01</div>
+      <div class="tour-band" style="border-top: none">
+        <div class="idx">Tour 03</div>
         <div class="org">
           <span class="name">Guidepoint Global</span>
           <span class="place">Las Vegas, NV · Remote</span>
@@ -658,10 +658,10 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       </article>
     </div>
 
-    <!-- TOUR 3 — USN -->
+    <!-- TOUR 1 — USN -->
     <div class="tour">
       <div class="tour-band">
-        <div class="idx">Tour 03</div>
+        <div class="idx">Tour 01</div>
         <div class="org">
           <span class="name">U.S. Navy</span>
           <span class="place">Naval Special Warfare Development Group · Virginia Beach, VA</span>
@@ -705,7 +705,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     <section>
       <div class="head">
         <h2>Skills</h2>
-        <span class="meta">03 / 06</span>
+        <!--<span class="meta">03 / 06</span>-->
       </div>
 
       <div class="skills-group">
@@ -762,8 +762,8 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
     <section>
       <div class="head">
-        <h2>Education &amp; service</h2>
-        <span class="meta">04 / 06</span>
+        <h2>Education &amp; Service</h2>
+        <!--<span class="meta">04 / 06</span>-->
       </div>
 
       <div class="row-item">
@@ -790,16 +790,16 @@ import InnerLayout from '../layouts/InnerLayout.astro';
         <div class="b">Virginia Beach, VA<br><span class="accent">2010 — 2016</span></div>
       </div>
 
-      <div class="row-item">
-        <div class="a">
-          <div class="title">Open source · <code style="font-family: var(--font-mono); background: var(--site-paper-deep); padding: 2px 6px; border-radius: 3px; font-size: var(--fs-12);">mab05k/oanda-client</code></div>
-          <div class="sub">Maintainer · PHP client library</div>
-        </div>
-        <div class="b">GitHub<br><span class="accent">Public</span></div>
-      </div>
+      <!--<div class="row-item">-->
+      <!--  <div class="a">-->
+      <!--    <div class="title">Open source · <code style="font-family: var(&#45;&#45;font-mono); background: var(&#45;&#45;site-paper-deep); padding: 2px 6px; border-radius: 3px; font-size: var(&#45;&#45;fs-12);">mab05k/oanda-client</code></div>-->
+      <!--    <div class="sub">Maintainer · PHP client library</div>-->
+      <!--  </div>-->
+      <!--  <div class="b">GitHub<br><span class="accent">Public</span></div>-->
+      <!--</div>-->
     </section>
   </section>
 
-  <div class="notes">Last revised May 2026 · Page 03 / 03</div>
+  <div class="notes">Last revised May 2026</div>
 
 </InnerLayout>

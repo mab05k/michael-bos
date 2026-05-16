@@ -1,5 +1,24 @@
 ---
 import InnerLayout from '../layouts/InnerLayout.astro';
+
+const startDate = new Date('1987-08-20');
+
+const years = (() => {
+  const now = new Date();
+
+  let age = now.getFullYear() - startDate.getFullYear();
+
+  const hasHadAnniversaryThisYear =
+      now.getMonth() > startDate.getMonth() ||
+      (now.getMonth() === startDate.getMonth() &&
+          now.getDate() >= startDate.getDate());
+
+  if (!hasHadAnniversaryThisYear) {
+    age--;
+  }
+
+  return age;
+})();
 ---
 <InnerLayout title="Biography" activePage="biography">
   <style is:global>
@@ -22,7 +41,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       color: var(--ink-900);
     }
     .page-intro .dek {
-      max-width: 60ch;
+      max-width: 100ch;
       margin-top: 18px;
       color: var(--ink-700);
       font-size: var(--fs-16);
@@ -196,7 +215,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     .chapter .meta-list .v { color: var(--ink-800); }
     .chapter .meta-list .v.accent { color: var(--clay-600); }
 
-    .chapter .body { padding-top: 4px; }
+    .chapter .body { padding-top: 4px; min-width: 0; }
     .chapter .role-tag {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 0 0 12px;
@@ -213,7 +232,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       font-size: var(--fs-16);
       line-height: 1.6;
       color: var(--ink-700);
-      max-width: 65ch;
+      //max-width: 65ch;
       text-wrap: pretty;
     }
     .chapter .body p:last-child { margin-bottom: 0; }
@@ -446,7 +465,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
           <g>
             <path class="route-glow" d="M 892.2,506.5 L 822.7,401.6 L 980.4,279.9 L 236.3,292.8"></path>
             <path class="route" d="M 892.2,506.5 L 822.7,401.6 L 980.4,279.9 L 236.3,292.8">
-              <animate attributeName="stroke-dashoffset" from="200" to="0" dur="1.8s" fill="freeze"></animate>
+              <animate attributeName="stroke-dashoffset" from="8" to="0" dur="0.6s" repeatCount="indefinite"></animate>
             </path>
             <text class="bearing-label" x="825" y="452">+ 380 mi · NW</text>
             <text class="bearing-label" x="908" y="335">+ 740 mi · NE</text>
@@ -501,7 +520,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
   <section class="chapters">
     <div class="chapters-head">
       <h2>Chapters</h2>
-      <span class="meta">4 locations · 39 yr</span>
+      <span class="meta">4 locations · {years} yr</span>
     </div>
 
     <!-- 01 ISLAMORADA -->

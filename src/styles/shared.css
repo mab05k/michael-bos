@@ -12,9 +12,10 @@
   --label-mono:      var(--ink-500);
   --num-color:       var(--ink-700);
 
-  --card-bg:      #ECE6D2;
-  --card-bg-deep: #E2DBC2;
-  --card-border:  #D2C9AC;
+  --card-bg:           #ECE6D2;
+  --card-bg-deep:      #E2DBC2;
+  --card-border:       #D2C9AC;
+  --card-border-hover: var(--moss-400);
 
   --navy-50:  #E6ECF2;
   --navy-100: #C5D0DE;
@@ -122,55 +123,58 @@ body {
   50% { opacity: 0.35; }
 }
 
-.sitenav {
-  border-bottom: 1px solid var(--border-subtle);
-  background: var(--site-paper);
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-}
-.sitenav-inner {
+.site-header {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 14px 24px;
+  padding: 28px 32px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.sitenav .brand {
+
+.brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+}
+.brand svg.mark { width: 22px; height: 22px; color: var(--moss-600); }
+.brand .wm {
   font-family: var(--font-mono);
   font-size: var(--fs-12);
   letter-spacing: var(--tr-caps);
   text-transform: uppercase;
-  color: var(--fg-primary);
+  color: var(--ink-700);
+  border: none;
 }
-.sitenav .brand .reticle { width: 16px; height: 16px; }
-.sitenav .brand a { color: inherit; border: none; }
-.sitenav .navlinks {
+.brand .wm:hover { color: var(--ink-900); }
+
+.sitenav {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  gap: 28px;
   font-family: var(--font-mono);
   font-size: var(--fs-12);
   text-transform: uppercase;
   letter-spacing: var(--tr-caps);
 }
-.sitenav .navlinks a {
+.sitenav a {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: var(--r-sm);
+  gap: 8px;
   color: var(--ink-600);
   border: none;
-  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  padding: 6px 0;
+  position: relative;
 }
-.sitenav .navlinks a:hover { background: var(--ink-100); color: var(--ink-800); }
-.sitenav .navlinks a.active { color: var(--moss-700); background: var(--moss-50); }
-.sitenav .navlinks a .idxn { color: var(--ink-400); font-size: var(--fs-10); }
+.sitenav a .idxn { color: var(--ink-400); font-size: var(--fs-10); }
+.sitenav a.current { color: var(--ink-900); }
+.sitenav a.current::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -6px;
+  height: 2px;
+  background: var(--clay-400);
+}
+.sitenav a:hover { color: var(--ink-900); }
 
 .page {
   max-width: 1280px;
@@ -227,7 +231,6 @@ body {
 }
 .site-footer a:hover { color: var(--moss-600); border-bottom-color: var(--moss-500); }
 
-.reticle-svg { width: 18px; height: 18px; flex: none; }
 
 .regmark {
   position: absolute;

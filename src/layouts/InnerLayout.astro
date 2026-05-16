@@ -5,37 +5,35 @@ const { title, activePage } = Astro.props;
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{title} — Michael Bos</title>
+  <title>{title ? `${title} — Michael Bos` : 'Michael Bos'}</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" href="/favicon.ico">
 </head>
 <body>
 
-  <nav class="sitenav">
-    <div class="sitenav-inner">
-      <div class="brand">
-        <svg class="reticle-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" color="var(--moss-600)">
-          <circle cx="12" cy="12" r="9"></circle>
-          <circle cx="12" cy="12" r="3.5"></circle>
-          <line x1="12" y1="1" x2="12" y2="6"></line>
-          <line x1="12" y1="18" x2="12" y2="23"></line>
-          <line x1="1" y1="12" x2="6" y2="12"></line>
-          <line x1="18" y1="12" x2="23" y2="12"></line>
-        </svg>
-        <a href="/">M.A. Bos</a>
-      </div>
-      <div class="navlinks">
-        <a href="/" class={activePage === 'home' ? 'active' : ''}><span class="idxn">01</span>Home</a>
-        <a href="/biography" class={activePage === 'biography' ? 'active' : ''}><span class="idxn">02</span>Biography</a>
-        <a href="/resume" class={activePage === 'resume' ? 'active' : ''}><span class="idxn">03</span>Resume</a>
-      </div>
+  <header class="site-header">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+        <circle cx="12" cy="12" r="9"></circle>
+        <circle cx="12" cy="12" r="3.5"></circle>
+        <line x1="12" y1="1" x2="12" y2="6"></line>
+        <line x1="12" y1="18" x2="12" y2="23"></line>
+        <line x1="1" y1="12" x2="6" y2="12"></line>
+        <line x1="18" y1="12" x2="23" y2="12"></line>
+      </svg>
+      <a href="/" class="wm">M.A. Bos</a>
     </div>
-  </nav>
+    <nav class="sitenav">
+      <a href="/" class={activePage === 'home' ? 'current' : ''}><span class="idxn">01</span>Home</a>
+      <a href="/biography" class={activePage === 'biography' ? 'current' : ''}><span class="idxn">02</span>Biography</a>
+      <a href="/resume" class={activePage === 'resume' ? 'current' : ''}><span class="idxn">03</span>Resume</a>
+    </nav>
+  </header>
 
   <slot />
 
-  <footer class="site-footer" style="margin-top: 80px;">
+  <footer class="site-footer" style="margin-top: 96px;">
     <div class="site-footer-inner">
       <div>© 2026 · Michael A. Bos · Las&nbsp;Vegas, NV</div>
       <div style="display:flex; gap:18px;">
