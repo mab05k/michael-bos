@@ -13,27 +13,26 @@ const { title, activePage } = Astro.props;
 <body>
 
   <header class="site-header">
-    <div class="brand">
-      <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-        <circle cx="12" cy="12" r="9"></circle>
-        <circle cx="12" cy="12" r="3.5"></circle>
-        <line x1="12" y1="1" x2="12" y2="6"></line>
-        <line x1="12" y1="18" x2="12" y2="23"></line>
-        <line x1="1" y1="12" x2="6" y2="12"></line>
-        <line x1="18" y1="12" x2="23" y2="12"></line>
-      </svg>
-      <a href="/" class="wm">M.A. Bos</a>
+    <div class="site-header-inner">
+      <a href="/" class="brand">
+        <svg class="mark" width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <rect width="32" height="32" rx="6" fill="#1F140C"/>
+          <path d="M6 22 L11 12 L14 18 L17 13 L22 21 L26 14" stroke="#B84A26" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="22" cy="9" r="1.6" fill="#D4892C"/>
+        </svg>
+        <span class="wm">michael <span class="slash">/</span> bos</span>
+      </a>
+      <nav class="sitenav">
+        <a href="/" class={activePage === 'home' ? 'current' : ''}><span class="idxn">01</span>Home</a>
+        <a href="/biography" class={activePage === 'biography' ? 'current' : ''}><span class="idxn">02</span>Biography</a>
+        <a href="/resume" class={activePage === 'resume' ? 'current' : ''}><span class="idxn">03</span>Resume</a>
+      </nav>
     </div>
-    <nav class="sitenav">
-      <a href="/" class={activePage === 'home' ? 'current' : ''}><span class="idxn">01</span>Home</a>
-      <a href="/biography" class={activePage === 'biography' ? 'current' : ''}><span class="idxn">02</span>Biography</a>
-      <a href="/resume" class={activePage === 'resume' ? 'current' : ''}><span class="idxn">03</span>Resume</a>
-    </nav>
   </header>
 
   <slot />
 
-  <footer class="site-footer" style="margin-top: 96px;">
+  <footer class="site-footer" style="margin-top: 80px;">
     <div class="site-footer-inner">
       <div>© 2026 · Michael A. Bos · Las&nbsp;Vegas, NV</div>
       <div style="display:flex; gap:18px;">

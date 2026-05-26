@@ -3,139 +3,134 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 ---
 <InnerLayout activePage="home">
   <style is:global>
-    body {
-      background-image: none;
-      background: var(--site-paper);
-    }
 
+    /* ── Hero ─────────────────────────────────────────────── */
     .hero {
-      max-width: 1280px;
-      margin: 56px auto 0;
-      padding: 0 32px;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 360px;
-      gap: 80px;
-      align-items: start;
-    }
-    .hero-text { padding-top: 4px; }
-
-    .eyebrow-row {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-    .eyebrow-row .rule {
-      width: 56px;
-      height: 1px;
-      background: var(--ink-400);
-    }
-
-    .display {
-      font-family: var(--font-sans);
-      font-weight: var(--fw-medium);
-      font-size: clamp(56px, 8.4vw, 104px);
-      line-height: 0.95;
-      letter-spacing: -0.035em;
-      color: var(--ink-900);
-      margin: 0;
-      white-space: nowrap;
-    }
-    .display .accent {
-      font-style: italic;
-      font-weight: var(--fw-regular);
-      color: var(--moss-600);
-      letter-spacing: -0.03em;
-    }
-
-    .role-pills {
-      margin-top: 28px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-    }
-    .role-pills .pill { height: 28px; padding: 0 14px; font-size: var(--fs-12); }
-
-    .lede {
-      font-size: 21px;
-      line-height: 1.55;
-      color: var(--ink-700);
-      margin: 36px 0 0;
-      //max-width: 46ch;
-      text-wrap: pretty;
-    }
-    .lede strong { color: var(--ink-900); font-weight: var(--fw-semibold); }
-
-    .portrait-card {
       position: relative;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      padding: 18px;
-      border-radius: var(--r-md);
-      box-shadow: var(--shadow-sm);
-    }
-    .portrait-card .frame {
-      position: relative;
-      aspect-ratio: 4/5;
-      background: var(--card-bg-deep);
+      min-height: 680px;
       overflow: hidden;
-      border-radius: var(--r-sm);
+      background: #0a0604;
     }
-    .portrait-card .frame::after {
-      content: '';
-      position: absolute; inset: 0;
-      background-image: radial-gradient(rgba(42, 40, 36, 0.08) 1px, transparent 1px);
-      background-size: 12px 12px;
-      pointer-events: none;
-    }
-    .portrait-card .frame img {
+    .hero-img {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: top center;
-      display: block;
+      object-position: 38% 15%;
     }
-    .portrait-card .coord {
+    .hero-overlay {
       position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg,
+          rgba(15,9,5,0)    0%,
+          rgba(15,9,5,0)    35%,
+          rgba(15,9,5,0.55) 58%,
+          rgba(15,9,5,0.88) 78%,
+          rgba(15,9,5,0.96) 100%),
+        linear-gradient(180deg,
+          rgba(15,9,5,0)    80%,
+          var(--bg-bone)    100%);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 300px 32px 72px;
+      color: var(--bg-bone);
+    }
+    .hero-content > * { text-shadow: 0 1px 14px rgba(0,0,0,0.35); }
+    .hero-content .role-pills > * { text-shadow: none; }
+
+    .hero-eyebrow-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       font-family: var(--font-mono);
-      font-size: var(--fs-10);
-      letter-spacing: var(--tr-caps);
+      font-size: var(--fs-12);
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--ink-50);
-      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-      z-index: 2;
-      top: 14px; right: 14px; text-align: right;
+      color: #F3D99E;
+      margin-bottom: 18px;
     }
-    .portrait-card .corners > span {
+    .hero-eyebrow-row .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--status-pass);
+      box-shadow: 0 0 0 3px rgba(63,138,79,0.25);
+    }
+
+    .display {
+      font-family: var(--font-display);
+      font-weight: var(--fw-bold);
+      font-size: clamp(52px, 7.5vw, 88px);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      color: #FAF1DC;
+      margin: 0 0 22px;
+    }
+    .display .accent {
+      font-style: italic;
+      font-weight: var(--fw-medium);
+      color: var(--rust-soft);
+    }
+
+    .role-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    /* Hero pill overrides — dark background context */
+    .hero-content .pill {
+      background: rgba(242,234,217,0.10);
+      border-color: rgba(242,234,217,0.22);
+      color: rgba(242,234,217,0.9);
+    }
+    .hero-content .pill .dot { background: rgba(242,234,217,0.5); }
+    .hero-content .pill.active {
+      background: rgba(63,138,79,0.18);
+      border-color: rgba(63,138,79,0.38);
+      color: #7CCB8A;
+    }
+    .hero-content .pill.active .dot { background: var(--status-pass); box-shadow: none; }
+    .hero-content .pill.navy {
+      background: rgba(12,27,51,0.55);
+      border-color: rgba(184,146,74,0.45);
+      color: var(--brass-bright);
+    }
+    .hero-content .pill.navy .dot { background: var(--brass-bright); }
+
+    .lede {
+      font-size: 19px;
+      line-height: 1.55;
+      color: rgba(242,234,217,0.88);
+      max-width: 52ch;
+      margin: 0;
+      text-wrap: pretty;
+    }
+    .lede strong { color: #FAF1DC; font-weight: var(--fw-semibold); }
+
+    .hero-coords {
       position: absolute;
-      width: 14px; height: 14px;
-      border: 1.2px solid var(--ink-50);
-      opacity: 0.7;
+      right: 32px;
+      top: 20px;
       z-index: 2;
-    }
-    .portrait-card .corners .tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
-    .portrait-card .corners .tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
-    .portrait-card .corners .bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
-    .portrait-card .corners .br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
-    .portrait-card .id {
-      margin-top: 16px;
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 4px 16px;
       font-family: var(--font-mono);
       font-size: var(--fs-11);
+      color: rgba(242,234,217,0.65);
       letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
+      padding: 6px 14px;
+      background: rgba(15,9,5,0.5);
+      border-radius: var(--r-pill);
+      backdrop-filter: blur(4px);
     }
-    .portrait-card .id .k { color: var(--ink-500); }
-    .portrait-card .id .v { color: var(--ink-900); }
 
+    /* ── Quick facts ───────────────────────────────────────── */
     .facts {
       max-width: 1280px;
-      margin: 110px auto 0;
+      margin: 96px auto 0;
       padding: 0 32px;
     }
     .facts-head {
@@ -143,15 +138,15 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       align-items: baseline;
       gap: 16px;
       padding-bottom: 16px;
-      border-bottom: 1px solid var(--ink-300);
+      border-bottom: 1px solid var(--hairline-strong);
       margin-bottom: 0;
     }
     .facts-head h2 {
-      font-family: var(--font-sans);
+      font-family: var(--font-display);
       font-weight: var(--fw-medium);
       font-size: 22px;
       letter-spacing: -0.01em;
-      color: var(--ink-900);
+      color: var(--canyon-ink);
     }
     .facts-head .num {
       margin-left: auto;
@@ -159,7 +154,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       font-size: var(--fs-11);
       letter-spacing: var(--tr-caps);
       text-transform: uppercase;
-      color: var(--ink-500);
+      color: var(--canyon-fade);
     }
 
     .facts-list { display: flex; flex-direction: column; }
@@ -168,7 +163,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       grid-template-columns: 200px minmax(0, 1fr);
       column-gap: 48px;
       padding: 22px 0;
-      border-bottom: 1px dashed var(--ink-200);
+      border-bottom: 1px dashed var(--hairline-strong);
     }
     .fact-row:last-child { border-bottom: none; }
     .fact-row .k {
@@ -176,32 +171,38 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       font-size: var(--fs-11);
       text-transform: uppercase;
       letter-spacing: var(--tr-caps);
-      color: var(--ink-500);
+      color: var(--canyon-fade);
       padding-top: 4px;
     }
-    .fact-row .v { font-size: var(--fs-18); line-height: 1.45; color: var(--ink-900); text-wrap: pretty; }
-    .fact-row .v .muted { color: var(--ink-500); }
-    .fact-row .v .clay { color: var(--clay-600); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-    .fact-row .v .sep { color: var(--ink-300); padding: 0 6px; }
+    .fact-row .v {
+      font-size: var(--fs-18);
+      line-height: 1.45;
+      color: var(--canyon-ink);
+      text-wrap: pretty;
+    }
+    .fact-row .v .muted { color: var(--canyon-fade); }
+    .fact-row .v .clay  { color: var(--rust); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+    .fact-row .v .sep   { color: var(--ink-300); padding: 0 6px; }
 
+    /* ── Operating principle ────────────────────────────────── */
     .principle {
       max-width: 1280px;
-      margin: 110px auto 0;
+      margin: 96px auto 0;
       padding: 0 32px;
     }
     .principle blockquote {
       margin: 0;
       padding: 0;
-      font-family: var(--font-sans);
+      font-family: var(--font-display);
       font-weight: var(--fw-regular);
-      font-size: clamp(28px, 4.2vw, 56px);
+      font-size: clamp(26px, 4vw, 52px);
       line-height: 1.18;
       letter-spacing: -0.025em;
-      color: var(--ink-800);
-      max-width: none;
+      color: var(--canyon-shadow);
+      text-wrap: pretty;
     }
     .principle blockquote .quoteopen {
-      color: var(--clay-400);
+      color: var(--ochre);
       font-family: var(--font-mono);
       margin-right: 2px;
     }
@@ -211,12 +212,13 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       font-size: var(--fs-11);
       letter-spacing: var(--tr-caps);
       text-transform: uppercase;
-      color: var(--ink-500);
+      color: var(--canyon-fade);
     }
 
+    /* ── Forward navigation cards ───────────────────────────── */
     .forward {
       max-width: 1280px;
-      margin: 110px auto 0;
+      margin: 96px auto 0;
       padding: 0 32px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -227,40 +229,37 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       flex-direction: column;
       gap: 14px;
       padding: 28px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      background: var(--bg-sand);
       border-radius: var(--r-lg);
-      box-shadow: var(--shadow-xs);
+      box-shadow: var(--shadow-1);
       color: inherit;
+      text-decoration: none;
       transition:
-        background var(--dur-base) var(--ease-out),
-        border-color var(--dur-base) var(--ease-out),
-        transform var(--dur-base) var(--ease-out),
-        box-shadow var(--dur-base) var(--ease-out);
+        box-shadow var(--dur-base) var(--ease-out),
+        background var(--dur-base) var(--ease-out);
       min-height: 220px;
       position: relative;
     }
     a.forward-card:hover {
-      background: var(--card-bg-deep);
-      border-color: #BDB59B;
-      box-shadow: var(--shadow-md);
+      background: var(--bg-sand-deep);
+      box-shadow: var(--shadow-2);
     }
     .forward-card .idn {
       font-family: var(--font-mono);
       font-size: var(--fs-11);
       letter-spacing: var(--tr-caps);
       text-transform: uppercase;
-      color: var(--clay-600);
+      color: var(--rust);
     }
     .forward-card .title {
-      font-family: var(--font-sans);
+      font-family: var(--font-display);
       font-weight: var(--fw-medium);
       font-size: 26px;
       letter-spacing: -0.02em;
-      color: var(--ink-900);
+      color: var(--canyon-ink);
     }
     .forward-card .blurb {
-      color: var(--ink-600);
+      color: var(--canyon-shadow);
       font-size: var(--fs-14);
       line-height: 1.5;
       max-width: 30ch;
@@ -271,7 +270,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       font-size: var(--fs-11);
       letter-spacing: var(--tr-caps);
       text-transform: uppercase;
-      color: var(--moss-600);
+      color: var(--rust);
       display: inline-flex;
       gap: 6px;
       align-items: center;
@@ -281,35 +280,40 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       transition: transform var(--dur-fast) var(--ease-out);
     }
     .forward-card:hover .open::after { transform: translateX(3px); }
-    .forward-card:hover .open { color: var(--moss-700); }
+    .forward-card:hover .open { color: var(--rust-deep); }
 
+    /* ── Responsive ─────────────────────────────────────────── */
     @media (max-width: 980px) {
-      .hero { grid-template-columns: 1fr; gap: 48px; }
-      .display { font-size: clamp(48px, 11vw, 88px); white-space: normal; }
+      .hero-content { padding-top: 240px; padding-left: 24px; padding-right: 24px; }
+      .display { font-size: clamp(44px, 11vw, 72px); }
+      .hero-coords { display: none; }
+      .facts, .principle, .forward { padding-left: 24px; padding-right: 24px; }
       .fact-row { grid-template-columns: 1fr; gap: 6px; padding: 18px 0; }
       .fact-row .k { padding-top: 0; }
       .forward { grid-template-columns: 1fr; }
-      .role-pills { gap: 8px; }
     }
   </style>
 
   <main>
 
-    <!-- HERO -->
+    <!-- HERO — full-bleed climbing photo -->
     <section class="hero">
-      <div class="hero-text">
-        <div class="eyebrow-row">
-          <span class="rule"></span>
-          <span class="eyebrow">Las Vegas, NV · 36.17° N · 115.14° W</span>
+      <img
+        class="hero-img"
+        src="/michael-bos-action.jpg"
+        alt="Michael Bos on red sandstone, Red Rock Canyon, Nevada"
+      >
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow-row">
+          <span class="dot"></span>
+          Engineering Manager · Las Vegas, NV
         </div>
-
         <h1 class="display">Michael <span class="accent">Bos.</span></h1>
-
         <div class="role-pills">
           <span class="pill active"><span class="dot"></span>Sr. Engineering Manager · Guidepoint</span>
           <span class="pill navy"><span class="dot"></span>USN Veteran · NSWDG</span>
         </div>
-
         <p class="lede">
           I build <strong>platforms</strong> &mdash; and the <strong>teams</strong> that run them.
           Sixteen years in: six in Naval Special Warfare intelligence, ten in software.
@@ -317,22 +321,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
           and people who trust each other under pressure.
         </p>
       </div>
-
-      <aside class="portrait-card">
-        <div class="frame">
-          <span class="corners">
-            <span class="tl"></span><span class="tr"></span>
-            <span class="bl"></span><span class="br"></span>
-          </span>
-          <div class="coord">36.17° N<br>115.14° W</div>
-          <img src="/michael-bos-action.jpg" alt="Michael A. Bos">
-        </div>
-        <div class="id">
-          <div class="k">Callsign</div>     <div class="v">mab05k</div>
-          <div class="k">Element</div>      <div class="v">Guidepoint · AI Platform</div>
-          <div class="k">Prior svc.</div>   <div class="v">USN · NSWDG · IS2</div>
-        </div>
-      </aside>
+      <div class="hero-coords">36.17° N · 115.14° W · Red Rock, NV</div>
     </section>
 
     <!-- QUICK FACTS -->
@@ -403,6 +392,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
         <span class="open">Open mail</span>
       </a>
     </nav>
+
   </main>
 
 </InnerLayout>

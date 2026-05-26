@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+.pipe { display:flex; align-items:center; gap:0; background:var(--bg-sand); border-radius:var(--r-md); padding:18px 20px; box-shadow:var(--shadow-1); }
+.stage { display:flex; flex-direction:column; align-items:center; gap:8px; }
+.node { width:36px; height:36px; border-radius:50%; display:grid; place-items:center; font-family:var(--font-mono); font-weight:700; color:#fff; font-size:14px; }
+.node.pass { background:var(--status-pass); }
+.node.build { background:var(--status-build); position:relative; }
+.node.build::after { content:""; position:absolute; inset:-4px; border-radius:50%; border:2px solid var(--status-build); border-top-color:transparent; animation:spin 1s linear infinite; }
+.node.idle { background:var(--bg-bone); color:var(--canyon-fade); box-shadow:inset 0 0 0 1.5px var(--hairline-strong); }
+.line { flex:1; height:2px; background:var(--canyon-fade); margin:0 6px; position:relative; top:-22px; }
+.line.pass { background:var(--status-pass); }
+.label { font-family:var(--font-mono); font-size:11px; color:var(--canyon-shadow); }
+.time { font-family:var(--font-mono); font-size:10px; color:var(--canyon-fade); }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style></head><body>
+<div class="pipe">
+  <div class="stage"><div class="node pass">✓</div><div class="label">lint</div><div class="time">12s</div></div>
+  <div class="line pass"></div>
+  <div class="stage"><div class="node pass">✓</div><div class="label">test</div><div class="time">1m 04s</div></div>
+  <div class="line pass"></div>
+  <div class="stage"><div class="node pass">✓</div><div class="label">build</div><div class="time">38s</div></div>
+  <div class="line"></div>
+  <div class="stage"><div class="node build">▌</div><div class="label">deploy</div><div class="time">14s</div></div>
+  <div class="line"></div>
+  <div class="stage"><div class="node idle">—</div><div class="label">smoke</div><div class="time">queued</div></div>
+</div>
+<div class="meta" style="margin-top:10px;">Used in case-study cards and the homepage "how I ship" section.</div>
+</body></html>

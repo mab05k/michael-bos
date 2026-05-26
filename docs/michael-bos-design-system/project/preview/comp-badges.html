@@ -1,0 +1,24 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+.badge { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:var(--r-pill); font-family:var(--font-mono); font-size:12px; font-weight:500; }
+.badge-tag { background:var(--bg-sand); color:var(--canyon-shadow); padding:3px 10px; border-radius:var(--r-sm); font-family:var(--font-body); font-weight:500; }
+.dot { width:6px; height:6px; border-radius:50%; }
+</style></head><body>
+<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+  <span class="badge" style="background:var(--status-pass-bg); color:var(--status-pass);"><span class="dot" style="background:var(--status-pass);"></span>passing</span>
+  <span class="badge" style="background:var(--status-build-bg); color:var(--status-build);"><span class="dot" style="background:var(--status-build);"></span>building</span>
+  <span class="badge" style="background:var(--status-fail-bg); color:var(--status-fail);"><span class="dot" style="background:var(--status-fail);"></span>failed</span>
+  <span class="badge" style="background:var(--status-idle-bg); color:var(--status-idle);"><span class="dot" style="background:var(--status-idle);"></span>queued</span>
+</div>
+<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center;">
+  <span class="badge-tag">python</span>
+  <span class="badge-tag">typescript</span>
+  <span class="badge-tag">kubernetes</span>
+  <span class="badge-tag">github actions</span>
+  <span class="badge-tag">postgres</span>
+</div>
+<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center;">
+  <span class="badge" style="background:var(--navy); color:var(--brass-bright); font-family:var(--font-mono); letter-spacing:0.08em; text-transform:uppercase; font-size:11px;">⚓ USN · 2008–2014</span>
+  <span class="badge" style="background:var(--rust-soft); color:var(--rust-deep); font-family:var(--font-body); font-weight:500;">Las Vegas, NV</span>
+</div>
+</body></html>
