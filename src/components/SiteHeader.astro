@@ -11,12 +11,12 @@ const { activePage } = Astro.props;
       </svg>
       <span class="wm">michael <span class="slash">/</span> bos</span>
     </a>
-    <nav class="sitenav">
-      <a href="/" class={activePage === 'home' ? 'current' : ''}>Home</a>
-      <a href="/biography" class={activePage === 'biography' ? 'current' : ''}>Bio</a>
-      <a href="/resume" class={activePage === 'resume' ? 'current' : ''}>Resume</a>
-      <a href="/portfolio" class={activePage === 'portfolio' ? 'current' : ''}>Portfolio</a>
-      <span class="nav-status"><span class="dot"></span>main · 12 deploys today</span>
+    <nav class="topnav" aria-label="Primary">
+      <a class={`topnav-link${activePage === 'home' ? ' is-active' : ''}`} href="/">Home</a>
+      <a class={`topnav-link${activePage === 'biography' ? ' is-active' : ''}`} href="/biography">Bio</a>
+      <a class={`topnav-link${activePage === 'resume' ? ' is-active' : ''}`} href="/resume">Resume</a>
+      <a class={`topnav-link${activePage === 'portfolio' ? ' is-active' : ''}`} href="/portfolio">Portfolio</a>
     </nav>
+    <slot name="right" />
   </div>
 </header>

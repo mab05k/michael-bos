@@ -1,5 +1,6 @@
 ---
-import '../styles/tokens.css';
+import '../styles/shared.css';
+import SiteHeader from '../components/SiteHeader.astro';
 ---
 <!doctype html>
 <html lang="en">
@@ -14,29 +15,12 @@ import '../styles/tokens.css';
 
 <div class="stage" id="stage" data-theme="keys" data-anim="in">
 
-  <!-- Top bar -->
-  <header class="topbar">
-    <a class="brand" href="/">
-      <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-        <rect width="32" height="32" rx="6" fill="var(--ink, #1F140C)"/>
-        <path d="M6 22 L11 12 L14 18 L17 13 L22 21 L26 14" stroke="#B84A26" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="22" cy="9" r="1.6" fill="#D4892C"/>
-      </svg>
-      <span class="brand-name">Michael Bos</span>
-      <span class="brand-slash">/</span>
-      <span class="brand-sub">bio</span>
-    </a>
-    <nav class="topnav" aria-label="Primary">
-      <a class="topnav-link" href="/">Home</a>
-      <a class="topnav-link is-active" href="/biography" aria-current="page">Bio</a>
-      <a class="topnav-link" href="/resume">Resume</a>
-      <a class="topnav-link" href="/portfolio">Portfolio</a>
-    </nav>
-    <div class="topbar-right">
+  <SiteHeader activePage="biography">
+    <div slot="right" class="topbar-right">
       <span class="loc"><span class="pin"></span>Las Vegas, NV</span>
       <span class="chapter-count"><b id="chap-current">01</b> / 06</span>
     </div>
-  </header>
+  </SiteHeader>
 
   <!-- Chapter stage -->
   <main class="stage-body" id="stage-body">
@@ -405,8 +389,7 @@ import '../styles/tokens.css';
 
 <style is:global>
 
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+html, body { height: 100%; overflow: hidden; }
 
 /* =========================================================
    THEME DEFINITIONS — one block per chapter.
@@ -499,60 +482,45 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
   color: var(--ink);
   transition: background 460ms cubic-bezier(0.2,0.7,0.1,1), color 460ms cubic-bezier(0.2,0.7,0.1,1);
 }
-.stage::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: var(--wash);
-  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1);
-  z-index: 0;
+/* ── SiteHeader inside the stage ───────────────────────────
+   Transparent background, no blur — stage color shows through.
+   Nav colors and brand inherit from the active chapter theme
+   and transition with it at the same timing as the stage.
+   ─────────────────────────────────────────────────────────── */
+.stage .site-header {
+  position: relative;
+  top: auto;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom-color: var(--line);
+  transition: border-color 460ms cubic-bezier(0.2,0.7,0.1,1);
 }
-
-/* =========================================================
-   TOP BAR
-   ========================================================= */
-
-.topbar {
-  position: relative; z-index: 5;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 24px;
+.stage .site-header-inner {
+  max-width: none;
   padding: 18px 40px;
+  height: auto;
 }
-
-.brand {
-  display: flex; align-items: baseline; gap: 2px;
-  text-decoration: none; flex: 0 0 auto;
-}
-.brand-name {
-  font-family: var(--font-display);
-  font-weight: 600; font-size: 17px;
-  color: var(--ink); letter-spacing: -0.01em;
+.stage .brand .wm {
+  color: var(--ink);
   transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
 }
-.brand-slash {
+.stage .brand .slash {
   color: var(--accent);
-  font-family: var(--font-mono); font-weight: 500;
   transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
 }
-.brand-sub {
-  font-family: var(--font-mono); font-size: 11px;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--fade); margin-left: 12px;
-  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
-}
-
-.topnav { display: flex; align-items: center; gap: 4px; }
-.topnav-link {
-  font-family: var(--font-display); font-size: 14px; font-weight: 500;
-  color: var(--fade); text-decoration: none; white-space: nowrap;
-  padding: 7px 15px; border-radius: 999px;
+.stage .brand:hover .wm { color: var(--accent); }
+.stage .topnav-link {
+  color: var(--fade);
   transition: color 460ms cubic-bezier(0.2,0.7,0.1,1),
               background 460ms cubic-bezier(0.2,0.7,0.1,1);
 }
-.topnav-link:hover { color: var(--ink); }
-.topnav-link.is-active {
-  color: var(--accent); font-weight: 600;
+.stage .topnav-link:hover { color: var(--ink); }
+.stage .topnav-link.is-active {
+  color: var(--accent);
+  font-weight: 600;
   background: color-mix(in oklab, var(--accent) 13%, transparent);
 }
-
 .topbar-right {
   display: flex; align-items: center; gap: 18px; flex: 0 0 auto;
 }
@@ -577,7 +545,16 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
   font-family: var(--font-mono); font-size: 12px; color: var(--fade);
   transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
 }
-.chapter-count b { color: var(--accent); font-weight: 700; transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.chapter-count b {
+  color: var(--accent); font-weight: 700;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.stage::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: var(--wash);
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1);
+  z-index: 0;
+}
 
 /* =========================================================
    STAGE BODY
@@ -890,7 +867,6 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
    ========================================================= */
 
 @media (max-width: 860px) {
-  .topbar { padding: 14px 20px; gap: 12px; }
   .topbar-right { display: none; }
   .stage-body { padding: 12px 20px; }
   .rail { padding: 0 20px 16px; }

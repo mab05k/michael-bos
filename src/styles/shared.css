@@ -125,49 +125,30 @@ body {
 }
 .brand:hover .wm { color: var(--rust); }
 
-.sitenav {
+.topnav {
   display: flex;
+  align-items: center;
   gap: 4px;
+}
+.topnav-link {
   font-family: var(--font-display);
-  font-size: var(--fs-14);
-  font-weight: var(--fw-medium);
-}
-.sitenav a {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--canyon-shadow);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--canyon-fade);
   text-decoration: none;
-  padding: 8px 14px;
-  border-radius: var(--r-sm);
-  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  white-space: nowrap;
+  padding: 7px 15px;
+  border-radius: 999px;
+  transition: color var(--dur-base) var(--ease-out),
+              background var(--dur-base) var(--ease-out);
 }
-.sitenav a .idxn {
-  color: var(--canyon-fade);
-  font-size: var(--fs-11);
-  font-family: var(--font-mono);
+.topnav-link:hover { color: var(--canyon-ink); }
+.topnav-link.is-active {
+  color: var(--rust);
+  font-weight: 600;
+  background: color-mix(in oklab, var(--rust) 13%, transparent);
 }
-.sitenav a.current { color: var(--rust); }
-.sitenav a:hover { color: var(--canyon-ink); background: var(--bg-sand-deep); }
-.sitenav a.current:hover { background: var(--bg-sand-deep); }
 
-/* ── Nav status indicator ──────────────────────────────────── */
-
-.nav-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-mono);
-  font-size: var(--fs-11);
-  color: var(--canyon-fade);
-  letter-spacing: 0.04em;
-  margin-left: 8px;
-}
-.nav-status .dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--status-pass);
-  box-shadow: 0 0 0 3px rgba(63,138,79,0.20);
-}
 
 /* ── Page wrapper ──────────────────────────────────────────── */
 
