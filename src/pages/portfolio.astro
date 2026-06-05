@@ -1,0 +1,204 @@
+---
+import InnerLayout from '../layouts/InnerLayout.astro';
+---
+<InnerLayout title="Portfolio" activePage="portfolio">
+  <style is:global>
+    .port-intro {
+      max-width: 1280px;
+      margin: 32px auto 0;
+      padding: 0 24px;
+    }
+    .port-intro .eyebrow { margin-bottom: 12px; }
+    .port-intro h1 {
+      font-family: var(--font-sans);
+      font-size: 56px;
+      font-weight: var(--fw-medium);
+      letter-spacing: -0.025em;
+      line-height: 1;
+      color: var(--ink-900);
+      margin: 0 0 18px;
+    }
+    .port-intro .dek {
+      max-width: 68ch;
+      color: var(--ink-700);
+      font-size: var(--fs-16);
+      line-height: 1.55;
+      text-wrap: pretty;
+      margin: 0;
+    }
+
+    .port-grid {
+      max-width: 1280px;
+      margin: 64px auto 0;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .port-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .port-card-body {
+      padding: 28px 28px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .port-card .idn {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--rust);
+    }
+    .port-card .title {
+      font-family: var(--font-display);
+      font-weight: var(--fw-medium);
+      font-size: 20px;
+      letter-spacing: -0.015em;
+      color: var(--ink-900);
+    }
+    .port-card .blurb {
+      font-size: var(--fs-14);
+      line-height: 1.55;
+      color: var(--ink-700);
+      text-wrap: pretty;
+      flex: 1;
+    }
+    .port-card-footer {
+      padding: 14px 28px;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .port-card-footer .status {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+    }
+    .port-card-footer .status.wip { color: var(--rust); }
+    .port-card-footer .status.planned { color: var(--ink-500); }
+
+    .placeholder-banner {
+      max-width: 1280px;
+      margin: 56px auto 0;
+      padding: 0 24px;
+    }
+    .placeholder-banner-inner {
+      background: var(--card-bg);
+      border: 1px dashed var(--card-border);
+      border-radius: var(--r-lg);
+      padding: 56px 40px;
+      text-align: center;
+    }
+    .placeholder-banner-inner .ph-eyebrow {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--rust);
+      margin-bottom: 14px;
+    }
+    .placeholder-banner-inner h2 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: var(--fw-medium);
+      letter-spacing: -0.02em;
+      color: var(--ink-900);
+      margin: 0 0 12px;
+    }
+    .placeholder-banner-inner p {
+      color: var(--ink-700);
+      font-size: var(--fs-16);
+      line-height: 1.55;
+      max-width: 52ch;
+      margin: 0 auto;
+      text-wrap: pretty;
+    }
+
+    @media (max-width: 900px) {
+      .port-intro h1 { font-size: 40px; }
+      .port-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <header class="port-intro">
+    <div class="eyebrow">04 / Portfolio</div>
+    <h1>Selected work.</h1>
+    <p class="dek">
+      Projects, tools, and systems — built in production and in the open.
+      Platform engineering, agentic tooling, and the infrastructure that makes software actually ship.
+    </p>
+  </header>
+
+  <div class="placeholder-banner">
+    <div class="placeholder-banner-inner">
+      <div class="ph-eyebrow">Under construction</div>
+      <h2>More to come.</h2>
+      <p>
+        Content is being assembled. Check back soon — or reach out directly
+        if you want to discuss specific work in the meantime.
+      </p>
+    </div>
+  </div>
+
+  <section class="port-grid" aria-label="Portfolio items">
+
+    <div class="port-card">
+      <div class="port-card-body">
+        <span class="idn">Platform</span>
+        <div class="title">Guidepoint Agentic Platform</div>
+        <p class="blurb">
+          MCP-based tooling layer abstracting Guidepoint's core CRM for agent-driven workflows.
+          Architecture, tool contracts, and auth model for production AI at scale.
+        </p>
+      </div>
+      <div class="port-card-footer">
+        <span class="pill active"><span class="dot"></span>Active</span>
+        <span class="status wip">In progress</span>
+      </div>
+    </div>
+
+    <div class="port-card">
+      <div class="port-card-body">
+        <span class="idn">Infrastructure</span>
+        <div class="title">Cloud-Native Migration · Switch</div>
+        <p class="blurb">
+          Spearheaded containerized deployment standards enabling 10+ teams and 20+ services
+          to ship on Azure Kubernetes Service with unified CI/CD pipelines.
+        </p>
+      </div>
+      <div class="port-card-footer">
+        <span class="pill"><span class="dot"></span>Complete</span>
+        <span class="status planned">Documenting</span>
+      </div>
+    </div>
+
+    <div class="port-card">
+      <div class="port-card-body">
+        <span class="idn">Open source</span>
+        <div class="title">michael-bos.com</div>
+        <p class="blurb">
+          This site. Static Astro build with a custom design system —
+          Moss, Clay, Ink — and a full-screen interactive biography.
+        </p>
+      </div>
+      <div class="port-card-footer">
+        <span class="pill active"><span class="dot"></span>Active</span>
+        <a href="https://github.com/mab05k" target="_blank" rel="noopener" style="font-family: var(--font-mono); font-size: var(--fs-11); letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--rust); text-decoration: none;">GitHub →</a>
+      </div>
+    </div>
+
+  </section>
+
+</InnerLayout>

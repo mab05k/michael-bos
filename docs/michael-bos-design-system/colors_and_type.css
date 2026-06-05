@@ -9,42 +9,44 @@
 
 :root {
   /* ----- Color: surfaces & ink ------------------------------------------ */
-  --bg-bone:        #F2EAD9;   /* page background — sun-bleached sandstone */
-  --bg-sand:        #E5D3B3;   /* card / secondary surface */
-  --bg-sand-deep:   #D4BC92;   /* hovered card, inset */
-  --canyon-ink:     #1F140C;   /* primary text */
+  /* Red Rock Sandstone — warm light scheme pulled from the climbing photo:
+     sun-bleached bone, sandstone red, sage scrub, canyon shadow. */
+  --bg-bone:        #F2EAD9;   /* page background — sun-bleached bone */
+  --bg-sand:        #E5D3B3;   /* card / secondary surface — sandstone */
+  --bg-sand-deep:   #D8C29B;   /* hovered card, inset */
+  --canyon-ink:     #1F140C;   /* primary text — near-black, brown undertone */
   --canyon-shadow:  #3D2418;   /* secondary text, deep accents */
-  --canyon-fade:    #6E5945;   /* muted body, captions */
+  --canyon-fade:    #6E5B45;   /* muted body, captions, borders */
 
   /* ----- Color: brand --------------------------------------------------- */
-  --rust:           #B84A26;   /* primary brand — sandstone red */
+  --rust:           #B84A26;   /* primary accent — the climbing-photo red */
   --rust-deep:      #8C3418;   /* hover / pressed */
-  --rust-soft:      #E8B89F;   /* tinted backgrounds */
-  --ochre:          #D4892C;   /* warm accent */
-  --sage:           #7A8B6E;   /* muted secondary */
-  --sky:            #6B92B5;   /* cool accent, info */
+  --rust-soft:      rgba(184,74,38,0.12); /* tinted backgrounds */
+  --ochre:          #D4892C;   /* sun-warmed accent, build-warning */
+  --sage:           #7A8B6E;   /* muted secondary, illustrative chrome */
+  --sky:            #6B92B5;   /* cool info accent */
 
-  /* ----- Color: military section --------------------------------------- */
-  --navy:           #0C1B33;   /* USN section background */
-  --navy-soft:      #1A2E4F;   /* navy card */
-  --brass:          #B8924A;   /* navy section accent */
-  --brass-bright:   #E0B870;   /* navy section highlight */
-  --bone-on-navy:   #E8E0CC;   /* text on navy */
+  /* ----- Color: ribbon section (military / Navy) ------------------------ */
+  --navy:           #14233F;   /* deep panel background — Navy blue */
+  --navy-soft:      #1E3052;   /* panel card */
+  --brass:          #C9A227;   /* panel accent — Navy gold */
+  --brass-bright:   #E0BE52;   /* panel highlight */
+  --bone-on-navy:   #ECE3CF;   /* text on panel */
 
   /* ----- Color: CI/CD status ------------------------------------------- */
-  --status-pass:    #3F8A4F;   /* green */
-  --status-pass-bg: #DDEBD6;
+  --status-pass:    #3F8A4F;   /* pipeline green */
+  --status-pass-bg: rgba(63,138,79,0.16);
   --status-build:   #C8881A;   /* amber */
-  --status-build-bg:#F3E4C4;
+  --status-build-bg:rgba(200,136,26,0.16);
   --status-fail:    #B23A2A;   /* red */
-  --status-fail-bg: #F1D4CB;
-  --status-idle:    #6E5945;   /* canyon-fade */
-  --status-idle-bg: #E5D3B3;
+  --status-fail-bg: rgba(178,58,42,0.16);
+  --status-idle:    #6E5B45;
+  --status-idle-bg: rgba(110,91,69,0.16);
 
   /* ----- Color: utility ------------------------------------------------ */
   --hairline:       rgba(31,20,12,0.12);
   --hairline-strong:rgba(31,20,12,0.22);
-  --selection-bg:   #E8B89F;
+  --selection-bg:   rgba(184,74,38,0.24);
   --focus-ring:     #6B92B5;
 
   /* ----- Type: families ------------------------------------------------ */
@@ -91,10 +93,10 @@
   --r-lg:   12px;
   --r-pill: 999px;
 
-  /* ----- Shadow (warm, low-saturation) --------------------------------- */
-  --shadow-1: 0 1px 2px rgba(31,20,12,0.06), 0 2px 8px rgba(31,20,12,0.04);
-  --shadow-2: 0 4px 12px rgba(31,20,12,0.08), 0 12px 32px rgba(31,20,12,0.06);
-  --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(31,20,12,0.06);
+  /* ----- Shadow (warm, light scheme) ----------------------------------- */
+  --shadow-1: 0 1px 2px rgba(31,20,12,0.06), 0 2px 8px rgba(31,20,12,0.05);
+  --shadow-2: 0 4px 12px rgba(31,20,12,0.08), 0 12px 32px rgba(31,20,12,0.07);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(31,20,12,0.06);
 
   /* ----- Motion -------------------------------------------------------- */
   --ease-out: cubic-bezier(0.2, 0.7, 0.1, 1);
@@ -194,12 +196,13 @@ code, kbd, samp, pre, .mono {
   font-size: 0.9em;
 }
 pre {
-  background: var(--canyon-ink);
+  background: #2B2018;
   color: var(--bg-bone);
   padding: var(--s-5);
   border-radius: var(--r-md);
   overflow-x: auto;
   line-height: var(--lh-normal);
+  border: 1px solid var(--hairline);
 }
 p code, li code {
   background: var(--bg-sand);

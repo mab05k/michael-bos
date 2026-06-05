@@ -96,59 +96,18 @@ const WritingScreen = () => (
   </main>
 );
 
-const BioScreen = () => (
-  <main>
-    <section className="section container" style={{ paddingBottom: 24 }}>
-      <div className="eyebrow"><span className="num">bio</span></div>
-      <h1 className="section-title" style={{ fontSize: 56, marginBottom: 8 }}>About</h1>
-      <p className="section-lede" style={{ maxWidth: '50ch' }}>
-        Engineering manager. Las Vegas, Nevada. Twelve years of code, six on the rope, six in the Navy.
-      </p>
-    </section>
+// BioScreen lives in its own full-screen page (../../bio/Bio Timeline.html) —
+// the timeline experience. Navigating to 'bio' routes there.
 
-    <section className="container" style={{ paddingBottom: 48 }}>
-      <div className="grid-7-5">
-        <div>
-          <p style={{ fontSize: 17, lineHeight: 1.7, color: 'var(--canyon-shadow)', maxWidth: '60ch' }}>
-            I currently lead an engineering team at Guidepoint, where we run the platform that powers our research products.
-            Before that I spent five years at Switch building data-center infrastructure tooling, and four years as a software engineer at smaller shops in Las Vegas.
-          </p>
-          <p style={{ fontSize: 17, lineHeight: 1.7, color: 'var(--canyon-shadow)', maxWidth: '60ch' }}>
-            I picked up an Executive MBA from UNLV in 2022 — mostly because I wanted vocabulary to argue with finance.
-            The thing I actually learned: most "people problems" are process problems wearing a costume.
-          </p>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-          <div className="stat">
-            <div className="stat-num">12</div>
-            <div className="stat-label">years writing software</div>
-          </div>
-          <div className="stat">
-            <div className="stat-num">7</div>
-            <div className="stat-label">engineers on my team today</div>
-          </div>
-          <div className="stat">
-            <div className="stat-num">~12/day</div>
-            <div className="stat-label">deploys to main</div>
-          </div>
-          <div className="stat" style={{ borderBottom: '1px solid var(--hairline)' }}>
-            <div className="stat-num">5.11c</div>
-            <div className="stat-label">hardest trad onsight (Red Rock)</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section className="container" style={{ paddingBottom: 64 }}>
-      <NavyRibbon/>
-    </section>
-
-    <section className="container" style={{ paddingBottom: 64 }}>
-      <div className="eyebrow">recent ticks</div>
-      <h2 className="section-title" style={{ marginBottom: 24 }}>Climbing log.</h2>
-      <ClimbingLog/>
-    </section>
-
+// PortfolioScreen — intentionally empty for now. Placeholder shell kept on-brand
+// so it's ready to fill with project work.
+const PortfolioScreen = () => (
+  <main className="section container">
+    <div className="eyebrow"><span className="num">portfolio</span></div>
+    <h1 className="section-title" style={{ fontSize: 56, marginBottom: 8 }}>Portfolio</h1>
+    <p className="section-lede" style={{ maxWidth: '50ch' }}>
+      Selected work, coming soon.
+    </p>
     <Footer/>
   </main>
 );
@@ -195,15 +154,26 @@ const ContactScreen = () => (
 
 // ----- Root ---------------------------------------------------------------
 const App = () => {
-  const [screen, setScreen] = useState('home');
-  const onNavigate = (s) => { setScreen(s); window.scrollTo({ top: 0, behavior: 'instant' }); };
+  const screens = ['home', 'writing', 'portfolio', 'contact'];
+  const [screen, setScreen] = useState(() => {
+    const h = (window.location.hash || '').replace('#', '');
+    return screens.includes(h) ? h : 'home';
+  });
+  const onNavigate = (s) => {
+    if (s === 'bio') { window.location.href = '../../bio/Bio%20Timeline.html'; return; }
+    setScreen(s);
+    if (window.history.replaceState) {
+      window.history.replaceState(null, '', s === 'home' ? window.location.pathname : '#' + s);
+    }
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
 
   return (
     <>
       <Nav active={screen} onNavigate={onNavigate}/>
       {screen === 'home' && <HomeScreen onNavigate={onNavigate}/>}
       {screen === 'writing' && <WritingScreen/>}
-      {screen === 'bio' && <BioScreen/>}
+      {screen === 'portfolio' && <PortfolioScreen/>}
       {screen === 'contact' && <ContactScreen/>}
     </>
   );

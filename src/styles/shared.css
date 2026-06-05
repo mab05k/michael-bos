@@ -31,14 +31,6 @@ body {
   font-weight: var(--fw-medium);
 }
 
-.idx {
-  font-family: var(--font-mono);
-  font-size: var(--fs-11);
-  color: var(--canyon-fade);
-  font-feature-settings: 'tnum';
-  letter-spacing: var(--tr-wide);
-}
-
 /* ── Status pills ──────────────────────────────────────────── */
 
 .pill {
@@ -156,8 +148,26 @@ body {
   font-family: var(--font-mono);
 }
 .sitenav a.current { color: var(--rust); }
-.sitenav a:hover { color: var(--canyon-ink); background: var(--bg-sand); }
-.sitenav a.current:hover { background: var(--bg-sand); }
+.sitenav a:hover { color: var(--canyon-ink); background: var(--bg-sand-deep); }
+.sitenav a.current:hover { background: var(--bg-sand-deep); }
+
+/* ── Nav status indicator ──────────────────────────────────── */
+
+.nav-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  color: var(--canyon-fade);
+  letter-spacing: 0.04em;
+  margin-left: 8px;
+}
+.nav-status .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--status-pass);
+  box-shadow: 0 0 0 3px rgba(63,138,79,0.20);
+}
 
 /* ── Page wrapper ──────────────────────────────────────────── */
 

@@ -221,7 +221,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       margin: 96px auto 0;
       padding: 0 32px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 20px;
     }
     a.forward-card {
@@ -290,7 +290,8 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       .facts, .principle, .forward { padding-left: 24px; padding-right: 24px; }
       .fact-row { grid-template-columns: 1fr; gap: 6px; padding: 18px 0; }
       .fact-row .k { padding-top: 0; }
-      .forward { grid-template-columns: 1fr; }
+      .forward { grid-template-columns: repeat(2, 1fr); }
+      .forward a.forward-card { min-height: 180px; }
     }
   </style>
 
@@ -385,8 +386,14 @@ import InnerLayout from '../layouts/InnerLayout.astro';
         <span class="blurb">Roles, contributions, education, skills. Built like a service record. Print-ready.</span>
         <span class="open">View the record</span>
       </a>
+      <a class="forward-card" href="/portfolio">
+        <span class="idn">04 / Portfolio</span>
+        <span class="title">Selected work.</span>
+        <span class="blurb">Platforms, tooling, and infrastructure — built in production and in the open.</span>
+        <span class="open">View the work</span>
+      </a>
       <a class="forward-card" href="mailto:mab05k@gmail.com">
-        <span class="idn">04 / Contact</span>
+        <span class="idn">05 / Contact</span>
         <span class="title">A direct line.</span>
         <span class="blurb">Best for hiring conversations, technical advisory, or anything that needs a real reply.</span>
         <span class="open">Open mail</span>

@@ -2,9 +2,8 @@
 const Nav = ({ active, onNavigate }) => {
   const links = [
     { id: 'home', label: 'Home' },
-    { id: 'writing', label: 'Writing' },
     { id: 'bio', label: 'Bio' },
-    { id: 'contact', label: 'Contact' },
+    { id: 'portfolio', label: 'Portfolio' },
   ];
 
   return (

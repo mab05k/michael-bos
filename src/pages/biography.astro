@@ -1,741 +1,1013 @@
 ---
-import InnerLayout from '../layouts/InnerLayout.astro';
-
-const startDate = new Date('1987-08-20');
-
-const years = (() => {
-  const now = new Date();
-
-  let age = now.getFullYear() - startDate.getFullYear();
-
-  const hasHadAnniversaryThisYear =
-      now.getMonth() > startDate.getMonth() ||
-      (now.getMonth() === startDate.getMonth() &&
-          now.getDate() >= startDate.getDate());
-
-  if (!hasHadAnniversaryThisYear) {
-    age--;
-  }
-
-  return age;
-})();
+import '../styles/tokens.css';
 ---
-<InnerLayout title="Biography" activePage="biography">
-  <style is:global>
-    .page-intro {
-      max-width: 1280px;
-      margin: 32px auto 0;
-      padding: 0 24px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 32px;
-      align-items: end;
-    }
-    .page-intro .eyebrow { margin-bottom: 12px; }
-    .page-intro h1 {
-      font-family: var(--font-sans);
-      font-size: 56px;
-      font-weight: var(--fw-medium);
-      letter-spacing: -0.025em;
-      line-height: 1;
-      color: var(--ink-900);
-    }
-    .page-intro .dek {
-      max-width: 100ch;
-      margin-top: 18px;
-      color: var(--ink-700);
-      font-size: var(--fs-16);
-      line-height: 1.55;
-      text-wrap: pretty;
-    }
-    .page-intro .legend {
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--label-mono);
-      text-align: right;
-      line-height: 1.7;
-    }
-    .page-intro .legend .num { color: var(--ink-800); }
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bio — Michael Bos</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" href="/favicon.ico">
+</head>
+<body>
 
-    .map-card {
-      max-width: 1280px;
-      margin: 40px auto 0;
-      padding: 0 24px;
-    }
-    .map-frame {
-      position: relative;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--r-lg);
-      overflow: hidden;
-      box-shadow: var(--shadow-sm);
-    }
-    .map-band {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 18px;
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-    }
-    .map-band .left { display: inline-flex; align-items: center; gap: 10px; }
-    .map-band .right .sep { color: var(--ink-300); padding: 0 8px; }
+<div class="stage" id="stage" data-theme="keys" data-anim="in">
 
-    .chart-wrap {
-      position: relative;
-      background: var(--site-paper-deep);
-      background-image:
-        linear-gradient(rgba(42,40,36,0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(42,40,36,0.05) 1px, transparent 1px);
-      background-size: 20px 20px;
-      padding: 24px 16px 16px;
-    }
-    .chart {
-      width: 100%;
-      height: auto;
-      display: block;
-      color: var(--ink-700);
-    }
-
-    .chart .grid-major { stroke: rgba(42,40,36,0.08); stroke-width: 1; }
-    .chart .grid-axis-label { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-500); letter-spacing: 0.06em; text-transform: uppercase; }
-    .chart .us-outline {
-      fill: var(--ink-50);
-      stroke: var(--ink-400);
-      stroke-width: 1.1;
-      stroke-linejoin: round;
-      stroke-linecap: round;
-    }
-    .chart .us-outline-shadow { fill: rgba(74, 103, 65, 0.05); stroke: none; }
-    .chart .route { fill: none; stroke: var(--clay-400); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0.85; }
-    .chart .route-glow { fill: none; stroke: var(--clay-400); stroke-width: 6; opacity: 0.12; stroke-linecap: round; }
-    .chart .bearing-label { font-family: var(--font-mono); font-size: 9px; fill: var(--clay-700); letter-spacing: 0.05em; text-transform: uppercase; }
-    .chart .marker .ring { fill: var(--card-bg); stroke: var(--ink-900); stroke-width: 1.2; }
-    .chart .marker .ring-active { fill: var(--moss-500); stroke: var(--moss-700); }
-    .chart .marker .num { font-family: var(--font-mono); font-weight: 600; font-size: 10px; fill: var(--ink-900); text-anchor: middle; }
-    .chart .marker .num-on { fill: var(--ink-50); }
-    .chart .marker .pin-label { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; fill: var(--ink-900); letter-spacing: 0.04em; }
-    .chart .marker .pin-coord { font-family: var(--font-mono); font-size: 8px; fill: var(--ink-500); letter-spacing: 0.04em; }
-    .chart .marker .pin-year { font-family: var(--font-mono); font-size: 8.5px; fill: var(--clay-600); letter-spacing: 0.06em; }
-    .chart .compass { fill: var(--ink-700); }
-    .chart .compass-bg { fill: var(--card-bg); stroke: var(--ink-300); stroke-width: 1; }
-    .chart .compass-label { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-700); text-anchor: middle; font-weight: 600; }
-    .chart .scalebar-line { stroke: var(--ink-700); stroke-width: 1.5; }
-    .chart .scalebar-tick { stroke: var(--ink-700); stroke-width: 1; }
-    .chart .scalebar-label { font-family: var(--font-mono); font-size: 8.5px; fill: var(--ink-700); }
-
-    .chapters {
-      max-width: 1280px;
-      margin: 64px auto 0;
-      padding: 0 24px;
-    }
-    .chapters-head {
-      display: flex; align-items: baseline; gap: 16px;
-      padding-bottom: 14px;
-      margin-bottom: 32px;
-      border-bottom: 1px solid var(--rule-strong);
-    }
-    .chapters-head h2 {
-      font-family: var(--font-sans);
-      font-size: 26px;
-      font-weight: var(--fw-medium);
-      letter-spacing: -0.02em;
-      color: var(--ink-900);
-    }
-    .chapters-head .meta {
-      margin-left: auto;
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      text-transform: uppercase;
-      letter-spacing: var(--tr-caps);
-      color: var(--label-mono);
-    }
-
-    .chapter {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 48px;
-      padding: 32px 0 36px;
-      border-top: 1px solid var(--border-subtle);
-      position: relative;
-    }
-    .chapter:first-of-type { border-top: 1px solid var(--rule-strong); }
-
-    .chapter .meta-col { position: sticky; top: 24px; align-self: start; }
-    .chapter .marker {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 16px;
-    }
-    .chapter .marker .num {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: var(--moss-500);
-      color: var(--ink-50);
-      font-family: var(--font-mono);
-      font-weight: var(--fw-semibold);
-      font-size: var(--fs-13);
-    }
-    .chapter .marker .target {
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--ink-500);
-    }
-    .chapter .loc {
-      font-family: var(--font-sans);
-      font-size: 28px;
-      font-weight: var(--fw-medium);
-      letter-spacing: -0.02em;
-      line-height: 1.05;
-      color: var(--ink-900);
-      margin-bottom: 8px;
-    }
-    .chapter .state {
-      font-family: var(--font-mono);
-      font-size: var(--fs-12);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--ink-600);
-    }
-    .chapter .meta-list {
-      margin-top: 22px;
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 6px 14px;
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-    }
-    .chapter .meta-list .k { color: var(--ink-500); }
-    .chapter .meta-list .v { color: var(--ink-800); }
-    .chapter .meta-list .v.accent { color: var(--clay-600); }
-
-    .chapter .body { padding-top: 4px; min-width: 0; }
-    .chapter .role-tag {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 0 0 12px;
-      color: var(--clay-600);
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      border-bottom: 1px solid var(--clay-100);
-      margin-bottom: 18px;
-    }
-    .chapter .body p {
-      margin: 0 0 14px;
-      font-size: var(--fs-16);
-      line-height: 1.6;
-      color: var(--ink-700);
-      //max-width: 65ch;
-      text-wrap: pretty;
-    }
-    .chapter .body p:last-child { margin-bottom: 0; }
-
-    .chapter .highlights {
-      margin-top: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      max-width: 880px;
-    }
-    .chapter .hi {
-      background: var(--site-paper-deep);
-      border-left: 2px solid var(--moss-400);
-      padding: 12px 14px;
-      border-radius: var(--r-sm);
-    }
-    .chapter .hi .k {
-      font-family: var(--font-mono);
-      font-size: var(--fs-10);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--ink-500);
-      margin-bottom: 4px;
-    }
-    .chapter .hi .v {
-      font-family: var(--font-mono);
-      font-size: var(--fs-13);
-      font-weight: var(--fw-semibold);
-      color: var(--ink-900);
-    }
-    .chapter .hi .v .unit { font-size: var(--fs-11); color: var(--ink-500); font-weight: var(--fw-regular); letter-spacing: var(--tr-wide); }
-
-    .bio-cta {
-      max-width: 1280px;
-      margin: 48px auto 0;
-      padding: 0 24px;
-    }
-    .bio-cta-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      padding: 32px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--r-lg);
-    }
-    .bio-cta .lead {
-      font-family: var(--font-sans);
-      font-size: 22px;
-      letter-spacing: -0.015em;
-      color: var(--ink-900);
-      font-weight: var(--fw-medium);
-    }
-    .bio-cta .sub {
-      font-family: var(--font-mono);
-      font-size: var(--fs-12);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--ink-500);
-      margin-top: 4px;
-    }
-    .bio-cta .actions { display: flex; gap: 12px; }
-    .bio-cta a {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 12px 18px;
-      background: var(--moss-500);
-      color: var(--ink-50);
-      font-family: var(--font-mono);
-      font-size: var(--fs-12);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      border-radius: var(--r-sm);
-      border: 1px solid var(--moss-700);
-      transition: background var(--dur-fast) var(--ease-out);
-    }
-    .bio-cta a.secondary {
-      background: var(--card-bg);
-      color: var(--ink-800);
-      border: 1px solid var(--card-border);
-    }
-    .bio-cta a:hover { background: var(--moss-600); border-bottom-color: var(--moss-700); }
-    .bio-cta a.secondary:hover { background: var(--card-bg-deep); }
-    .bio-cta a::after { content: '→'; transition: transform var(--dur-fast) var(--ease-out); }
-    .bio-cta a:hover::after { transform: translateX(3px); }
-
-    @media (max-width: 880px) {
-      .chapter { grid-template-columns: 1fr; gap: 20px; }
-      .chapter .meta-col { position: static; }
-      .page-intro { grid-template-columns: 1fr; }
-      .page-intro h1 { font-size: 40px; }
-      .page-intro .legend { text-align: left; }
-      .bio-cta-inner { flex-direction: column; align-items: flex-start; }
-    }
-  </style>
-
-  <!-- Intro -->
-  <header class="page-intro">
-    <div>
-      <div class="eyebrow">02 / Biography</div>
-      <h1>The route map.</h1>
-      <p class="dek">
-        Four chapters. One story, plotted by where it happened.
-        Islamorada to Tallahassee, Virginia to Las Vegas &mdash; from a Florida Keys
-        swim team, through six years in Naval Special Warfare intelligence, into
-        a decade of building software and the teams that ship it.
-      </p>
-    </div>
-    <div class="legend">
-      <div><span class="num">01</span> · Islamorada, FL</div>
-      <div><span class="num">02</span> · Tallahassee, FL</div>
-      <div><span class="num">03</span> · Virginia Beach, VA</div>
-      <div><span class="num">04</span> · Las Vegas, NV</div>
+  <!-- Top bar -->
+  <header class="topbar">
+    <a class="brand" href="/">
+      <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect width="32" height="32" rx="6" fill="var(--ink, #1F140C)"/>
+        <path d="M6 22 L11 12 L14 18 L17 13 L22 21 L26 14" stroke="#B84A26" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="22" cy="9" r="1.6" fill="#D4892C"/>
+      </svg>
+      <span class="brand-name">Michael Bos</span>
+      <span class="brand-slash">/</span>
+      <span class="brand-sub">bio</span>
+    </a>
+    <nav class="topnav" aria-label="Primary">
+      <a class="topnav-link" href="/">Home</a>
+      <a class="topnav-link is-active" href="/biography" aria-current="page">Bio</a>
+      <a class="topnav-link" href="/resume">Resume</a>
+      <a class="topnav-link" href="/portfolio">Portfolio</a>
+    </nav>
+    <div class="topbar-right">
+      <span class="loc"><span class="pin"></span>Las Vegas, NV</span>
+      <span class="chapter-count"><b id="chap-current">01</b> / 06</span>
     </div>
   </header>
 
-  <!-- Map -->
-  <section class="map-card" aria-label="Route map">
-    <div class="map-frame">
-      <div class="map-band" style="background: var(--card-bg-deep); color: var(--ink-700); border-bottom: 1px solid var(--card-border);">
-        <div class="left" style="color: var(--ink-700);">
-          <span>Route map · Continental US · 1987 — present</span>
+  <!-- Chapter stage -->
+  <main class="stage-body" id="stage-body">
+
+    <!-- 01 · Florida Keys -->
+    <div class="chapter" id="ch-0" style="display:none">
+      <div class="ch-left">
+        <div class="ch-kicker">
+          <span class="ch-num">01</span>
+          Florida Keys <span class="yr">&middot; before everything</span>
         </div>
-        <div class="right" style="color: var(--ink-500);">
-          <span>4 markers · 3 legs</span>
-          <span class="sep" style="color: var(--ink-300);">·</span>
-          <span>~5,200 mi traveled</span>
+        <h2 class="ch-title">Saltwater first.</h2>
+        <div class="ch-body">
+          <p>
+            I grew up on a thin strip of islands between two oceans &mdash; Islamorada,
+            in the Florida Keys. Boats before bikes. You learn to read weather, tie knots
+            that hold, and fix the thing yourself because the next part is a three-hour
+            drive up US-1.
+          </p>
+          <p>
+            Hurricane season taught me to plan for the deploy that goes wrong. Island
+            time taught me the rest is rarely an emergency. I still run on-call like a
+            boat captain: calm voice, short list, everyone knows their job.
+          </p>
+          <p>
+            Four years at Coral Shores High School ended as co-captain of the swim team,
+            competing at the district and regional levels in the 200&nbsp;m freestyle and
+            100&nbsp;m butterfly. Six sports over five years.
+          </p>
+        </div>
+        <div class="ch-chips">
+          <span class="ch-chip">Islamorada, FL</span>
+          <span class="ch-chip">Saltwater &amp; boats</span>
+          <span class="ch-chip">Coral Shores HS</span>
+          <span class="ch-chip">Swim team co-captain</span>
         </div>
       </div>
-      <div class="chart-wrap">
-        <svg class="chart" viewBox="-40 0 1240 550" xmlns="http://www.w3.org/2000/svg" aria-hidden="false">
-          <rect x="30" y="30" width="1120" height="494" fill="none" stroke="rgba(42,40,36,0.18)" stroke-width="1"></rect>
-
-          <g class="grid-major">
-            <line x1="144" y1="30" x2="144" y2="524"></line>
-            <line x1="334" y1="30" x2="334" y2="524"></line>
-            <line x1="524" y1="30" x2="524" y2="524"></line>
-            <line x1="714" y1="30" x2="714" y2="524"></line>
-            <line x1="904" y1="30" x2="904" y2="524"></line>
-            <line x1="1094" y1="30" x2="1094" y2="524"></line>
-            <line x1="30" y1="125" x2="1150" y2="125"></line>
-            <line x1="30" y1="220" x2="1150" y2="220"></line>
-            <line x1="30" y1="315" x2="1150" y2="315"></line>
-            <line x1="30" y1="410" x2="1150" y2="410"></line>
-            <line x1="30" y1="505" x2="1150" y2="505"></line>
-          </g>
-
-          <g class="grid-axis-label">
-            <text x="144"  y="22" text-anchor="middle">120° W</text>
-            <text x="334"  y="22" text-anchor="middle">110° W</text>
-            <text x="524"  y="22" text-anchor="middle">100° W</text>
-            <text x="714"  y="22" text-anchor="middle">90° W</text>
-            <text x="904"  y="22" text-anchor="middle">80° W</text>
-            <text x="1094" y="22" text-anchor="middle">70° W</text>
-            <text x="24" y="128" text-anchor="end">45° N</text>
-            <text x="24" y="223" text-anchor="end">40° N</text>
-            <text x="24" y="318" text-anchor="end">35° N</text>
-            <text x="24" y="413" text-anchor="end">30° N</text>
-            <text x="24" y="508" text-anchor="end">25° N</text>
-          </g>
-
-          <!-- CONUS outline -->
-          <path class="us-outline-shadow" transform="translate(2,3)" d="
-            M 54.7,60.4 L 92.7,58.5 L 96.5,87.0 L 68.0,102.2 L 68.0,134.5
-            L 64.2,182.0 L 68.0,220.0 L 90.2,248.5 L 97.8,267.5 L 125.0,305.5
-            L 153.5,326.4 L 172.5,334.0 L 199.1,358.7 L 202.9,362.5 L 246.4,362.5
-            L 308.0,385.3 L 361.2,385.3 L 393.5,375.8 L 431.5,398.6 L 460.0,429.0
-            L 488.5,413.8 L 509.4,436.6 L 526.5,457.5 L 568.3,487.9 L 572.1,457.5
-            L 604.4,434.7 L 631.0,419.5 L 659.5,413.8 L 688.0,423.3 L 716.5,429.0
-            L 722.2,410.0 L 745.0,406.2 L 754.5,404.3 L 792.5,410.0 L 815.3,413.8
-            L 830.5,419.5 L 840.0,429.0 L 845.7,448.0 L 855.2,476.5 L 862.8,489.8
-            L 872.3,499.3 L 879.9,503.1 L 887.5,503.1 L 893.2,497.4 L 895.1,491.7
-            L 897.0,472.7 L 885.6,438.5 L 872.3,400.5 L 878.0,381.5 L 898.9,356.8
-            L 917.9,339.7 L 953.0,324.5 L 981.5,309.3 L 979.6,286.5 L 972.0,279.1
-            L 966.3,263.9 L 983.4,258.0 L 989.1,244.7 L 1002.4,231.4 L 1010.0,210.5
-            L 1019.5,210.5 L 1029.0,201.0 L 1051.8,201.0 L 1078.4,191.5 L 1087.9,185.8
-            L 1076.5,176.3 L 1072.7,163.0 L 1080.3,153.5 L 1086.0,149.7 L 1105.0,144.0
-            L 1124.0,138.3 L 1143.0,128.8 L 1143.0,113.6 L 1127.8,96.5 L 1120.2,79.4
-            L 1105.0,79.4 L 1076.5,115.5 L 1057.5,119.3 L 1019.5,125.0 L 1000.5,125.0
-            L 991.0,134.5 L 962.5,144.0 L 933.0,153.5 L 914.0,157.3 L 914.0,172.5
-            L 876.0,185.8 L 847.5,189.6 L 838.0,185.8 L 838.0,144.0 L 828.5,125.0
-            L 803.9,109.8 L 761.0,96.5 L 713.5,87.0 L 666.0,90.8 L 637.5,77.5
-            L 628.0,58.5 L 609.0,49.0 L 533.0,49.0 L 438.0,49.0 L 324.0,49.0
-            L 210.0,49.0 L 106.0,49.0 L 87.0,49.0 Z"></path>
-
-          <path class="us-outline" d="
-            M 54.7,60.4 L 92.7,58.5 L 96.5,87.0 L 68.0,102.2 L 68.0,134.5
-            L 64.2,182.0 L 68.0,220.0 L 90.2,248.5 L 97.8,267.5 L 125.0,305.5
-            L 153.5,326.4 L 172.5,334.0 L 199.1,358.7 L 202.9,362.5 L 246.4,362.5
-            L 308.0,385.3 L 361.2,385.3 L 393.5,375.8 L 431.5,398.6 L 460.0,429.0
-            L 488.5,413.8 L 509.4,436.6 L 526.5,457.5 L 568.3,487.9 L 572.1,457.5
-            L 604.4,434.7 L 631.0,419.5 L 659.5,413.8 L 688.0,423.3 L 716.5,429.0
-            L 722.2,410.0 L 745.0,406.2 L 754.5,404.3 L 792.5,410.0 L 815.3,413.8
-            L 830.5,419.5 L 840.0,429.0 L 845.7,448.0 L 855.2,476.5 L 862.8,489.8
-            L 872.3,499.3 L 879.9,503.1 L 887.5,503.1 L 893.2,497.4 L 895.1,491.7
-            L 897.0,472.7 L 885.6,438.5 L 872.3,400.5 L 878.0,381.5 L 898.9,356.8
-            L 917.9,339.7 L 953.0,324.5 L 981.5,309.3 L 979.6,286.5 L 972.0,279.1
-            L 966.3,263.9 L 983.4,258.0 L 989.1,244.7 L 1002.4,231.4 L 1010.0,210.5
-            L 1019.5,210.5 L 1029.0,201.0 L 1051.8,201.0 L 1078.4,191.5 L 1087.9,185.8
-            L 1076.5,176.3 L 1072.7,163.0 L 1080.3,153.5 L 1086.0,149.7 L 1105.0,144.0
-            L 1124.0,138.3 L 1143.0,128.8 L 1143.0,113.6 L 1127.8,96.5 L 1120.2,79.4
-            L 1105.0,79.4 L 1076.5,115.5 L 1057.5,119.3 L 1019.5,125.0 L 1000.5,125.0
-            L 991.0,134.5 L 962.5,144.0 L 933.0,153.5 L 914.0,157.3 L 914.0,172.5
-            L 876.0,185.8 L 847.5,189.6 L 838.0,185.8 L 838.0,144.0 L 828.5,125.0
-            L 803.9,109.8 L 761.0,96.5 L 713.5,87.0 L 666.0,90.8 L 637.5,77.5
-            L 628.0,58.5 L 609.0,49.0 L 533.0,49.0 L 438.0,49.0 L 324.0,49.0
-            L 210.0,49.0 L 106.0,49.0 L 87.0,49.0 Z"></path>
-
-          <!-- Compass rose -->
-          <g transform="translate(75,80)">
-            <circle class="compass-bg" cx="0" cy="0" r="24"></circle>
-            <path class="compass" d="M0,-20 L4,-2 L0,0 L-4,-2 Z" fill-opacity="0.85"></path>
-            <path class="compass" d="M0,20 L4,2 L0,0 L-4,2 Z" fill-opacity="0.25"></path>
-            <text class="compass-label" x="0" y="-28">N</text>
-          </g>
-
-          <!-- Scale bar -->
-          <g transform="translate(990,530)">
-            <line class="scalebar-line" x1="0" y1="0" x2="152" y2="0"></line>
-            <line class="scalebar-tick" x1="0" y1="-3" x2="0" y2="3"></line>
-            <line class="scalebar-tick" x1="76" y1="-3" x2="76" y2="3"></line>
-            <line class="scalebar-tick" x1="152" y1="-3" x2="152" y2="3"></line>
-            <text class="scalebar-label" x="0" y="14">0</text>
-            <text class="scalebar-label" x="76" y="14" text-anchor="middle">300</text>
-            <text class="scalebar-label" x="152" y="14" text-anchor="end">600 mi</text>
-          </g>
-
-          <!-- Route line: 01 → 02 → 03 → 04 -->
-          <g>
-            <path class="route-glow" d="M 892.2,506.5 L 822.7,401.6 L 980.4,279.9 L 236.3,292.8"></path>
-            <path class="route" d="M 892.2,506.5 L 822.7,401.6 L 980.4,279.9 L 236.3,292.8">
-              <animate attributeName="stroke-dashoffset" from="8" to="0" dur="0.6s" repeatCount="indefinite"></animate>
-            </path>
-            <text class="bearing-label" x="825" y="452">+ 380 mi · NW</text>
-            <text class="bearing-label" x="908" y="335">+ 740 mi · NE</text>
-            <text class="bearing-label" x="580" y="276">+ 2,090 mi · W</text>
-          </g>
-
-          <!-- 01 Islamorada -->
-          <g class="marker" transform="translate(892.2,506.5)">
-            <circle class="ring" r="10"></circle>
-            <text class="num" y="4">01</text>
-            <text class="pin-label" x="-14" y="-7" text-anchor="end">Islamorada, FL</text>
-            <text class="pin-coord" x="-14" y="6" text-anchor="end">24.92° N · 80.62° W</text>
-            <text class="pin-year" x="-14" y="19" text-anchor="end">1987 — 2005</text>
-          </g>
-
-          <!-- 02 Tallahassee -->
-          <g class="marker" transform="translate(822.7,401.6)">
-            <circle class="ring" r="10"></circle>
-            <text class="num" y="4">02</text>
-            <text class="pin-label" x="-14" y="-7" text-anchor="end">Tallahassee, FL</text>
-            <text class="pin-coord" x="-14" y="6" text-anchor="end">30.44° N · 84.28° W</text>
-            <text class="pin-year" x="-14" y="19" text-anchor="end">2005 — 2009</text>
-          </g>
-
-          <!-- 03 Virginia Beach -->
-          <g class="marker" transform="translate(980.4,279.9)">
-            <circle class="ring" r="10"></circle>
-            <text class="num" y="4">03</text>
-            <text class="pin-label" x="16" y="-2">Virginia Beach, VA</text>
-            <text class="pin-coord" x="16" y="11">36.85° N · 75.98° W</text>
-            <text class="pin-year" x="16" y="24">2010 — 2016</text>
-          </g>
-
-          <!-- 04 Las Vegas (active) -->
-          <g class="marker" transform="translate(236.3,292.8)">
-            <circle class="ring-active ring" r="12"></circle>
-            <circle r="22" fill="none" stroke="var(--moss-500)" stroke-width="1" opacity="0.4">
-              <animate attributeName="r" from="12" to="28" dur="2.2s" repeatCount="indefinite"></animate>
-              <animate attributeName="opacity" from="0.5" to="0" dur="2.2s" repeatCount="indefinite"></animate>
-            </circle>
-            <text class="num num-on" y="4">04</text>
-            <text class="pin-label" x="18" y="-2">Las Vegas, NV</text>
-            <text class="pin-coord" x="18" y="11">36.17° N · 115.14° W</text>
-            <text class="pin-year" x="18" y="24">2016 — present · active</text>
-          </g>
-        </svg>
+      <div class="ch-right">
+        <div class="keys-horizon">
+          <span class="kh-coord">24.92&deg; N &middot; 80.62&deg; W</span>
+          <span class="kh-tag">home water</span>
+          <div class="hz-line"></div>
+          <span class="kh-mm">MM 81 &middot; Islamorada, FL</span>
+        </div>
       </div>
     </div>
-  </section>
 
-  <!-- Chapters -->
-  <section class="chapters">
-    <div class="chapters-head">
-      <h2>Chapters</h2>
-      <span class="meta">4 locations · {years} yr</span>
+    <!-- 02 · Florida State University -->
+    <div class="chapter" id="ch-1" style="display:none">
+      <div class="ch-left">
+        <div class="ch-kicker">
+          <span class="ch-num">02</span>
+          Florida State University <span class="yr">&middot; 2005 &mdash; 2009</span>
+        </div>
+        <h2 class="ch-title">Garnet &amp; gold.</h2>
+        <div class="ch-body">
+          <p>
+            I left the islands for Tallahassee and Florida State&rsquo;s College of
+            Business &mdash; finishing in 2009 with a B.S. in Finance and Real Estate.
+            The classroom was half of it; the other half was Theta Chi, which at the time
+            had the highest overall GPA on campus and took its philanthropic work and
+            intramural athletics seriously.
+          </p>
+          <p>
+            Brotherhood Chairman for one year, running the annual retreat and internal
+            programming. Athletic Chairman for two, assembling teams and coordinating
+            participation across intramural sports. A lot of what came later &mdash;
+            organizing people, sequencing work, keeping a group moving in the same
+            direction &mdash; got its first rep here.
+          </p>
+        </div>
+        <div class="ch-chips">
+          <span class="ch-chip">Tallahassee, FL</span>
+          <span class="ch-chip">Theta Chi</span>
+          <span class="ch-chip">Brotherhood &amp; Athletic Chair</span>
+        </div>
+      </div>
+      <div class="ch-right">
+        <div class="degree-card">
+          <div class="seal">FSU</div>
+          <div>
+            <div class="dc-deg">B.S. &middot; Finance &amp; Real Estate</div>
+            <div class="dc-school">Florida State University</div>
+            <div class="dc-meta">Tallahassee, FL &middot; Class of 2009</div>
+          </div>
+        </div>
+        <div class="dc-rule"></div>
+      </div>
     </div>
 
-    <!-- 01 ISLAMORADA -->
-    <article class="chapter">
-      <div class="meta-col">
-        <div class="marker">
-          <span class="num">01</span>
-          <span class="target">Chapter one</span>
+    <!-- 03 · U.S. Navy -->
+    <div class="chapter" id="ch-2" style="display:none">
+      <div class="ch-left">
+        <div class="ch-kicker">
+          <span class="ch-num">03</span>
+          United States Navy <span class="yr">&middot; 2010 &mdash; 2016</span>
         </div>
-        <div class="loc">Islamorada</div>
-        <div class="state">Florida Keys · USA</div>
-        <div class="meta-list">
-          <div class="k">Years</div>   <div class="v">1987 — 2005</div>
-          <div class="k">Coords</div>  <div class="v">24.92° N · 80.62° W</div>
-          <div class="k">School</div>  <div class="v">Coral Shores HS · '05</div>
-          <div class="k">Status</div>  <div class="v accent">Origin</div>
-        </div>
-      </div>
-      <div class="body">
-        <span class="role-tag">Growing up in the Keys</span>
-        <p>
-          A six-mile stretch of islands in the Florida Keys is hard to leave but harder
-          to take seriously as a base of operations. Growing up there meant the water was
-          always close and the ceiling was always low &mdash; if you wanted somewhere bigger,
-          you had to go find it.
-        </p>
-        <p>
-          Sports filled most of the days that school didn&rsquo;t &mdash; soccer, baseball,
-          basketball, tennis, ping pong, chess. The saxophone in middle and high school.
-          The four years at Coral Shores High School ended as co-captain of the swim team,
-          competing at the district and regional levels in the 200&nbsp;m freestyle and
-          100&nbsp;m butterfly.
-        </p>
-        <div class="highlights">
-          <div class="hi"><div class="k">Sports</div><div class="v">6+ <span class="unit">disciplines</span></div></div>
-          <div class="hi"><div class="k">Swim team</div><div class="v">Co-captain</div></div>
-          <div class="hi"><div class="k">Best events</div><div class="v">200 FR / 100 FLY</div></div>
+        <h2 class="ch-title">Where I learned what a process is for.</h2>
+        <div class="ch-body">
+          <p>
+            Enlisted in 2010 with the goal of becoming a SEAL. Made it through boot camp
+            and additional physical training, then was not selected to continue. Pivoted
+            to the Intelligence Specialist rating and graduated at the top of my class at
+            the Navy and Marine Corps Intelligence Training Center in Dam&nbsp;Neck,
+            Virginia. That earned a screen for Naval Special Warfare Development Group.
+          </p>
+          <p>
+            Over four overseas combat deployments I took on roles not typical for IS2s:
+            <strong>Analyst</strong>, <strong>ISR Manager</strong> (10,000+ hours
+            coordinated), <strong>CIA Liaison Officer</strong>, and
+            <strong>Joint Staff Intelligence Officer</strong> for a 70-person task force
+            &mdash; a position normally held by officers. Honorably discharged
+            January&nbsp;2016.
+          </p>
+          <p>
+            I run engineering teams with the same discipline I ran a watch: clear roles,
+            written decisions, room to act. Standups are short. Postmortems are blameless.
+            Pagers go off less.
+          </p>
         </div>
       </div>
-    </article>
-
-    <!-- 02 TALLAHASSEE -->
-    <article class="chapter">
-      <div class="meta-col">
-        <div class="marker">
-          <span class="num">02</span>
-          <span class="target">Chapter two</span>
+      <div class="ch-right">
+        <div class="service-card">
+          <div class="service-grid">
+            <div class="service-line">
+              <div class="service-k">Unit</div>
+              <div class="service-v">Naval Special Warfare Development Group</div>
+            </div>
+            <div class="service-line">
+              <div class="service-k">Rate</div>
+              <div class="service-v">IS2 &middot; Intelligence Specialist, 2nd Class</div>
+            </div>
+            <div class="service-line">
+              <div class="service-k">Sea</div>
+              <div class="service-v">Four combat deployments</div>
+            </div>
+            <div class="service-line">
+              <div class="service-k">ISR</div>
+              <div class="service-v">10,000+ hours coordinated</div>
+            </div>
+            <div class="service-line">
+              <div class="service-k">Sep.</div>
+              <div class="service-v">Honorable Discharge &middot; January 2016</div>
+            </div>
+          </div>
+          <div class="ribbon-bar">
+            <span style="background:#14233F"></span>
+            <span style="background:#C9A227"></span>
+            <span style="background:#7A1F2B"></span>
+            <span style="background:#1D3A2A"></span>
+            <span style="background:#C9A227"></span>
+            <span style="background:#14233F"></span>
+          </div>
         </div>
-        <div class="loc">Tallahassee</div>
-        <div class="state">Florida · USA</div>
-        <div class="meta-list">
-          <div class="k">Years</div>       <div class="v">2005 — 2009</div>
-          <div class="k">Coords</div>      <div class="v">30.44° N · 84.28° W</div>
-          <div class="k">Institution</div> <div class="v">Florida State Univ.</div>
-          <div class="k">Degree</div>      <div class="v accent">B.S. Fin. &amp; RE</div>
-        </div>
-      </div>
-      <div class="body">
-        <span class="role-tag">Florida State University · College of Business</span>
-        <p>
-          Four years at Florida State&rsquo;s College of Business, finishing in 2009
-          with a B.S. in Finance and Real Estate. The classroom was half of it; the
-          other half was Theta Chi &mdash; at the time, the fraternity with the highest
-          overall GPA on campus, and the one that took its philanthropic work and
-          intramural athletics seriously.
-        </p>
-        <p>
-          Brotherhood Chairman for one year (running the annual retreat and internal
-          programming), Athletic Chairman for two (assembling teams and coordinating
-          participation across intramural sports). A lot of what came later &mdash;
-          organizing people, sequencing work, keeping a group moving in the same
-          direction &mdash; got its first rep here.
-        </p>
-        <div class="highlights">
-          <div class="hi"><div class="k">Degree</div><div class="v">B.S. <span class="unit">Finance + Real Estate</span></div></div>
-          <div class="hi"><div class="k">Theta Chi</div><div class="v">Brotherhood / Athletic Chair</div></div>
-          <div class="hi"><div class="k">Tenure</div><div class="v">4 <span class="unit">yr</span></div></div>
-        </div>
-      </div>
-    </article>
-
-    <!-- 03 VIRGINIA BEACH -->
-    <article class="chapter">
-      <div class="meta-col">
-        <div class="marker">
-          <span class="num">03</span>
-          <span class="target">Chapter three</span>
-        </div>
-        <div class="loc">Virginia&nbsp;Beach</div>
-        <div class="state">Virginia · USA</div>
-        <div class="meta-list">
-          <div class="k">Years</div>   <div class="v">2010 — 2016</div>
-          <div class="k">Coords</div>  <div class="v">36.85° N · 75.98° W</div>
-          <div class="k">Service</div> <div class="v">U.S. Navy</div>
-          <div class="k">Unit</div>    <div class="v">NSWDG</div>
-          <div class="k">Rate</div>    <div class="v accent">IS2</div>
-          <div class="k">Status</div>  <div class="v">Honorable disch.</div>
-        </div>
-      </div>
-      <div class="body">
-        <span class="role-tag">U.S. Navy · Naval Special Warfare Development Group</span>
-        <p>
-          Enlisted in 2010 with the goal of becoming a SEAL. Made it through boot camp
-          and several weeks of additional physical training, then was not selected to
-          continue. Pivoted to the Intelligence Specialist rating and reported to the
-          Navy and Marine Corps Intelligence Training Center in Dam&nbsp;Neck, Virginia,
-          where the previous failure became the motivation &mdash; graduated at the top
-          of the class in both general naval intelligence and the follow-on ground
-          operations course.
-        </p>
-        <p>
-          That earned an invitation to screen for an intelligence position with an
-          elite special missions unit. After a week of psychological evaluations,
-          physical and written tests, and a series of boards, joined Naval Special
-          Warfare Development Group (NSWDG) in April&nbsp;2011.
-        </p>
-        <p>
-          Over four overseas combat deployments, took on roles not typically assigned
-          to Intelligence Specialists. As an <strong>Analyst</strong>, researched and
-          aggregated intelligence to support special operations missions targeting
-          high-value individuals. As an <strong>ISR Manager</strong>, coordinated the
-          deployment of manned and unmanned ISR assets in excess of 10,000&nbsp;hours.
-          Served as a <strong>Liaison Officer</strong> between the Central Intelligence
-          Agency and the commander of NSWDG. Most notably, served as
-          <strong>Joint Staff Intelligence Officer</strong> for a 70-person task force
-          &mdash; a position normally reserved for military officers as the most senior
-          intelligence role in the area of operations.
-        </p>
-        <p>
-          Honorably discharged in January&nbsp;2016 at the rank of Petty Officer
-          Second Class.
-        </p>
-        <div class="highlights">
-          <div class="hi"><div class="k">Deployments</div><div class="v">04 <span class="unit">combat tours</span></div></div>
-          <div class="hi"><div class="k">ISR coordinated</div><div class="v">10,000+ <span class="unit">hrs</span></div></div>
-          <div class="hi"><div class="k">Task force</div><div class="v">70 <span class="unit">pax · JSIO</span></div></div>
-          <div class="hi"><div class="k">Rank at EAS</div><div class="v">PO2 · IS2</div></div>
-        </div>
-      </div>
-    </article>
-
-    <!-- 04 LAS VEGAS -->
-    <article class="chapter">
-      <div class="meta-col">
-        <div class="marker">
-          <span class="num">04</span>
-          <span class="target">Chapter four · Active</span>
-        </div>
-        <div class="loc">Las&nbsp;Vegas</div>
-        <div class="state">Nevada · USA</div>
-        <div class="meta-list">
-          <div class="k">Years</div>     <div class="v">2016 — present</div>
-          <div class="k">Coords</div>    <div class="v">36.17° N · 115.14° W</div>
-          <div class="k">Vertical</div>  <div class="v">Software</div>
-          <div class="k">Current</div>   <div class="v accent">Sr. Eng. Mgr.</div>
-          <div class="k">Element</div>   <div class="v">Guidepoint Global</div>
-          <div class="k">Education</div> <div class="v">UNLV EMBA '22</div>
-        </div>
-      </div>
-      <div class="body">
-        <span class="role-tag">Software engineering · ten years · engineer → lead → manager</span>
-        <p>
-          Started writing code as a hobby while still in the Navy. Building small
-          websites turned into a strong-enough interest that engineering became the
-          next career on purpose. First role was Junior PHP Developer at
-          Partner&nbsp;Weekly &mdash; a marketing agency in the consumer specialty
-          finance space &mdash; learning the fundamentals, attending and speaking at
-          local PHP meetups, and contributing to open source.
-        </p>
-        <p>
-          From there, Switch,&nbsp;Inc. &mdash; the data center company &mdash; for a
-          long run that went Software Engineer → Manager of Software Engineering
-          (2019) → Software Engineer III → Technical Project Manager. Built APIs and
-          back-end systems supporting day-to-day operations, then a team of eight
-          building them. The most lasting contribution was an automated CI/CD
-          pipeline that became how the engineering org shipped.
-        </p>
-        <p>
-          Joined Guidepoint Global in April&nbsp;2023 as Lead Software Engineer,
-          architecting a company-wide migration to containerized, cloud-native
-          workflows across 10+ teams and 20+ services on Azure Kubernetes Service.
-          Promoted to Software Engineering Manager in 2025, leading two teams (11
-          direct reports) delivering AI-powered features. Promoted again in
-          January&nbsp;2026 to <strong>Senior Software Engineering Manager</strong>,
-          leading architecture and delivery for Guidepoint&rsquo;s next-generation
-          agentic platform &mdash; defining MCP-based tooling, integration patterns
-          with the core CRM, and the reliability and auth models that production
-          agentic systems demand.
-        </p>
-        <p>
-          UNLV Executive&nbsp;MBA in 2022 along the way. Climbing rock for the last
-          stretch of it, on whatever weekends will allow.
-        </p>
-        <div class="highlights">
-          <div class="hi"><div class="k">Migration</div><div class="v">20+ <span class="unit">services · 10+ teams</span></div></div>
-          <div class="hi"><div class="k">Org built</div><div class="v">11 <span class="unit">direct reports</span></div></div>
-          <div class="hi"><div class="k">Tenure</div><div class="v">10 <span class="unit">yr software</span></div></div>
-          <div class="hi"><div class="k">Degree</div><div class="v">EMBA <span class="unit">UNLV '22</span></div></div>
-        </div>
-      </div>
-    </article>
-  </section>
-
-  <!-- CTA -->
-  <section class="bio-cta">
-    <div class="bio-cta-inner">
-      <div>
-        <div class="lead">The summarized version lives next door.</div>
-        <div class="sub">Sheet 03 · Operational history · printable</div>
-      </div>
-      <div class="actions">
-        <a href="/resume">Open resume</a>
-        <a class="secondary" href="mailto:mab05k@gmail.com">Contact</a>
       </div>
     </div>
-  </section>
 
-</InnerLayout>
+    <!-- 04 · Software engineering -->
+    <div class="chapter" id="ch-3" style="display:none">
+      <div class="ch-left">
+        <div class="ch-kicker">
+          <span class="ch-num">04</span>
+          Software engineering <span class="yr">&middot; 2016 &mdash; present</span>
+        </div>
+        <h2 class="ch-title">Ten years on a clean trunk.</h2>
+        <div class="ch-body">
+          <p>
+            Started writing code as a hobby while still in the Navy. First role: Junior
+            PHP Developer at Partner&nbsp;Weekly in Las Vegas. From there, Switch,&nbsp;Inc.
+            &mdash; where software engineer became manager of software engineering (2019),
+            where a team of eight built the APIs that ran day-to-day operations. The most
+            lasting contribution was an automated CI/CD pipeline that became how the
+            engineering org shipped.
+          </p>
+          <p>
+            Joined Guidepoint Global in April&nbsp;2023 as Lead Software Engineer.
+            Promoted to Software Engineering Manager in 2025, then to
+            <strong>Senior Software Engineering Manager</strong> in January&nbsp;2026,
+            now leading architecture and delivery for the next-generation agentic platform:
+            MCP-based tooling, AKS-hosted services, and the reliability and auth models
+            that production agentic systems demand.
+          </p>
+          <div class="tech-stack">
+            <span class="ch-chip">python</span>
+            <span class="ch-chip">go</span>
+            <span class="ch-chip">kubernetes</span>
+            <span class="ch-chip">github actions</span>
+            <span class="ch-chip">azure</span>
+            <span class="ch-chip">observability</span>
+          </div>
+        </div>
+      </div>
+      <div class="ch-right">
+        <div class="term">
+          <div class="term-bar">
+            <div class="tdot" style="background:#FF5F57"></div>
+            <div class="tdot" style="background:#FEBC2E"></div>
+            <div class="tdot" style="background:#28C840"></div>
+            <div class="term-title">career.log &middot; git log</div>
+          </div>
+          <div class="term-body">
+            <span class="dim">$ git log --oneline --author=mbos</span><br>
+            <span class="acc">a1f9c0</span> guidepoint &mdash; sr. engineering manager &middot; jan 2026<br>
+            <span class="acc">7b2e44</span> guidepoint &mdash; built platform team from scratch<br>
+            <span class="acc">3c0d18</span> switch &mdash; cut p50 deploy 42m <span class="dim">&rarr;</span> 6m<br>
+            <span class="acc">9e5a2f</span> switch &mdash; split monolith pipeline into 3 lanes<br>
+            <span class="acc">c4b8d1</span> partner weekly &mdash; first production on-call<br>
+            <span class="ok">HEAD &rarr; main &middot; clean working tree &#10003;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 · UNLV Executive MBA -->
+    <div class="chapter" id="ch-4" style="display:none">
+      <div class="ch-left">
+        <div class="ch-kicker">
+          <span class="ch-num">05</span>
+          UNLV &middot; Executive MBA <span class="yr">&middot; 2022</span>
+        </div>
+        <h2 class="ch-title">Vocabulary to argue with finance.</h2>
+        <div class="ch-body">
+          <p>
+            By then I was already managing engineers in Las Vegas, so I did the Executive
+            MBA at UNLV mostly to learn the language on the other side of the table
+            &mdash; margin, runway, opportunity cost.
+          </p>
+          <p>
+            The thing I actually learned: <strong>most &ldquo;people problems&rdquo; are
+            process problems wearing a costume.</strong> Fix the system and the drama
+            usually leaves on its own.
+          </p>
+        </div>
+        <div class="ch-chips">
+          <span class="ch-chip">Las Vegas, NV</span>
+          <span class="ch-chip">Finance &amp; strategy</span>
+          <span class="ch-chip">Systems thinking</span>
+        </div>
+      </div>
+      <div class="ch-right">
+        <div class="ledger">
+          <div class="ledger-head">
+            <div class="seal">UNLV</div>
+            <div>
+              <div class="lh-deg">Executive MBA &middot; 2022</div>
+              <div class="lh-school">Lee Business School</div>
+            </div>
+          </div>
+          <div class="ledger-row">
+            <div class="ledger-l"><em>&ldquo;people problem&rdquo;</em></div>
+            <div class="ledger-eq">&rarr;</div>
+            <div class="ledger-r">unclear ownership</div>
+          </div>
+          <div class="ledger-row">
+            <div class="ledger-l"><em>&ldquo;they&rsquo;re slow&rdquo;</em></div>
+            <div class="ledger-eq">&rarr;</div>
+            <div class="ledger-r">no defined done</div>
+          </div>
+          <div class="ledger-row">
+            <div class="ledger-l"><em>&ldquo;low morale&rdquo;</em></div>
+            <div class="ledger-eq">&rarr;</div>
+            <div class="ledger-r">painful deploys</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 · Red Rock -->
+    <div class="chapter" id="ch-5" style="display:none">
+      <div class="ch-left">
+        <div class="ch-kicker">
+          <span class="ch-num">06</span>
+          Red Rock Canyon <span class="yr">&middot; now</span>
+        </div>
+        <h2 class="ch-title">Six years on the rope.</h2>
+        <div class="ch-body">
+          <p>
+            Twenty minutes from my desk the sandstone turns red and vertical. I climb
+            mostly trad in Red Rock Canyon &mdash; long, committing routes where the
+            gear you place is the only thing between you and a bad day.
+          </p>
+          <p>
+            It is the same discipline as the job: short repeatable moves, clean
+            protection, room to back off. The best postmortems read like climbing
+            accidents &mdash; a series of individually reversible decisions that
+            compounded into one irreversible one.
+          </p>
+        </div>
+        <div class="grade-strip">
+          <div class="grade-cell"><div class="g">5.8</div><div class="l">warmup</div></div>
+          <div class="grade-cell"><div class="g">5.9</div><div class="l">cruise</div></div>
+          <div class="grade-cell"><div class="g">5.10</div><div class="l">work</div></div>
+          <div class="grade-cell hot"><div class="g">5.11c</div><div class="l">onsight</div></div>
+          <div class="grade-cell"><div class="g">5.12</div><div class="l">project</div></div>
+        </div>
+      </div>
+      <div class="ch-right">
+        <div class="climb-photo">
+          <img src="/michael-bos-action.jpg" alt="Michael Bos on red sandstone, Red Rock Canyon, Nevada" loading="lazy">
+          <span class="cp-tag">36.135&deg; N &middot; Red Rock Canyon, NV</span>
+        </div>
+        <div class="latest-tick">
+          <span class="climb-style-badge">&#10003; latest send</span>
+          <span class="lt-route">Cloud Tower</span>
+          <span class="lt-area">Ingalls Buttress</span>
+          <span class="lt-grade">5.11c</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Timeline rail -->
+  <nav class="rail" aria-label="Life timeline">
+    <div class="rail-track">
+      <div class="rail-line" id="rail-line"></div>
+      <div class="rail-progress" id="rail-progress"></div>
+
+      <button class="node" data-idx="0" aria-current="step">
+        <span class="node-dot"></span>
+        <span class="node-year">&#x221E;</span>
+        <span class="node-label">Florida Keys</span>
+      </button>
+      <button class="node" data-idx="1">
+        <span class="node-dot"></span>
+        <span class="node-year">2005</span>
+        <span class="node-label">FSU</span>
+      </button>
+      <button class="node" data-idx="2">
+        <span class="node-dot"></span>
+        <span class="node-year">2010</span>
+        <span class="node-label">U.S. Navy</span>
+      </button>
+      <button class="node" data-idx="3">
+        <span class="node-dot"></span>
+        <span class="node-year">2016</span>
+        <span class="node-label">Engineering</span>
+      </button>
+      <button class="node" data-idx="4">
+        <span class="node-dot"></span>
+        <span class="node-year">2022</span>
+        <span class="node-label">UNLV MBA</span>
+      </button>
+      <button class="node" data-idx="5">
+        <span class="node-dot"></span>
+        <span class="node-year">now</span>
+        <span class="node-label">Red Rock</span>
+      </button>
+
+      <div class="rail-nav">
+        <button class="arrow" id="prev-btn" disabled aria-label="Previous chapter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+        <button class="arrow" id="next-btn" aria-label="Next chapter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+</div><!-- /stage -->
+
+<style is:global>
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+
+/* =========================================================
+   THEME DEFINITIONS — one block per chapter.
+   [data-theme] on .stage re-themes the entire page.
+   ========================================================= */
+
+.stage {
+  /* default = Red Rock Sandstone */
+  --bone:       #F2EAD9;
+  --sand:       #E5D3B3;
+  --ink:        #1F140C;
+  --sub:        #3D2418;
+  --fade:       #6E5B45;
+  --accent:     #B84A26;
+  --accent2:    #D4892C;
+  --line:       rgba(31,20,12,0.12);
+  --line-2:     rgba(31,20,12,0.22);
+  --on-accent:  #F8F2E6;
+  --device-bg:  #2B2018;
+  --device-ink: #EAD9BE;
+  --wash:       radial-gradient(120% 80% at 85% -10%, rgba(184,74,38,0.10), transparent 60%);
+}
+
+/* 01 · Florida Keys */
+.stage[data-theme="keys"] {
+  --bone: #EAF1EE; --sand: #DCEAE6; --ink: #15282B; --sub: #274A4D; --fade: #5C7B7C;
+  --accent: #0E8C99; --accent2: #E0824A;
+  --line: rgba(21,40,43,0.12); --line-2: rgba(21,40,43,0.22);
+  --on-accent: #EAF6F7; --device-bg: #0F2D31; --device-ink: #EAF6F7;
+  --wash: radial-gradient(130% 90% at 80% -20%, rgba(14,140,153,0.16), transparent 58%),
+          linear-gradient(180deg, rgba(224,130,74,0.06), transparent 30%);
+}
+
+/* 02 · FSU */
+.stage[data-theme="fsu"] {
+  --bone: #F4EBDC; --sand: #EADBC3; --ink: #2A1118; --sub: #5A2734; --fade: #7E5A5F;
+  --accent: #782F40; --accent2: #9A7B33;
+  --line: rgba(42,17,24,0.12); --line-2: rgba(120,47,64,0.30);
+  --on-accent: #F6EFE1; --device-bg: #5C2230; --device-ink: #F3E7CF;
+  --wash: radial-gradient(130% 90% at 82% -18%, rgba(120,47,64,0.16), transparent 56%);
+}
+
+/* 03 · U.S. Navy */
+.stage[data-theme="navy"] {
+  --bone: #0E1B30; --sand: #16263F; --ink: #ECE3CF; --sub: #C7CEDB; --fade: #8C99AD;
+  --accent: #D8B23E; --accent2: #6E9BC8;
+  --line: rgba(236,227,207,0.14); --line-2: rgba(216,178,62,0.40);
+  --on-accent: #14233F; --device-bg: #0A1424; --device-ink: #ECE3CF;
+  --wash: radial-gradient(130% 90% at 80% -16%, rgba(216,178,62,0.12), transparent 56%);
+}
+
+/* 04 · Technology */
+.stage[data-theme="tech"] {
+  --bone: #F2EAD9; --sand: #E5D3B3; --ink: #1F140C; --sub: #3D2418; --fade: #6E5B45;
+  --accent: #B84A26; --accent2: #3F8A4F;
+  --line: rgba(31,20,12,0.12); --line-2: rgba(31,20,12,0.22);
+  --on-accent: #F8F2E6; --device-bg: #181410; --device-ink: #EAD9BE;
+  --wash: linear-gradient(180deg, rgba(63,138,79,0.06), transparent 26%),
+          radial-gradient(120% 80% at 86% -10%, rgba(184,74,38,0.09), transparent 58%);
+}
+
+/* 05 · UNLV */
+.stage[data-theme="unlv"] {
+  --bone: #F4ECE2; --sand: #E7DDD2; --ink: #1C1A1B; --sub: #3A3739; --fade: #76777A;
+  --accent: #CF0A2C; --accent2: #76777A;
+  --line: rgba(28,26,27,0.12); --line-2: rgba(207,10,44,0.28);
+  --on-accent: #F6EFE6; --device-bg: #201D1E; --device-ink: #ECE6DE;
+  --wash: radial-gradient(130% 90% at 82% -18%, rgba(207,10,44,0.12), transparent 54%);
+}
+
+/* 06 · Red Rock */
+.stage[data-theme="climb"] {
+  --bone: #EFE2CC; --sand: #E0CBA6; --ink: #221409; --sub: #46280F; --fade: #6E5232;
+  --accent: #B84A26; --accent2: #D4892C;
+  --line: rgba(34,20,9,0.13); --line-2: rgba(184,74,38,0.32);
+  --on-accent: #F8F2E6; --device-bg: #2B1B10; --device-ink: #EAD9BE;
+  --wash: radial-gradient(135% 95% at 78% -16%, rgba(212,137,44,0.18), transparent 56%),
+          linear-gradient(180deg, rgba(184,74,38,0.05), transparent 22%);
+}
+
+/* =========================================================
+   LAYOUT — full-screen stage
+   ========================================================= */
+
+.stage {
+  position: fixed; inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--bone);
+  color: var(--ink);
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1), color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.stage::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: var(--wash);
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1);
+  z-index: 0;
+}
+
+/* =========================================================
+   TOP BAR
+   ========================================================= */
+
+.topbar {
+  position: relative; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 24px;
+  padding: 18px 40px;
+}
+
+.brand {
+  display: flex; align-items: baseline; gap: 2px;
+  text-decoration: none; flex: 0 0 auto;
+}
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 600; font-size: 17px;
+  color: var(--ink); letter-spacing: -0.01em;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.brand-slash {
+  color: var(--accent);
+  font-family: var(--font-mono); font-weight: 500;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.brand-sub {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--fade); margin-left: 12px;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+
+.topnav { display: flex; align-items: center; gap: 4px; }
+.topnav-link {
+  font-family: var(--font-display); font-size: 14px; font-weight: 500;
+  color: var(--fade); text-decoration: none; white-space: nowrap;
+  padding: 7px 15px; border-radius: 999px;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1),
+              background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.topnav-link:hover { color: var(--ink); }
+.topnav-link.is-active {
+  color: var(--accent); font-weight: 600;
+  background: color-mix(in oklab, var(--accent) 13%, transparent);
+}
+
+.topbar-right {
+  display: flex; align-items: center; gap: 18px; flex: 0 0 auto;
+}
+.loc {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.06em; color: var(--fade);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.loc .pin {
+  width: 8px; height: 8px;
+  border: 1.5px solid var(--accent); border-radius: 50%;
+  position: relative;
+  transition: border-color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.loc .pin::after {
+  content: ""; position: absolute; inset: 2px;
+  background: var(--accent); border-radius: 50%;
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.chapter-count {
+  font-family: var(--font-mono); font-size: 12px; color: var(--fade);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.chapter-count b { color: var(--accent); font-weight: 700; transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+
+/* =========================================================
+   STAGE BODY
+   ========================================================= */
+
+.stage-body {
+  position: relative; z-index: 2;
+  min-height: 0;
+  padding: 12px 40px;
+  display: grid;
+  place-items: safe center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+.stage-body::-webkit-scrollbar { width: 8px; }
+.stage-body::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 8px; }
+
+/* =========================================================
+   TIMELINE RAIL (bottom)
+   ========================================================= */
+
+.rail {
+  position: relative; z-index: 5;
+  padding: 0 40px 22px;
+}
+.rail-track {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: start;
+  padding-top: 26px;
+}
+.rail-line {
+  position: absolute; top: 32px; height: 2px;
+  background: var(--line-2); border-radius: 2px;
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.rail-progress {
+  position: absolute; top: 32px; height: 2px;
+  background: var(--accent); border-radius: 2px;
+  transition: width 460ms cubic-bezier(0.2,0.7,0.1,1),
+              background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+
+.node {
+  position: relative;
+  background: none; border: 0; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 0; text-align: center; font-family: inherit;
+}
+.node-dot {
+  position: relative; z-index: 2;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--bone);
+  border: 2px solid var(--line-2);
+  margin-bottom: 12px;
+  transition: border-color 460ms cubic-bezier(0.2,0.7,0.1,1),
+              background 460ms cubic-bezier(0.2,0.7,0.1,1),
+              transform 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.node:hover .node-dot { border-color: var(--accent); }
+.node.is-active .node-dot {
+  border-color: var(--accent); background: var(--accent);
+  transform: scale(1.25);
+  box-shadow: 0 0 0 5px color-mix(in oklab, var(--accent) 22%, transparent);
+}
+.node.is-done .node-dot { border-color: var(--accent); }
+
+.node-year {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.04em; color: var(--fade);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.node.is-active .node-year { color: var(--accent); }
+.node-label {
+  font-family: var(--font-display); font-size: 13px; font-weight: 500;
+  color: var(--sub); white-space: nowrap;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.node.is-active .node-label { color: var(--ink); font-weight: 600; }
+
+.rail-nav {
+  position: absolute; right: 40px; top: -2px;
+  display: flex; gap: 8px;
+}
+.arrow {
+  width: 38px; height: 38px; border-radius: 999px;
+  border: 1.5px solid var(--line-2); background: transparent;
+  color: var(--ink); cursor: pointer;
+  display: grid; place-items: center;
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1),
+              border-color 460ms cubic-bezier(0.2,0.7,0.1,1),
+              opacity 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.arrow:hover { border-color: var(--accent); color: var(--accent); }
+.arrow:disabled { opacity: 0.32; cursor: default; }
+.arrow svg { width: 18px; height: 18px; }
+
+/* =========================================================
+   CHAPTER CONTENT
+   ========================================================= */
+
+.chapter {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 64px;
+  align-items: center;
+  max-width: 1240px; margin: auto;
+}
+.ch-left { min-width: 0; }
+.ch-right { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+
+.ch-kicker {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.ch-kicker .yr { color: var(--fade); transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.ch-num {
+  font-family: var(--font-mono); font-weight: 700; font-size: 12px;
+  color: var(--on-accent); background: var(--accent);
+  padding: 3px 8px; border-radius: 4px;
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1),
+              color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.ch-title {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(38px, 5.2vw, 62px); line-height: 1.02;
+  letter-spacing: -0.025em; color: var(--ink);
+  margin: 22px 0 0; text-wrap: balance; max-width: 16ch;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.ch-body { margin-top: 22px; max-width: 50ch; }
+.ch-body p {
+  font-size: 17px; line-height: 1.66; color: var(--sub);
+  margin: 0 0 16px;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.ch-body p:last-child { margin-bottom: 0; }
+.ch-body strong { color: var(--ink); font-weight: 600; }
+
+.ch-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.ch-chip {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+  padding: 6px 12px; border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--accent) 42%, transparent);
+  background: color-mix(in oklab, var(--accent) 9%, transparent);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1),
+              border-color 460ms cubic-bezier(0.2,0.7,0.1,1),
+              background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+
+.tech-stack { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+
+/* generic seal monogram */
+.seal {
+  width: 54px; height: 54px; flex-shrink: 0; border-radius: 50%;
+  border: 2px solid var(--accent2); color: var(--accent2);
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-weight: 700; font-size: 13px;
+  letter-spacing: 0.02em;
+  transition: border-color 460ms cubic-bezier(0.2,0.7,0.1,1),
+              color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+
+/* =========================================================
+   ENTRANCE ANIMATION
+   ========================================================= */
+
+@media (prefers-reduced-motion: no-preference) {
+  .stage[data-anim="in"] .ch-left > * {
+    opacity: 0; transform: translateY(14px);
+    animation: rise 560ms cubic-bezier(0.2,0.7,0.1,1) forwards;
+  }
+  .stage[data-anim="in"] .ch-right {
+    opacity: 0; transform: translateY(18px);
+    animation: rise 620ms cubic-bezier(0.2,0.7,0.1,1) 80ms forwards;
+  }
+  .stage[data-anim="in"] .ch-left > *:nth-child(1) { animation-delay: 40ms; }
+  .stage[data-anim="in"] .ch-left > *:nth-child(2) { animation-delay: 110ms; }
+  .stage[data-anim="in"] .ch-left > *:nth-child(3) { animation-delay: 180ms; }
+  .stage[data-anim="in"] .ch-left > *:nth-child(4) { animation-delay: 250ms; }
+}
+@keyframes rise { to { opacity: 1; transform: none; } }
+
+/* =========================================================
+   SIGNATURE DEVICES
+   ========================================================= */
+
+/* Keys — horizon artwork */
+.keys-horizon {
+  position: relative; height: 280px; border-radius: 14px;
+  overflow: hidden; border: 1px solid var(--line);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+  background: linear-gradient(180deg,#0F2D31 0%,#1C5258 30%,#2E8A93 48%,#39C0CB 56%,#1C5258 58%,#0F2D31 100%);
+}
+.keys-horizon::after {
+  content:""; position:absolute; left:66%; top:42%; width:120px; height:120px;
+  transform: translate(-50%,-50%); border-radius:50%;
+  background: radial-gradient(circle, rgba(240,168,120,0.95), rgba(240,168,120,0) 70%);
+}
+.keys-horizon .hz-line { position:absolute; left:0; right:0; top:56%; height:1px; background:rgba(240,224,200,0.55); }
+.kh-coord, .kh-mm {
+  position:absolute; font-family: var(--font-mono); font-size:12px;
+  letter-spacing:0.06em; color:#EAF6F7; text-shadow:0 1px 6px rgba(0,0,0,0.6);
+}
+.kh-coord { top:16px; left:18px; }
+.kh-mm { bottom:16px; left:18px; color:#FBE6CF; }
+.kh-tag {
+  position:absolute; top:16px; right:18px; font-family: var(--font-mono);
+  font-size:10px; letter-spacing:0.14em; text-transform:uppercase; white-space:nowrap;
+  color:#0F2D31; background:#E0824A; padding:4px 10px; border-radius:999px;
+}
+
+/* FSU — degree card */
+.degree-card {
+  display: flex; align-items: center; gap: 18px;
+  padding: 26px 28px; border-radius: 14px;
+  background: linear-gradient(180deg, var(--accent), color-mix(in oklab, var(--accent) 78%, #000));
+  border: 1px solid color-mix(in oklab, var(--accent2) 45%, transparent);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.degree-card .seal { border-color: var(--accent2); color: var(--accent2); width:60px; height:60px; }
+.dc-deg { font-family: var(--font-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color: var(--accent2); }
+.dc-school { font-family: var(--font-display); font-weight:600; font-size:21px; color:#F6EFE1; margin:5px 0 3px; letter-spacing:-0.01em; }
+.dc-meta { font-family: var(--font-mono); font-size:12px; color:rgba(246,239,225,0.78); letter-spacing:0.03em; }
+.dc-rule { height:4px; margin-top:14px; border-radius:2px; background: linear-gradient(90deg, var(--accent) 0 50%, var(--accent2) 50% 100%); transition: background 460ms cubic-bezier(0.2,0.7,0.1,1); }
+
+/* Navy — service record */
+.service-card {
+  border-radius: 14px; border: 1px solid var(--line-2);
+  background: var(--device-bg); padding: 26px 28px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1),
+              border-color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.service-grid { display:flex; flex-direction:column; gap:0; }
+.service-line {
+  display:grid; grid-template-columns:92px 1fr; gap:16px; align-items:baseline;
+  padding:13px 0; border-bottom:1px solid rgba(216,178,62,0.18);
+}
+.service-line:last-child { border-bottom:0; }
+.service-k { font-family: var(--font-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color: var(--accent); }
+.service-v { font-family: var(--font-body); font-size:15px; color: var(--device-ink); }
+.ribbon-bar { display:flex; gap:0; margin-top:22px; height:28px; border-radius:3px; overflow:hidden; border:1px solid rgba(0,0,0,0.4); }
+.ribbon-bar span { flex:1; }
+
+/* UNLV — ledger */
+.ledger { border-radius:14px; border:1px solid var(--line-2); overflow:hidden; background: var(--sand); box-shadow:0 12px 32px rgba(0,0,0,0.12); transition: background 460ms cubic-bezier(0.2,0.7,0.1,1), border-color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.ledger-head { display:flex; align-items:center; gap:16px; padding:18px 22px; background: color-mix(in oklab, var(--accent) 12%, transparent); border-bottom:1px solid var(--line-2); }
+.ledger-head .seal { width:50px; height:50px; font-size:11px; border-color: var(--accent); color: var(--accent); }
+.lh-deg { font-family: var(--font-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color: var(--accent); }
+.lh-school { font-family: var(--font-display); font-weight:600; font-size:17px; color: var(--ink); margin-top:3px; transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.ledger-row { display:grid; grid-template-columns:1fr 26px 1fr; align-items:center; gap:12px; padding:14px 22px; border-bottom:1px solid var(--line); }
+.ledger-row:last-child { border-bottom:0; }
+.ledger-l { font-family: var(--font-body); font-size:14px; color: var(--fade); }
+.ledger-l em { font-style:normal; text-decoration:line-through; text-decoration-color: var(--accent); }
+.ledger-eq { font-family: var(--font-mono); color: var(--accent); text-align:center; font-size:15px; transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.ledger-r { font-family: var(--font-body); font-size:14px; color: var(--ink); font-weight:500; transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+
+/* Tech — terminal */
+.term { border-radius:14px; overflow:hidden; border:1px solid var(--line-2); box-shadow:0 12px 32px rgba(0,0,0,0.22); background: var(--device-bg); transition: background 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.term-bar { display:flex; align-items:center; gap:8px; padding:12px 16px; background:rgba(255,255,255,0.04); border-bottom:1px solid rgba(255,255,255,0.06); }
+.tdot { width:11px; height:11px; border-radius:50%; }
+.term-title { font-family: var(--font-mono); font-size:11px; color:rgba(234,217,190,0.6); margin-left:8px; letter-spacing:0.04em; }
+.term-body { padding:20px 22px; font-family: var(--font-mono); font-size:13.5px; line-height:1.9; color: var(--device-ink); }
+.term-body .dim { color:rgba(234,217,190,0.5); }
+.term-body .acc { color: var(--accent2); }
+.term-body .ok { color:#6FCB7F; }
+
+/* Climb — photo + grade strip + latest tick */
+.climb-photo {
+  position:relative; border-radius:14px; overflow:hidden;
+  border:1px solid var(--line); height:270px;
+  box-shadow:0 16px 40px rgba(34,20,9,0.32);
+}
+.climb-photo img { width:100%; height:100%; object-fit:cover; object-position:40% 18%; display:block; }
+.climb-photo .cp-tag {
+  position:absolute; left:14px; bottom:14px;
+  font-family: var(--font-mono); font-size:11px; letter-spacing:0.04em;
+  color:#F0E4D1; padding:5px 10px; border-radius:4px;
+  background:rgba(20,14,9,0.55); backdrop-filter:blur(3px);
+}
+.grade-strip { display:flex; border-radius:8px; overflow:hidden; border:1px solid var(--line); margin-top:24px; transition: border-color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.grade-cell { flex:1; padding:12px 6px; text-align:center; font-family: var(--font-mono); background: var(--sand); transition: background 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.grade-cell .g { font-size:14px; color: var(--ink); font-weight:500; transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.grade-cell .l { font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color: var(--fade); margin-top:4px; transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.grade-cell.hot { background: color-mix(in oklab, var(--accent) 24%, var(--sand)); }
+.grade-cell.hot .g { color: var(--accent); font-weight:700; }
+.latest-tick {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding:14px 18px; border-radius:8px;
+  background: var(--sand); border:1px solid var(--line);
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1), border-color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.climb-style-badge { font-family: var(--font-mono); font-size:11px; color: var(--accent2); background: color-mix(in oklab, var(--accent2) 16%, transparent); padding:2px 8px; border-radius:999px; }
+.lt-route { font-family: var(--font-display); font-size:15px; font-weight:600; color: var(--ink); transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.lt-area { font-family: var(--font-mono); font-size:12px; color: var(--fade); transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.lt-grade { margin-left:auto; font-family: var(--font-mono); font-size:14px; font-weight:700; color: var(--accent); transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 860px) {
+  .topbar { padding: 14px 20px; gap: 12px; }
+  .topbar-right { display: none; }
+  .stage-body { padding: 12px 20px; }
+  .rail { padding: 0 20px 16px; }
+  .rail-nav { right: 0; }
+  .chapter { grid-template-columns: 1fr; gap: 28px; }
+  .ch-right { display: none; }
+  .ch-title { font-size: clamp(32px, 8vw, 48px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
+</style>
+
+<script is:inline>
+(function() {
+  var CHAPTERS = [
+    { theme: 'keys' },
+    { theme: 'fsu' },
+    { theme: 'navy' },
+    { theme: 'tech' },
+    { theme: 'unlv' },
+    { theme: 'climb' },
+  ];
+  var N = CHAPTERS.length;
+  var edge = 100 / (2 * N);
+  var span = 100 - 2 * edge;
+
+  var stage = document.getElementById('stage');
+  var stageBody = document.getElementById('stage-body');
+  var chapCurrent = document.getElementById('chap-current');
+  var railLine = document.getElementById('rail-line');
+  var railProgress = document.getElementById('rail-progress');
+  var prevBtn = document.getElementById('prev-btn');
+  var nextBtn = document.getElementById('next-btn');
+  var nodes = document.querySelectorAll('.node[data-idx]');
+  var slides = document.querySelectorAll('.chapter[id^="ch-"]');
+
+  // Set fixed rail line bounds
+  railLine.style.left = edge + '%';
+  railLine.style.right = edge + '%';
+
+  // Restore saved chapter
+  var i = 0;
+  try {
+    var saved = Number(localStorage.getItem('bio-chapter'));
+    if (Number.isFinite(saved) && saved >= 0 && saved < N) i = saved;
+  } catch(e) {}
+
+  function update(animate) {
+    try { localStorage.setItem('bio-chapter', String(i)); } catch(e) {}
+
+    // Theme
+    stage.setAttribute('data-theme', CHAPTERS[i].theme);
+
+    // Entrance animation re-trigger
+    if (animate) {
+      stage.setAttribute('data-anim', 'out');
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          stage.setAttribute('data-anim', 'in');
+        });
+      });
+    } else {
+      stage.setAttribute('data-anim', 'in');
+    }
+
+    // Chapter count
+    chapCurrent.textContent = String(i + 1).padStart(2, '0');
+
+    // Rail progress
+    var progress = N > 1 ? (i / (N - 1)) * span : 0;
+    railProgress.style.left = edge + '%';
+    railProgress.style.width = progress + '%';
+
+    // Nodes
+    nodes.forEach(function(node, idx) {
+      node.classList.toggle('is-active', idx === i);
+      node.classList.toggle('is-done', idx < i);
+      if (idx === i) { node.setAttribute('aria-current', 'step'); }
+      else { node.removeAttribute('aria-current'); }
+    });
+
+    // Slides
+    slides.forEach(function(slide, idx) {
+      slide.style.display = idx === i ? '' : 'none';
+    });
+
+    // Arrows
+    prevBtn.disabled = i === 0;
+    nextBtn.disabled = i === N - 1;
+  }
+
+  function go(next) {
+    var n = Math.max(0, Math.min(N - 1, next));
+    if (n === i) return;
+    i = n;
+    update(true);
+  }
+
+  // Initial render (no animation flash)
+  update(false);
+
+  // Controls
+  prevBtn.addEventListener('click', function() { go(i - 1); });
+  nextBtn.addEventListener('click', function() { go(i + 1); });
+  nodes.forEach(function(node) {
+    node.addEventListener('click', function() { go(Number(node.dataset.idx)); });
+  });
+
+  // Keyboard
+  window.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); go(i + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); go(i - 1); }
+  });
+})();
+</script>
+
+</body>
+</html>
