@@ -17,6 +17,10 @@ const { activePage } = Astro.props;
       <a class={`topnav-link${activePage === 'resume' ? ' is-active' : ''}`} href="/resume">Resume</a>
       <a class={`topnav-link${activePage === 'portfolio' ? ' is-active' : ''}`} href="/portfolio">Portfolio</a>
     </nav>
-    <slot name="right" />
+    <div class="topbar-right-wrapper">
+      <slot name="right">
+        <span class="loc"><span class="pin"></span>Las Vegas, NV</span>
+      </slot>
+    </div>
   </div>
 </header>
