@@ -2,72 +2,7 @@
 const { useState } = React;
 
 const HomeScreen = ({ onNavigate }) => (
-  <>
-    <Hero onNavigate={onNavigate}/>
-
-    <section className="section container">
-      <div className="grid-7-5">
-        <div>
-          <div className="eyebrow"><span className="num">01</span> · How I ship</div>
-          <h2 className="section-title">Three things I optimize for: cycle time, blast radius, team morale.</h2>
-          <p className="section-lede">
-            I treat delivery the way I treat a long pitch — short repeatable moves, clean gear, room to back off.
-            The result is small reversible deploys, on green main, all day.
-          </p>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <Pipeline/>
-          <Terminal>
-            <span className="prompt">→</span> make deploy<br/>
-            <span className="dim">[1/4]</span> tests passed in 64s <span className="ok">✓</span><br/>
-            <span className="dim">[2/4]</span> build → docker push <span className="ok">✓</span><br/>
-            <span className="dim">[3/4]</span> rolling restart (3 pods) <span className="ok">✓</span><br/>
-            <span className="dim">[4/4]</span> smoke checks <span className="ok">✓</span><br/>
-            <span className="ok">deployed michael-bos.com · 2m 17s</span>
-          </Terminal>
-        </div>
-      </div>
-    </section>
-
-    <section className="section container" style={{ paddingTop: 0 }}>
-      <div className="eyebrow"><span className="num">02</span> · Case studies</div>
-      <h2 className="section-title" style={{ marginBottom: 36 }}>Things I'm proud of.</h2>
-      <div className="grid-2">
-        <ProjectCard
-          eyebrow="Switch · 2019–2022"
-          title="Cut p50 deploy from 42m → 6m"
-          body="Parallelized the test matrix, cached deps between PR builds, split the monolith pipeline into three lanes. Team got their afternoons back."
-          metric={{ value: '−86%', label: 'cycle time' }}
-          tags={['python', 'github actions', 'docker', 'kubernetes']}
-        />
-        <ProjectCard
-          eyebrow="Guidepoint · 2022–present"
-          title="Built a platform team from scratch"
-          body="Hired seven engineers in 14 months. Standing weekly tooling office hours. We now own CI, observability, and the deploy story for every product team."
-          metric={{ value: '7 → 0', label: 'sev-1 pages/qtr' }}
-          tags={['leadership', 'hiring', 'platform', 'observability']}
-        />
-      </div>
-    </section>
-
-    <section className="section container" style={{ paddingTop: 0 }}>
-      <div className="eyebrow"><span className="num">03</span> · Recent writing</div>
-      <h2 className="section-title" style={{ marginBottom: 24 }}>Notes on management, delivery, & rope.</h2>
-      <div>
-        <WritingRow date="2026.05" title="A staff engineer is not a senior senior." read="6 min" />
-        <WritingRow date="2026.04" title="The case for boring pipelines." read="9 min" />
-        <WritingRow date="2026.03" title="Postmortems should read like climbing accidents." read="7 min" />
-        <WritingRow date="2026.02" title="How to run a one-on-one when nothing's wrong." read="5 min" />
-      </div>
-      <div style={{ marginTop: 24 }}>
-        <a className="btn btn-ghost" href="#" onClick={(e) => { e.preventDefault(); onNavigate('writing'); }}>
-          All writing →
-        </a>
-      </div>
-    </section>
-
-    <Footer/>
-  </>
+  <Hero onNavigate={onNavigate}/>
 );
 
 const WritingScreen = () => (

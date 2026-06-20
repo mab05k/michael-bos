@@ -1,0 +1,3 @@
+/* Michael Bos Design System — root entry point
+   Import this single file to get all tokens and base styles. */
+@import './colors_and_type.css';

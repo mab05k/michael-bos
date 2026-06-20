@@ -1,0 +1,212 @@
+{
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": []
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": [
+          {
+            "group": [
+              "bio/**",
+              "cards.jsx",
+              "design-canvas.jsx",
+              "marks.jsx",
+              "themes/**",
+              "ui_kits/portfolio/**"
+            ],
+            "message": "Import design-system components from 'index.js', not component internals."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Raw hex color — use a design-system color token via var()."
+      },
+      {
+        "selector": "Literal[value=/\\b\\d+px\\b/]",
+        "message": "Raw px value — use a design-system spacing token via var()."
+      },
+      {
+        "selector": "Literal[value=/font-family\\s*:\\s*(?!['\\\"]?(?:IBM Plex Sans|JetBrains Mono))/i]",
+        "message": "Font not provided by the design system. Available: IBM Plex Sans, JetBrains Mono."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/index.js"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
+  "x-omelette": {
+    "components": {},
+    "tokens": [
+      "--bg-bone",
+      "--bg-sand",
+      "--bg-sand-deep",
+      "--bone-on-navy",
+      "--brass",
+      "--brass-bright",
+      "--canyon-fade",
+      "--canyon-ink",
+      "--canyon-shadow",
+      "--container",
+      "--dur-layout",
+      "--dur-micro",
+      "--ease-out",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--fs-2xl",
+      "--fs-3xl",
+      "--fs-4xl",
+      "--fs-base",
+      "--fs-lg",
+      "--fs-md",
+      "--fs-sm",
+      "--fs-xl",
+      "--fs-xs",
+      "--gutter",
+      "--hairline",
+      "--hairline-strong",
+      "--lh-normal",
+      "--lh-relaxed",
+      "--lh-snug",
+      "--lh-tight",
+      "--navy",
+      "--navy-soft",
+      "--ochre",
+      "--r-lg",
+      "--r-md",
+      "--r-pill",
+      "--r-sm",
+      "--reading",
+      "--rust",
+      "--rust-deep",
+      "--rust-soft",
+      "--s-0",
+      "--s-1",
+      "--s-10",
+      "--s-2",
+      "--s-3",
+      "--s-4",
+      "--s-5",
+      "--s-6",
+      "--s-7",
+      "--s-8",
+      "--s-9",
+      "--sage",
+      "--selection-bg",
+      "--shadow-1",
+      "--shadow-2",
+      "--shadow-inset",
+      "--sky",
+      "--status-build",
+      "--status-build-bg",
+      "--status-fail",
+      "--status-fail-bg",
+      "--status-idle",
+      "--status-idle-bg",
+      "--status-pass",
+      "--status-pass-bg",
+      "--tracking-caps",
+      "--tracking-normal",
+      "--tracking-tight"
+    ],
+    "tokenKinds": {
+      "--bg-bone": "color",
+      "--bg-sand": "color",
+      "--bg-sand-deep": "color",
+      "--canyon-ink": "color",
+      "--canyon-shadow": "shadow",
+      "--canyon-fade": "color",
+      "--rust": "color",
+      "--rust-deep": "color",
+      "--rust-soft": "color",
+      "--ochre": "color",
+      "--sage": "color",
+      "--sky": "color",
+      "--navy": "color",
+      "--navy-soft": "color",
+      "--brass": "color",
+      "--brass-bright": "color",
+      "--bone-on-navy": "color",
+      "--status-pass": "color",
+      "--status-pass-bg": "color",
+      "--status-build": "color",
+      "--status-build-bg": "color",
+      "--status-fail": "color",
+      "--status-fail-bg": "color",
+      "--status-idle": "color",
+      "--status-idle-bg": "color",
+      "--hairline": "color",
+      "--hairline-strong": "color",
+      "--selection-bg": "color",
+      "--focus-ring": "color",
+      "--font-display": "font",
+      "--font-body": "font",
+      "--font-mono": "font",
+      "--fs-xs": "spacing",
+      "--fs-sm": "spacing",
+      "--fs-base": "spacing",
+      "--fs-md": "spacing",
+      "--fs-lg": "spacing",
+      "--fs-xl": "spacing",
+      "--fs-2xl": "spacing",
+      "--fs-3xl": "spacing",
+      "--fs-4xl": "spacing",
+      "--lh-tight": "font",
+      "--lh-snug": "font",
+      "--lh-normal": "font",
+      "--lh-relaxed": "font",
+      "--tracking-tight": "font",
+      "--tracking-normal": "font",
+      "--tracking-caps": "font",
+      "--s-0": "spacing",
+      "--s-1": "spacing",
+      "--s-2": "spacing",
+      "--s-3": "spacing",
+      "--s-4": "spacing",
+      "--s-5": "spacing",
+      "--s-6": "spacing",
+      "--s-7": "spacing",
+      "--s-8": "spacing",
+      "--s-9": "spacing",
+      "--s-10": "spacing",
+      "--r-sm": "spacing",
+      "--r-md": "spacing",
+      "--r-lg": "spacing",
+      "--r-pill": "spacing",
+      "--shadow-1": "shadow",
+      "--shadow-2": "shadow",
+      "--shadow-inset": "shadow",
+      "--ease-out": "other",
+      "--dur-micro": "other",
+      "--dur-layout": "other",
+      "--container": "spacing",
+      "--gutter": "spacing",
+      "--reading": "spacing"
+    },
+    "fontFamilies": [
+      "IBM Plex Sans",
+      "JetBrains Mono"
+    ]
+  }
+}

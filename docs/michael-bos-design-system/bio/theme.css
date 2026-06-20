@@ -14,8 +14,8 @@ html, body { margin: 0; padding: 0; height: 100%; }
   --font-mono:    'JetBrains Mono', ui-monospace, Menlo, monospace;
 
   --r-sm: 4px; --r-md: 8px; --r-lg: 14px; --r-pill: 999px;
-  --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
-  --dur: 460ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.1, 1); /* @kind other */
+  --dur: 460ms; /* @kind other */
 
   /* ---- Default = Red Rock Sandstone (also the page chrome) ------------- */
   --bone:   #F2EAD9;
@@ -31,7 +31,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
   --device-bg: #2B2018;
   --device-ink:#EAD9BE;
   /* decorative page wash */
-  --wash: radial-gradient(120% 80% at 85% -10%, rgba(184,74,38,0.10), transparent 60%);
+  --wash: radial-gradient(120% 80% at 85% -10%, rgba(184,74,38,0.10), transparent 60%); /* @kind other */
 }
 
 body {
@@ -54,7 +54,7 @@ body {
   --line:rgba(21,40,43,0.12); --line-2:rgba(21,40,43,0.22);
   --on-accent:#EAF6F7; --device-bg:#0F2D31; --device-ink:#EAF6F7;
   --wash: radial-gradient(130% 90% at 80% -20%, rgba(14,140,153,0.16), transparent 58%),
-          linear-gradient(180deg, rgba(224,130,74,0.06), transparent 30%);
+          linear-gradient(180deg, rgba(224,130,74,0.06), transparent 30%); /* @kind other */
 }
 
 /* 02 · FSU — official Garnet #782F40 & Gold #CEB888. */
@@ -63,7 +63,7 @@ body {
   --accent:#782F40; --accent2:#9A7B33;
   --line:rgba(42,17,24,0.12); --line-2:rgba(120,47,64,0.30);
   --on-accent:#F6EFE1; --device-bg:#5C2230; --device-ink:#F3E7CF;
-  --wash: radial-gradient(130% 90% at 82% -18%, rgba(120,47,64,0.16), transparent 56%);
+  --wash: radial-gradient(130% 90% at 82% -18%, rgba(120,47,64,0.16), transparent 56%); /* @kind other */
 }
 
 /* 03 · U.S. NAVY — Navy Blue #14233F + Gold #C9A227. Dark honor frame. */
@@ -72,7 +72,7 @@ body {
   --accent:#D8B23E; --accent2:#6E9BC8;
   --line:rgba(236,227,207,0.14); --line-2:rgba(216,178,62,0.40);
   --on-accent:#14233F; --device-bg:#0A1424; --device-ink:#ECE3CF;
-  --wash: radial-gradient(130% 90% at 80% -16%, rgba(216,178,62,0.12), transparent 56%);
+  --wash: radial-gradient(130% 90% at 80% -16%, rgba(216,178,62,0.12), transparent 56%); /* @kind other */
 }
 
 /* 04 · TECHNOLOGY — engineering scheme. rust + pipeline green, terminal. */
@@ -82,7 +82,7 @@ body {
   --line:rgba(31,20,12,0.12); --line-2:rgba(31,20,12,0.22);
   --on-accent:#F8F2E6; --device-bg:#181410; --device-ink:#EAD9BE;
   --wash: linear-gradient(180deg, rgba(63,138,79,0.06), transparent 26%),
-          radial-gradient(120% 80% at 86% -10%, rgba(184,74,38,0.09), transparent 58%);
+          radial-gradient(120% 80% at 86% -10%, rgba(184,74,38,0.09), transparent 58%); /* @kind other */
 }
 
 /* 05 · UNLV — official Scarlet #CF0A2C & Gray #76777A. */
@@ -91,7 +91,7 @@ body {
   --accent:#CF0A2C; --accent2:#76777A;
   --line:rgba(28,26,27,0.12); --line-2:rgba(207,10,44,0.28);
   --on-accent:#F6EFE6; --device-bg:#201D1E; --device-ink:#ECE6DE;
-  --wash: radial-gradient(130% 90% at 82% -18%, rgba(207,10,44,0.12), transparent 54%);
+  --wash: radial-gradient(130% 90% at 82% -18%, rgba(207,10,44,0.12), transparent 54%); /* @kind other */
 }
 
 /* 06 · RED ROCK — sandstone/ochre home theme + climbing photo. */
@@ -101,7 +101,7 @@ body {
   --line:rgba(34,20,9,0.13); --line-2:rgba(184,74,38,0.32);
   --on-accent:#F8F2E6; --device-bg:#2B1B10; --device-ink:#EAD9BE;
   --wash: radial-gradient(135% 95% at 78% -16%, rgba(212,137,44,0.18), transparent 56%),
-          linear-gradient(180deg, rgba(184,74,38,0.05), transparent 22%);
+          linear-gradient(180deg, rgba(184,74,38,0.05), transparent 22%); /* @kind other */
 }
 
 /* ==========================================================================

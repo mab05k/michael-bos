@@ -66,16 +66,16 @@
   --fs-4xl:  4.75rem;   /* 76 — display */
 
   /* ----- Type: line-height & tracking ---------------------------------- */
-  --lh-tight:   1.05;
-  --lh-snug:    1.2;
-  --lh-normal:  1.5;
-  --lh-relaxed: 1.65;
+  --lh-tight:   1.05; /* @kind font */
+  --lh-snug:    1.2; /* @kind font */
+  --lh-normal:  1.5; /* @kind font */
+  --lh-relaxed: 1.65; /* @kind font */
   --tracking-tight:  -0.02em;
   --tracking-normal:  0;
   --tracking-caps:    0.08em;
 
   /* ----- Spacing (4px base) -------------------------------------------- */
-  --s-0: 0;
+  --s-0: 0; /* @kind spacing */
   --s-1: 4px;
   --s-2: 8px;
   --s-3: 12px;
@@ -99,9 +99,9 @@
   --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(31,20,12,0.06);
 
   /* ----- Motion -------------------------------------------------------- */
-  --ease-out: cubic-bezier(0.2, 0.7, 0.1, 1);
-  --dur-micro: 180ms;
-  --dur-layout: 260ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.1, 1); /* @kind other */
+  --dur-micro: 180ms; /* @kind other */
+  --dur-layout: 260ms; /* @kind other */
 
   /* ----- Layout -------------------------------------------------------- */
   --container: 1100px;
