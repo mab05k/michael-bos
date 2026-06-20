@@ -3,8 +3,6 @@
    Desert & Red Rock · CI/CD engineering · U.S. Navy heritage
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap');
-
 :root {
   /* ── Surfaces & ink ─────────────────────────────────────── */
   --bg-bone:       #F2EAD9;   /* page background — sun-bleached sandstone */
