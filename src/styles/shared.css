@@ -139,10 +139,18 @@ body {
   gap: 10px;
   text-decoration: none;
 }
-.brand svg.mark {
-  width: 28px; height: 28px;
-  flex-shrink: 0;
+.brand .mark-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; flex-shrink: 0;
+  border-radius: 6px;
+  background: var(--accent, var(--rust));
+  transition: background var(--dur-fast) var(--ease-out);
 }
+.brand .mark-chip svg {
+  stroke: var(--on-accent, #F8F2E6);
+  transition: stroke var(--dur-fast) var(--ease-out);
+}
+.brand:hover .mark-chip { background: var(--rust-deep); }
 .brand .wm {
   font-family: var(--font-display);
   font-weight: var(--fw-semibold);
