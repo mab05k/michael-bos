@@ -6,400 +6,187 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
     /* ── Hero ─────────────────────────────────────────────── */
     .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      min-height: calc(100svh - 65px);
+      background: var(--bg-bone);
       position: relative;
-      min-height: 680px;
       overflow: hidden;
-      background: #0a0604;
     }
-    .hero-img {
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(90% 80% at 0% 55%, rgba(184,74,38,0.07), transparent 62%);
+    }
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 56px 80px clamp(24px, 7vw, 80px);
+      position: relative;
+      z-index: 1;
+    }
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--rust);
+      margin-bottom: 22px;
+    }
+    .hero-kicker .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--status-pass);
+      box-shadow: 0 0 0 3px rgba(63,138,79,0.25);
+    }
+    .hero-h1 {
+      font-family: var(--font-display);
+      font-weight: var(--fw-semibold);
+      font-size: clamp(40px, 5.2vw, 62px);
+      line-height: 1.02;
+      letter-spacing: -0.025em;
+      color: var(--canyon-ink);
+      margin: 0 0 20px;
+      max-width: 16ch;
+      text-wrap: balance;
+    }
+    .hero-lede {
+      font-family: var(--font-body);
+      font-size: var(--fs-md);
+      line-height: var(--lh-relaxed);
+      color: var(--canyon-shadow);
+      margin: 0 0 32px;
+      max-width: 46ch;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      font-family: var(--font-display);
+      font-weight: var(--fw-medium);
+      font-size: 15px;
+      padding: 12px 22px;
+      border-radius: var(--r-sm);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition:
+        background var(--dur-fast) var(--ease-out),
+        color var(--dur-fast) var(--ease-out),
+        box-shadow var(--dur-fast) var(--ease-out),
+        transform var(--dur-fast) var(--ease-out);
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .btn-primary {
+      background: var(--rust);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--rust-deep); color: #fff; text-decoration: none; }
+    .btn-secondary-dark {
+      background: transparent;
+      color: var(--canyon-ink);
+      box-shadow: inset 0 0 0 1.5px var(--canyon-shadow);
+    }
+    .btn-secondary-dark:hover {
+      background: var(--canyon-ink);
+      color: var(--bg-bone);
+      text-decoration: none;
+    }
+
+    /* ── Hero right (photo) ────────────────────────────────── */
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-right img {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 38% 15%;
+      object-position: 36% 5%;
+      display: block;
     }
-    .hero-overlay {
+    .hero-img-tag {
       position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(180deg,
-          rgba(15,9,5,0)    0%,
-          rgba(15,9,5,0)    35%,
-          rgba(15,9,5,0.55) 58%,
-          rgba(15,9,5,0.88) 78%,
-          rgba(15,9,5,0.96) 100%),
-        linear-gradient(180deg,
-          rgba(15,9,5,0)    80%,
-          var(--bg-bone)    100%);
-    }
-    .hero-content {
-      position: relative;
+      left: 16px;
+      bottom: 20px;
       z-index: 2;
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 300px 32px 72px;
-      color: var(--bg-bone);
-    }
-    .hero-content > * { text-shadow: 0 1px 14px rgba(0,0,0,0.35); }
-    .hero-content .role-pills > * { text-shadow: none; }
-
-    .hero-eyebrow-row {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       font-family: var(--font-mono);
-      font-size: var(--fs-12);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #F3D99E;
-      margin-bottom: 18px;
-    }
-    .hero-eyebrow-row .dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--status-pass);
-      box-shadow: 0 0 0 3px rgba(63,138,79,0.25);
-    }
-
-    .display {
-      font-family: var(--font-display);
-      font-weight: var(--fw-bold);
-      font-size: clamp(52px, 7.5vw, 88px);
-      line-height: 0.95;
-      letter-spacing: -0.03em;
-      color: #FAF1DC;
-      margin: 0 0 22px;
-    }
-    .display .accent {
-      font-style: italic;
-      font-weight: var(--fw-medium);
-      color: var(--rust-soft);
-    }
-
-    .role-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-    /* Hero pill overrides — dark background context */
-    .hero-content .pill {
-      background: rgba(242,234,217,0.10);
-      border-color: rgba(242,234,217,0.22);
-      color: rgba(242,234,217,0.9);
-    }
-    .hero-content .pill .dot { background: rgba(242,234,217,0.5); }
-    .hero-content .pill.active {
-      background: rgba(63,138,79,0.18);
-      border-color: rgba(63,138,79,0.38);
-      color: #7CCB8A;
-    }
-    .hero-content .pill.active .dot { background: var(--status-pass); box-shadow: none; }
-    .hero-content .pill.navy {
-      background: rgba(12,27,51,0.55);
-      border-color: rgba(184,146,74,0.45);
-      color: var(--brass-bright);
-    }
-    .hero-content .pill.navy .dot { background: var(--brass-bright); }
-
-    .lede {
-      font-size: 19px;
-      line-height: 1.55;
-      color: rgba(242,234,217,0.88);
-      max-width: 52ch;
-      margin: 0;
-      text-wrap: pretty;
-    }
-    .lede strong { color: #FAF1DC; font-weight: var(--fw-semibold); }
-
-    .hero-coords {
-      position: absolute;
-      right: 32px;
-      top: 20px;
-      z-index: 2;
-      font-family: var(--font-mono);
       font-size: var(--fs-11);
-      color: rgba(242,234,217,0.65);
-      letter-spacing: var(--tr-caps);
-      padding: 6px 14px;
-      background: rgba(15,9,5,0.5);
+      letter-spacing: 0.06em;
+      color: rgba(240,228,210,0.92);
+      padding: 5px 12px;
+      background: rgba(14,17,21,0.52);
       border-radius: var(--r-pill);
       backdrop-filter: blur(4px);
     }
 
-    /* ── Quick facts ───────────────────────────────────────── */
-    .facts {
-      max-width: 1280px;
-      margin: 96px auto 0;
-      padding: 0 32px;
-    }
-    .facts-head {
-      display: flex;
-      align-items: baseline;
-      gap: 16px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--hairline-strong);
-      margin-bottom: 0;
-    }
-    .facts-head h2 {
-      font-family: var(--font-display);
-      font-weight: var(--fw-medium);
-      font-size: 22px;
-      letter-spacing: -0.01em;
-      color: var(--canyon-ink);
-    }
-    .facts-head .num {
-      margin-left: auto;
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--canyon-fade);
-    }
-
-    .facts-list { display: flex; flex-direction: column; }
-    .fact-row {
-      display: grid;
-      grid-template-columns: 200px minmax(0, 1fr);
-      column-gap: 48px;
-      padding: 22px 0;
-      border-bottom: 1px dashed var(--hairline-strong);
-    }
-    .fact-row:last-child { border-bottom: none; }
-    .fact-row .k {
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      text-transform: uppercase;
-      letter-spacing: var(--tr-caps);
-      color: var(--canyon-fade);
-      padding-top: 4px;
-    }
-    .fact-row .v {
-      font-size: var(--fs-18);
-      line-height: 1.45;
-      color: var(--canyon-ink);
-      text-wrap: pretty;
-    }
-    .fact-row .v .muted { color: var(--canyon-fade); }
-    .fact-row .v .clay  { color: var(--rust); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-    .fact-row .v .sep   { color: var(--ink-300); padding: 0 6px; }
-
-    /* ── Operating principle ────────────────────────────────── */
-    .principle {
-      max-width: 1280px;
-      margin: 96px auto 0;
-      padding: 0 32px;
-    }
-    .principle blockquote {
-      margin: 0;
-      padding: 0;
-      font-family: var(--font-display);
-      font-weight: var(--fw-regular);
-      font-size: clamp(26px, 4vw, 52px);
-      line-height: 1.18;
-      letter-spacing: -0.025em;
-      color: var(--canyon-shadow);
-      text-wrap: pretty;
-    }
-    .principle blockquote .quoteopen {
-      color: var(--ochre);
-      font-family: var(--font-mono);
-      margin-right: 2px;
-    }
-    .principle .attribution {
-      margin-top: 22px;
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--canyon-fade);
-    }
-
-    /* ── Forward navigation cards ───────────────────────────── */
-    .forward {
-      max-width: 1280px;
-      margin: 96px auto 0;
-      padding: 0 32px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-    }
-    a.forward-card {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      padding: 28px;
-      background: var(--bg-sand);
-      border-radius: var(--r-lg);
-      box-shadow: var(--shadow-1);
-      color: inherit;
-      text-decoration: none;
-      transition:
-        box-shadow var(--dur-base) var(--ease-out),
-        background var(--dur-base) var(--ease-out);
-      min-height: 220px;
-      position: relative;
-    }
-    a.forward-card:hover {
-      background: var(--bg-sand-deep);
-      box-shadow: var(--shadow-2);
-    }
-    .forward-card .idn {
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--rust);
-    }
-    .forward-card .title {
-      font-family: var(--font-display);
-      font-weight: var(--fw-medium);
-      font-size: 26px;
-      letter-spacing: -0.02em;
-      color: var(--canyon-ink);
-    }
-    .forward-card .blurb {
-      color: var(--canyon-shadow);
-      font-size: var(--fs-14);
-      line-height: 1.5;
-      max-width: 30ch;
-    }
-    .forward-card .open {
-      margin-top: auto;
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--rust);
-      display: inline-flex;
-      gap: 6px;
-      align-items: center;
-    }
-    .forward-card .open::after {
-      content: '→';
-      transition: transform var(--dur-fast) var(--ease-out);
-    }
-    .forward-card:hover .open::after { transform: translateX(3px); }
-    .forward-card:hover .open { color: var(--rust-deep); }
-
     /* ── Responsive ─────────────────────────────────────────── */
-    @media (max-width: 980px) {
-      .hero-content { padding-top: 240px; padding-left: 24px; padding-right: 24px; }
-      .display { font-size: clamp(44px, 11vw, 72px); }
-      .hero-coords { display: none; }
-      .facts, .principle, .forward { padding-left: 24px; padding-right: 24px; }
-      .fact-row { grid-template-columns: 1fr; gap: 6px; padding: 18px 0; }
-      .fact-row .k { padding-top: 0; }
-      .forward { grid-template-columns: repeat(2, 1fr); }
-      .forward a.forward-card { min-height: 180px; }
+    @media (max-width: 860px) {
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+      .hero-left {
+        padding: 60px 24px 48px;
+      }
+      .hero-right {
+        height: 360px;
+      }
+      .hero-right img {
+        object-position: 36% 20%;
+      }
     }
   </style>
 
   <main>
-
-    <!-- HERO — full-bleed climbing photo -->
     <section class="hero">
-      <img
-        class="hero-img"
-        src="/michael-bos-action.jpg"
-        alt="Michael Bos on red sandstone, Red Rock Canyon, Nevada"
-      >
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <div class="hero-eyebrow-row">
+      <div class="hero-left">
+        <div class="hero-kicker">
           <span class="dot"></span>
           Engineering Manager · Las Vegas, NV
         </div>
-        <h1 class="display">Michael <span class="accent">Bos.</span></h1>
-        <div class="role-pills">
-          <span class="pill active"><span class="dot"></span>Sr. Engineering Manager · Guidepoint</span>
-          <span class="pill navy"><span class="dot"></span>USN Veteran · NSWDG</span>
-        </div>
-        <p class="lede">
-          I build <strong>platforms</strong> &mdash; and the <strong>teams</strong> that run them.
-          Sixteen years in: six in Naval Special Warfare intelligence, ten in software.
-          Both taught me the same things matter &mdash; clear ownership, calm execution,
-          and people who trust each other under pressure.
+        <h1 class="hero-h1">Ship boring code.<br>Build calm teams.</h1>
+        <p class="hero-lede">
+          I lead engineering teams that ship — fast, calm, and on a clean trunk.
+          Twelve years of code, six years on the rope, six in the Navy.
         </p>
-      </div>
-      <div class="hero-coords">36.17° N · 115.14° W · Red Rock, NV</div>
-    </section>
-
-    <!-- QUICK FACTS -->
-    <section class="facts">
-      <div class="facts-head">
-        <h2>Quick facts</h2>
-        <span class="num">dossier</span>
-      </div>
-      <div class="facts-list">
-        <div class="fact-row">
-          <div class="k">Designation</div>
-          <div class="v">Senior Software Engineering Manager <span class="muted">— AI &amp; Agentic Platform</span></div>
-        </div>
-        <div class="fact-row">
-          <div class="k">Element</div>
-          <div class="v">Guidepoint Global <span class="sep">·</span> <span class="clay">Jan 2026 — present</span></div>
-        </div>
-        <div class="fact-row">
-          <div class="k">Posture</div>
-          <div class="v">Remote out of Las Vegas, NV <span class="sep">·</span> distributed teams across US &amp; India</div>
-        </div>
-        <div class="fact-row">
-          <div class="k">Tenure</div>
-          <div class="v"><span class="clay">10 yr</span> software <span class="sep">·</span> <span class="clay">6 yr</span> naval intelligence <span class="sep">·</span> <span class="muted">4+ yr managing engineers</span></div>
-        </div>
-        <div class="fact-row">
-          <div class="k">Education</div>
-          <div class="v">Executive MBA <span class="clay">— UNLV '22</span> <span class="sep">·</span> B.S. Finance &amp; Real Estate <span class="clay">— FSU '09</span></div>
-        </div>
-        <div class="fact-row">
-          <div class="k">Prior service</div>
-          <div class="v">U.S. Navy <span class="sep">·</span> Naval Special Warfare Development Group <span class="sep">·</span> Intelligence Specialist, 2nd Class <span class="sep">·</span> <span class="clay">2010 — 2016</span></div>
-        </div>
-        <div class="fact-row">
-          <div class="k">Focus</div>
-          <div class="v">Platform engineering <span class="sep">·</span> Agentic / MCP tooling <span class="sep">·</span> Reliability programs <span class="sep">·</span> Building teams</div>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="mailto:mab05k@gmail.com">
+            Get in touch
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+            </svg>
+          </a>
+          <a class="btn btn-secondary-dark" href="/biography">Read the story</a>
         </div>
       </div>
+      <div class="hero-right">
+        <img
+          src="/michael-bos-action.jpg"
+          alt="Michael Bos climbing red sandstone in Red Rock Canyon, Nevada"
+        >
+        <div class="hero-img-tag">36°08′N · 115°27′W · Red Rock, NV</div>
+      </div>
     </section>
-
-    <!-- OPERATING PRINCIPLE -->
-    <section class="principle">
-      <blockquote>
-        <span class="quoteopen">&ldquo;</span>Build the team you&rsquo;d want to be on. Give them air cover, clear ownership,
-        and the smallest possible amount of process &mdash; then trust them to ship.&rdquo;
-      </blockquote>
-      <div class="attribution">— Operating principle</div>
-    </section>
-
-    <!-- FORWARD LINKS -->
-    <nav class="forward" aria-label="Sections">
-      <a class="forward-card" href="/biography">
-        <span class="idn">02 / Biography</span>
-        <span class="title">How I got here.</span>
-        <span class="blurb">Islamorada to Tallahassee, Dam Neck to Virginia Beach, Las Vegas to now. The route map.</span>
-        <span class="open">Read the long version</span>
-      </a>
-      <a class="forward-card" href="/resume">
-        <span class="idn">03 / Resume</span>
-        <span class="title">The operational record.</span>
-        <span class="blurb">Roles, contributions, education, skills. Built like a service record. Print-ready.</span>
-        <span class="open">View the record</span>
-      </a>
-      <a class="forward-card" href="/portfolio">
-        <span class="idn">04 / Portfolio</span>
-        <span class="title">Selected work.</span>
-        <span class="blurb">Platforms, tooling, and infrastructure — built in production and in the open.</span>
-        <span class="open">View the work</span>
-      </a>
-      <a class="forward-card" href="mailto:mab05k@gmail.com">
-        <span class="idn">05 / Contact</span>
-        <span class="title">A direct line.</span>
-        <span class="blurb">Best for hiring conversations, technical advisory, or anything that needs a real reply.</span>
-        <span class="open">Open mail</span>
-      </a>
-    </nav>
-
   </main>
 
 </InnerLayout>
