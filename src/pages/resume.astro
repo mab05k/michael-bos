@@ -107,7 +107,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     .id-cell .multi .v a { color: var(--ink-900); border-bottom: 1px solid var(--ink-300); }
     .id-cell .multi .v a:hover { color: var(--moss-700); border-bottom-color: var(--moss-500); }
     .id-cell .multi .v.accent { color: var(--clay-600); }
-    .operator-cell { display: flex; align-items: center; gap: 20px; }
+    .operator-cell { display: flex; align-items: top; gap: 20px; }
     .operator-portrait {
       width: 80px;
       height: 80px;
@@ -351,7 +351,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       color: var(--ink-800);
       letter-spacing: 0.01em;
     }
-    .skill-tag.primary { background: var(--moss-50); border-color: var(--moss-200); color: var(--moss-700); }
+    .skill-tag.primary { background: var(--bg-bone); border-color: var(--hairline-strong); color: var(--canyon-shadow); }
     .skill-tag.clay    { background: var(--clay-50); border-color: var(--clay-100); color: var(--clay-700); }
 
     .row-item {
@@ -424,7 +424,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
   <!-- Intro -->
   <header class="page-intro">
     <div>
-      <!--<div class="eyebrow">03 / Resume</div>-->
+      <div class="eyebrow">Resume</div>
       <h1>The full record.</h1>
       <p class="dek">
         Engineering leader with <strong>10+ years</strong> building production
@@ -436,7 +436,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     </div>
     <div class="actions">
       <button class="primary" onclick="window.print()">Print / Save PDF</button>
-      <a href="mailto:mab05k@gmail.com">Email</a>
+      <!--<a href="mailto:mab05k@gmail.com">Email</a>-->
     </div>
   </header>
 
@@ -447,13 +447,13 @@ import InnerLayout from '../layouts/InnerLayout.astro';
         <div class="id-cell operator-cell">
           <img src="/michael-bos-portrait.JPEG" alt="Michael A. Bos" class="operator-portrait" />
           <div>
-            <div class="key">Profile</div>
+            <div class="key"><strong>Profile</strong></div>
             <div class="name">Michael A. Bos</div>
             <div class="sub">Senior Software Engineering Manager · Guidepoint Global</div>
           </div>
         </div>
         <div class="id-cell">
-          <div class="key">Location</div>
+          <div class="key"><strong>Location</strong></div>
           <div class="multi">
             <div class="k">Base</div>   <div class="v">Las Vegas, NV <span style="color: var(--ink-500);">·</span> remote</div>
             <div class="k">Coords</div> <div class="v">36.17° N · 115.14° W</div>
@@ -462,7 +462,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
           </div>
         </div>
         <div class="id-cell">
-          <div class="key">Contact</div>
+          <div class="key"><strong>Contact</strong></div>
           <div class="multi">
             <div class="k">Mail</div>     <div class="v"><a href="mailto:mab05k@gmail.com">mab05k@gmail.com</a></div>
             <div class="k">Phone</div>    <div class="v">(305) 304-8599</div>
@@ -736,39 +736,39 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       <div class="skills-group">
         <div class="gk">AI / LLM systems</div>
         <div class="tags">
-          <span class="skill-tag clay">Agentic system design</span>
-          <span class="skill-tag clay">MCP tooling</span>
-          <span class="skill-tag clay">LLM integrations</span>
-          <span class="skill-tag clay">Prompt reliability</span>
-          <span class="skill-tag clay">Tool / contract design</span>
+          <span class="skill-tag primary">Agentic system design</span>
+          <span class="skill-tag primary">MCP tooling</span>
+          <span class="skill-tag primary">LLM integrations</span>
+          <span class="skill-tag primary">Prompt reliability</span>
+          <span class="skill-tag primary">Tool / contract design</span>
         </div>
       </div>
 
       <div class="skills-group">
         <div class="gk">Platform / Infrastructure</div>
         <div class="tags">
-          <span class="skill-tag">Kubernetes</span>
-          <span class="skill-tag">Docker</span>
-          <span class="skill-tag">Azure (AKS)</span>
-          <span class="skill-tag">Azure DevOps</span>
-          <span class="skill-tag">Jenkins</span>
-          <span class="skill-tag">CI / CD</span>
-          <span class="skill-tag">Distributed systems</span>
-          <span class="skill-tag">Datadog</span>
-          <span class="skill-tag">Squadcast</span>
+          <span class="skill-tag primary">Kubernetes</span>
+          <span class="skill-tag primary">Docker</span>
+          <span class="skill-tag primary">Azure (AKS)</span>
+          <span class="skill-tag primary">Azure DevOps</span>
+          <span class="skill-tag primary">Jenkins</span>
+          <span class="skill-tag primary">CI / CD</span>
+          <span class="skill-tag primary">Distributed systems</span>
+          <span class="skill-tag primary">Datadog</span>
+          <span class="skill-tag primary">Squadcast</span>
         </div>
       </div>
 
       <div class="skills-group">
         <div class="gk">Engineering</div>
         <div class="tags">
-          <span class="skill-tag">API design</span>
-          <span class="skill-tag">REST</span>
-          <span class="skill-tag">GraphQL / Apollo</span>
-          <span class="skill-tag">OAuth2 / OIDC</span>
-          <span class="skill-tag">PHP</span>
-          <span class="skill-tag">JavaScript / TypeScript</span>
-          <span class="skill-tag">Prometheus / Grafana</span>
+          <span class="skill-tag primary">API design</span>
+          <span class="skill-tag primary">REST</span>
+          <span class="skill-tag primary">GraphQL / Apollo</span>
+          <span class="skill-tag primary">OAuth2 / OIDC</span>
+          <span class="skill-tag primary">PHP</span>
+          <span class="skill-tag primary">JavaScript / TypeScript</span>
+          <span class="skill-tag primary">Prometheus / Grafana</span>
         </div>
       </div>
     </section>
@@ -798,7 +798,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       <div class="row-item">
         <div class="a">
           <div class="title">U.S. Navy &mdash; Naval Special Warfare Development Group</div>
-          <div class="sub">Intelligence Specialist 2nd Class · Honorable discharge</div>
+          <div class="sub">Intelligence Specialist 2nd Class</div>
         </div>
         <div class="b">Virginia Beach, VA<br><span class="accent">2010 — 2016</span></div>
       </div>
