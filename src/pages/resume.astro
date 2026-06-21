@@ -341,7 +341,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     }
     .skills-group .tags { display: flex; flex-wrap: wrap; gap: 6px; }
     .skill-tag {
-      display: inline-flex; align-items: center;
+      display: inline-flex; align-items: center; gap: 6px;
       padding: 4px 10px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -351,6 +351,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       color: var(--ink-800);
       letter-spacing: 0.01em;
     }
+    .skill-tag img { width: 14px; height: 14px; flex-shrink: 0; }
     .skill-tag.primary { background: var(--bg-bone); border-color: var(--hairline-strong); color: var(--canyon-shadow); }
     .skill-tag.clay    { background: var(--clay-50); border-color: var(--clay-100); color: var(--clay-700); }
 
@@ -599,7 +600,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
           <span class="name">Switch, Inc.</span>
           <span class="place">Las Vegas, NV</span>
         </div>
-        <div class="dates">Jan 2019 — Apr 2023</div>
+        <div class="dates">Jun 2017 — Apr 2023</div>
       </div>
 
       <article class="role">
@@ -749,7 +750,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
           <div class="dates">Apr 2011 — Jan 2016 (active duty Apr 2010 — Jan 2016)</div>
           <p class="desc">
             Served in four overseas combat deployments in roles not typically
-            assigned to Intelligence Specialists. Graduated top of class at the Navy
+            assigned to enlisted Intelligence Specialists. Graduated top of class at the Navy
             and Marine Corps Intelligence Training Center (Dam Neck, VA) in both
             general naval intelligence and ground operations courses before screening
             into NSWDG.
@@ -777,10 +778,10 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       <div class="skills-group">
         <div class="gk">Leadership</div>
         <div class="tags">
-          <span class="skill-tag primary">Team building &amp; talent dev.</span>
+          <span class="skill-tag primary">Team building &amp; talent development</span>
           <span class="skill-tag primary">Technical strategy</span>
           <span class="skill-tag primary">Cross-functional delivery</span>
-          <span class="skill-tag primary">Hiring &amp; performance mgmt.</span>
+          <span class="skill-tag primary">Hiring &amp; performance management</span>
           <span class="skill-tag primary">Decision-making under ambiguity</span>
           <span class="skill-tag primary">Distributed teams (US / IN)</span>
         </div>
@@ -800,28 +801,64 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       <div class="skills-group">
         <div class="gk">Platform / Infrastructure</div>
         <div class="tags">
-          <span class="skill-tag primary">Kubernetes</span>
-          <span class="skill-tag primary">Docker</span>
-          <span class="skill-tag primary">Azure (AKS)</span>
-          <span class="skill-tag primary">Azure DevOps</span>
+          <span class="skill-tag primary"><img src="/icons/Linux.svg" alt="">Linux</span>
+          <span class="skill-tag primary"><img src="/icons/Git.svg" alt="">Git</span>
+          <span class="skill-tag primary"><img src="/icons/Docker.svg" alt="">Docker</span>
+          <span class="skill-tag primary"><img src="/icons/Kubernetes.svg" alt="">Kubernetes</span>
+          <span class="skill-tag primary"><img src="/icons/Azure.svg" alt="">Azure (AKS)</span>
+          <span class="skill-tag primary"><img src="/icons/Azure-Devops.svg" alt="">Azure DevOps</span>
           <span class="skill-tag primary">Jenkins</span>
           <span class="skill-tag primary">CI / CD</span>
-          <span class="skill-tag primary">Distributed systems</span>
+          <span class="skill-tag primary"><img src="/icons/NGINX.svg" alt="">NGINX</span>
+          <span class="skill-tag primary"><img src="/icons/Apache.svg" alt="">Apache</span>
+          <span class="skill-tag primary"><img src="/icons/Prometheus.svg" alt="">Prometheus</span>
+          <span class="skill-tag primary"><img src="/icons/Grafana.svg" alt="">Grafana</span>
           <span class="skill-tag primary">Datadog</span>
           <span class="skill-tag primary">Squadcast</span>
+          <span class="skill-tag primary">Distributed systems</span>
         </div>
       </div>
 
       <div class="skills-group">
-        <div class="gk">Engineering</div>
+        <div class="gk">API &amp; Architecture</div>
         <div class="tags">
           <span class="skill-tag primary">API design</span>
           <span class="skill-tag primary">REST</span>
-          <span class="skill-tag primary">GraphQL / Apollo</span>
+          <span class="skill-tag primary"><img src="/icons/GraphQL.svg" alt="">GraphQL / Apollo</span>
+          <span class="skill-tag primary"><img src="/icons/OpenAPI.svg" alt="">OpenAPI</span>
           <span class="skill-tag primary">OAuth2 / OIDC</span>
-          <span class="skill-tag primary">PHP</span>
-          <span class="skill-tag primary">JavaScript / TypeScript</span>
-          <span class="skill-tag primary">Prometheus / Grafana</span>
+        </div>
+      </div>
+
+      <div class="skills-group">
+        <div class="gk">JavaScript</div>
+        <div class="tags">
+          <span class="skill-tag primary"><img src="/icons/JavaScript.svg" alt="">JavaScript</span>
+          <span class="skill-tag primary"><img src="/icons/TypeScript.svg" alt="">TypeScript</span>
+          <span class="skill-tag primary"><img src="/icons/Node.js.svg" alt="">NodeJS</span>
+          <span class="skill-tag primary"><img src="/icons/React.svg" alt="">ReactJS</span>
+          <span class="skill-tag primary"><img src="/icons/Socket.io.svg" alt="">Socket.io</span>
+        </div>
+      </div>
+
+      <div class="skills-group">
+        <div class="gk">PHP</div>
+        <div class="tags">
+          <span class="skill-tag primary"><img src="/icons/PHP.svg" alt="">PHP</span>
+          <span class="skill-tag primary"><img src="/icons/Symfony.svg" alt="">Symfony</span>
+          <span class="skill-tag primary"><img src="/icons/Doctrine.svg" alt="">Doctrine</span>
+          <span class="skill-tag primary"><img src="/icons/Composer.svg" alt="">Composer</span>
+        </div>
+      </div>
+
+      <div class="skills-group">
+        <div class="gk">Tooling</div>
+        <div class="tags">
+          <span class="skill-tag primary"><img src="/icons/Redis.svg" alt="">Redis</span>
+          <span class="skill-tag primary"><img src="/icons/RabbitMQ.svg" alt="">RabbitMQ</span>
+          <span class="skill-tag primary"><img src="/icons/Bash.svg" alt="">Bash</span>
+          <span class="skill-tag primary"><img src="/icons/CMake.svg" alt="">CMake</span>
+          <span class="skill-tag primary"><img src="/icons/PhpStorm.svg" alt="">PhpStorm</span>
         </div>
       </div>
     </section>
