@@ -89,41 +89,147 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     .port-card-footer .status.wip { color: var(--rust); }
     .port-card-footer .status.planned { color: var(--ink-500); }
 
-    .placeholder-banner {
+    /* ── Daybook featured project ────────────────────────────── */
+    .featured-wrap {
       max-width: 1280px;
       margin: 56px auto 0;
       padding: 0 24px;
     }
-    .placeholder-banner-inner {
-      background: var(--card-bg);
-      border: 1px dashed var(--card-border);
-      border-radius: var(--r-lg);
-      padding: 56px 40px;
-      text-align: center;
-    }
-    .placeholder-banner-inner .ph-eyebrow {
+    .featured-label {
       font-family: var(--font-mono);
       font-size: var(--fs-11);
       letter-spacing: var(--tr-caps);
       text-transform: uppercase;
-      color: var(--rust);
-      margin-bottom: 14px;
+      color: #5C6B3E;
+      margin-bottom: 16px;
     }
-    .placeholder-banner-inner h2 {
+    .featured-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(92, 107, 62, 0.25);
+      border-top: 3px solid #5C6B3E;
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 440px;
+    }
+    .featured-content {
+      padding: 40px 44px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .featured-identity {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 6px;
+    }
+    .featured-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .featured-appname {
       font-family: var(--font-display);
-      font-size: 28px;
-      font-weight: var(--fw-medium);
+      font-size: var(--fs-24);
+      font-weight: var(--fw-semibold);
       letter-spacing: -0.02em;
-      color: var(--ink-900);
-      margin: 0 0 12px;
+      color: var(--canyon-ink);
+      line-height: 1;
     }
-    .placeholder-banner-inner p {
-      color: var(--ink-700);
+    .featured-tagline {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: #6E7E4D;
+      margin-bottom: 20px;
+    }
+    .featured-desc {
       font-size: var(--fs-16);
-      line-height: 1.55;
-      max-width: 52ch;
-      margin: 0 auto;
+      line-height: 1.6;
+      color: var(--canyon-shadow);
       text-wrap: pretty;
+      margin-bottom: 28px;
+    }
+    .featured-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .stack-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 26px;
+      padding: 0 12px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      font-weight: var(--fw-medium);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-radius: var(--r-sm);
+      border: 1px solid rgba(92, 107, 62, 0.22);
+      background: rgba(244, 245, 236, 0.7);
+      color: #4C5933;
+      white-space: nowrap;
+    }
+    .featured-footer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 24px;
+      border-top: 1px solid rgba(92, 107, 62, 0.15);
+    }
+    .featured-footer .pill.active {
+      color: #5A7A3E;
+      border-color: #CFDDB4;
+      background: #E5EDD6;
+    }
+    .featured-footer .pill.active .dot { background: #5A7A3E; }
+    .featured-status {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: #6E7E4D;
+    }
+    .featured-screenshot {
+      position: relative;
+      overflow: hidden;
+      background: #F4F5EC;
+      border-left: 1px solid rgba(92, 107, 62, 0.18);
+    }
+    .featured-screenshot img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    @media (max-width: 900px) {
+      .featured-card {
+        grid-template-columns: 1fr;
+      }
+      .featured-screenshot {
+        height: 240px;
+        border-left: none;
+        border-top: 1px solid rgba(92, 107, 62, 0.18);
+        order: -1;
+      }
+      .featured-screenshot img {
+        object-position: top center;
+      }
+      .featured-content {
+        padding: 28px 24px;
+      }
     }
 
     @media (max-width: 900px) {
@@ -141,16 +247,43 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     </p>
   </header>
 
-  <div class="placeholder-banner">
-    <div class="placeholder-banner-inner">
-      <div class="ph-eyebrow">Under construction</div>
-      <h2>More to come.</h2>
-      <p>
-        Content is being assembled. Check back soon — or reach out directly
-        if you want to discuss specific work in the meantime.
-      </p>
+  <section class="featured-wrap" aria-label="Featured project">
+    <div class="featured-label">Featured project</div>
+    <div class="featured-card">
+      <div class="featured-content">
+        <div class="featured-identity">
+          <img src="/daybook-icon.svg" alt="Daybook icon" class="featured-icon" />
+          <span class="featured-appname">Daybook</span>
+        </div>
+        <div class="featured-tagline">Field service management · Side project · In progress</div>
+        <p class="featured-desc">
+          A structured operations platform for the smallest service businesses — plumbers,
+          HVAC techs, landscapers — who run complex schedules out of whiteboards and text
+          messages. Daybook replaces the patchwork: job scheduling, client management,
+          invoicing, and team dispatch in one purpose-built tool that grows from a one-person
+          shop to a team of twenty without forcing a platform switch.
+        </p>
+        <div class="featured-stack">
+          <span class="stack-chip">Keycloak SSO</span>
+          <span class="stack-chip">PHP / Symfony</span>
+          <span class="stack-chip">API Platform</span>
+          <span class="stack-chip">Go CLI</span>
+          <span class="stack-chip">React SPA</span>
+          <span class="stack-chip">React Native</span>
+          <span class="stack-chip">Mercure</span>
+          <span class="stack-chip">RabbitMQ</span>
+          <span class="stack-chip">Turborepo</span>
+        </div>
+        <div class="featured-footer">
+          <span class="pill active"><span class="dot"></span>Active</span>
+          <span class="featured-status">In progress</span>
+        </div>
+      </div>
+      <div class="featured-screenshot">
+        <img src="/daybook-screenshot.png" alt="Daybook — day view showing scheduled visits, route preview, and earnings summary" />
+      </div>
     </div>
-  </div>
+  </section>
 
   <section class="port-grid" aria-label="Portfolio items">
 
@@ -196,6 +329,40 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       <div class="port-card-footer">
         <span class="pill active"><span class="dot"></span>Active</span>
         <a href="https://github.com/mab05k" target="_blank" rel="noopener" style="font-family: var(--font-mono); font-size: var(--fs-11); letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--rust); text-decoration: none;">GitHub →</a>
+      </div>
+    </div>
+
+    <div class="port-card">
+      <div class="port-card-body">
+        <span class="idn">SaaS · Side project</span>
+        <div class="title">Field Service Manager</div>
+        <p class="blurb">
+          Full-stack field-service management platform — Symfony API, Go CLI, React web, and React Native mobile
+          in a Turborepo monorepo. Keycloak SSO, Mercure + RabbitMQ event bus, PHPStan level 8.
+          Product covers job scheduling, team dispatch, recurring schedules (RFC 5545), and service catalogs
+          across HVAC, pool, and landscaping verticals.
+        </p>
+      </div>
+      <div class="port-card-footer">
+        <span class="pill active"><span class="dot"></span>Active</span>
+        <span class="status wip">In progress</span>
+      </div>
+    </div>
+
+    <div class="port-card">
+      <div class="port-card-body">
+        <span class="idn">Algorithmic trading · Side project</span>
+        <div class="title">Forex Algo Trader</div>
+        <p class="blurb">
+          Autonomous trend-following system for live forex trading via the Oanda API.
+          Evaluates Heiken Ashi candles, 20-period moving averages, and Renko charts for market entry.
+          Implements Zone Recovery — a counter-trend hedging strategy that layers opposing orders
+          to recover from losing positions without closing at a loss.
+        </p>
+      </div>
+      <div class="port-card-footer">
+        <span class="pill"><span class="dot"></span>Archived</span>
+        <span class="status planned">PHP / Symfony</span>
       </div>
     </div>
 
