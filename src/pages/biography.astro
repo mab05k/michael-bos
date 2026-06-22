@@ -1,6 +1,68 @@
 ---
 import '../styles/shared.css';
 import SiteHeader from '../components/SiteHeader.astro';
+
+interface Tick {
+  name: string;
+  grade: string;
+  area: string;
+  date: string;
+  url: string;
+}
+
+let ticks: Tick[] = [];
+
+try {
+  const res = await fetch('https://www.mountainproject.com/rss/user-ticks/200700760');
+  if (res.ok) {
+    const xml = await res.text();
+    const itemRe = /<item>([\s\S]*?)<\/item>/g;
+    let m: RegExpExecArray | null;
+    while ((m = itemRe.exec(xml)) !== null) {
+      const block = m[1];
+      const rawTitle =
+        (block.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/) || block.match(/<title>(.*?)<\/title>/) || [])[1] || '';
+      const link = ((block.match(/<link>([\s\S]*?)<\/link>/) || [])[1] || '').trim();
+      const pubDate = (block.match(/<pubDate>(.*?)<\/pubDate>/) || [])[1] || '';
+      // Description may be CDATA or HTML-entity encoded — handle both
+      let desc = (block.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/) || [])[1];
+      if (!desc) {
+        const raw = (block.match(/<description>([\s\S]*?)<\/description>/) || [])[1] || '';
+        desc = raw
+          .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+          .replace(/&amp;/g, '&').replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'");
+      }
+
+      const tm = rawTitle.match(/^Tick:\s*(.*?)\s*\(([^)]+)\)\s*$/);
+      const name = tm ? tm[1].trim() : rawTitle.replace(/^Tick:\s*/, '').trim();
+      const grade = tm ? tm[2].trim() : '';
+
+      const decodeEnt = (s: string) => s
+        .replace(/&hellip;/g, '…').replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
+      const areaMatches = [...desc.matchAll(/href="[^"]*\/area\/[^"]*">([^<]+)<\/a>/g)];
+      // Last 2 area levels give context without overflowing (e.g. "Whiskey Peak · N Face")
+      const area = areaMatches.length >= 2
+        ? areaMatches.slice(-2).map(m => decodeEnt(m[1])).join(' · ')
+        : areaMatches.length === 1 ? decodeEnt(areaMatches[0][1]) : '';
+
+      let date = '';
+      if (pubDate) {
+        try {
+          date = new Date(pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        } catch (_) {}
+      }
+
+      if (name) ticks.push({ name, grade, area, date, url: link });
+    }
+  }
+} catch (e: unknown) {
+  console.warn('[mp-ticks] fetch failed:', e instanceof Error ? e.message : String(e));
+}
+
+const preview = ticks.slice(0, 5);
+const tickJSON = JSON.stringify(ticks).replace(/<\/script>/gi, '<\\/script>');
 ---
 <!doctype html>
 <html lang="en">
@@ -480,27 +542,25 @@ import SiteHeader from '../components/SiteHeader.astro';
           </div>
         </div>
         <div class="tick-list">
-          <div class="tick-list-head">Recent sends</div>
-          <div class="tick-row">
-            <span class="tick-name"><span class="tick-route">Triassic Sands</span> <span class="tick-area">Whiskey Peak</span></span>
-            <span class="tick-grade">5.10</span>
+          <div class="tick-list-head">
+            Recent sends
+            {ticks.length > 0 && <span class="tick-list-count">&middot; {ticks.length} logged</span>}
           </div>
-          <div class="tick-row">
-            <span class="tick-name"><span class="tick-route">Dream of Wild Turkeys</span> <span class="tick-area">Black Velvet Canyon</span></span>
-            <span class="tick-grade">5.10a</span>
-          </div>
-          <div class="tick-row">
-            <span class="tick-name"><span class="tick-route">Anti-Vax Crack</span> <span class="tick-area">Lake Mead Buttress</span></span>
-            <span class="tick-grade">5.11a/b</span>
-          </div>
-          <div class="tick-row">
-            <span class="tick-name"><span class="tick-route">Dark Shadows</span> <span class="tick-area">Dark Shadows Wall</span></span>
-            <span class="tick-grade">5.8</span>
-          </div>
-          <div class="tick-row">
-            <span class="tick-name"><span class="tick-route">Epinephrine</span> <span class="tick-area">Black Velvet Canyon</span></span>
-            <span class="tick-grade">5.9</span>
-          </div>
+          {preview.map(t => (
+            <div class="tick-row">
+              <span class="tick-name">
+                <span class="tick-route">{t.name}</span>
+                {t.area && <span class="tick-area">{t.area}</span>}
+              </span>
+              <span class="tick-grade">{t.grade}</span>
+            </div>
+          ))}
+          {ticks.length > 5 && (
+            <button class="tick-cta" id="tick-cta">
+              <span>View all {ticks.length} sends</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -559,6 +619,29 @@ import SiteHeader from '../components/SiteHeader.astro';
     </div>
     <p class="icon-credits" id="icon-credits"></p>
   </nav>
+
+  <!-- Tick data for client -->
+  <script type="application/json" id="tick-data" set:html={tickJSON}></script>
+
+  <!-- Tick log panel -->
+  <div class="tick-panel" id="tick-panel" aria-hidden="true">
+    <div class="tp-backdrop" id="tp-backdrop"></div>
+    <aside class="tp-drawer" role="dialog" aria-modal="true" aria-label="Full tick log — Mountain Project">
+      <div class="tp-head">
+        <div>
+          <div class="tp-title">Tick log</div>
+          <div class="tp-sub">Mountain Project &middot; {ticks.length} routes</div>
+        </div>
+        <button class="tp-close" id="tp-close" aria-label="Close tick log">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="tp-body">
+        <div class="tp-list" id="tp-list"></div>
+        <button class="tp-more" id="tp-more" hidden>Load more</button>
+      </div>
+    </aside>
+  </div>
 
 </div><!-- /stage -->
 
@@ -1118,6 +1201,129 @@ html, body { height: 100%; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
 }
+
+/* =========================================================
+   TICK LIST — CTA row
+   ========================================================= */
+
+.tick-list-count { color: var(--fade); font-weight: 400; }
+
+.tick-cta {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 10px 16px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 8%, transparent);
+  border: 0; border-top: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 160ms var(--ease-out), color 160ms var(--ease-out);
+}
+.tick-cta:hover { background: color-mix(in oklab, var(--accent) 15%, transparent); }
+.tick-cta svg { flex-shrink: 0; transition: transform 160ms var(--ease-out); }
+.tick-cta:hover svg { transform: translateX(3px); }
+
+/* =========================================================
+   TICK LOG PANEL (slide-out)
+   ========================================================= */
+
+.tick-panel {
+  position: fixed; inset: 0; z-index: 200;
+  pointer-events: none;
+}
+.tick-panel.is-open { pointer-events: all; }
+
+.tp-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(34,20,9,0);
+  transition: background 320ms var(--ease-out);
+}
+.tick-panel.is-open .tp-backdrop { background: rgba(34,20,9,0.52); }
+
+.tp-drawer {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: min(460px, 100vw);
+  background: var(--bone);
+  border-left: 1px solid var(--line-2);
+  box-shadow: -16px 0 56px rgba(34,20,9,0.32);
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 380ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.tick-panel.is-open .tp-drawer { transform: translateX(0); }
+
+.tp-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.tp-title {
+  font-family: var(--font-display); font-weight: 600; font-size: 18px;
+  color: var(--ink); letter-spacing: -0.01em;
+}
+.tp-sub {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--fade); margin-top: 4px;
+}
+.tp-close {
+  width: 32px; height: 32px; flex-shrink: 0; border-radius: 6px;
+  border: 1px solid var(--line); background: transparent;
+  color: var(--fade); cursor: pointer;
+  display: grid; place-items: center;
+  transition: border-color 160ms, color 160ms, background 160ms;
+}
+.tp-close:hover {
+  border-color: var(--accent); color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 9%, transparent);
+}
+
+.tp-body {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: thin; scrollbar-color: var(--line-2) transparent;
+  display: flex; flex-direction: column;
+}
+.tp-body::-webkit-scrollbar { width: 6px; }
+.tp-body::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 4px; }
+
+.tp-list { flex: 1; }
+
+.tp-row {
+  display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center;
+  padding: 11px 24px; border-bottom: 1px solid var(--line);
+  text-decoration: none; color: inherit;
+  transition: background 120ms;
+}
+.tp-row:hover { background: color-mix(in oklab, var(--accent) 7%, transparent); }
+.tp-row:last-child { border-bottom: 0; }
+.tp-row-left { min-width: 0; }
+.tp-route {
+  font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
+}
+.tp-meta {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em;
+  color: var(--fade); margin-top: 2px; display: block;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tp-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+.tp-grade { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--accent); }
+.tp-date { font-family: var(--font-mono); font-size: 10px; color: var(--fade); white-space: nowrap; }
+
+.tp-more {
+  display: block; width: 100%; padding: 14px 24px; flex-shrink: 0;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent); background: transparent; border: 0; border-top: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 160ms var(--ease-out);
+}
+.tp-more:hover { background: color-mix(in oklab, var(--accent) 9%, transparent); }
+.tp-more[hidden] { display: none; }
+
+.tp-empty {
+  padding: 48px 24px; text-align: center;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em;
+  color: var(--fade); text-transform: uppercase;
+}
 </style>
 
 <script is:inline>
@@ -1284,6 +1490,97 @@ html, body { height: 100%; overflow: hidden; }
   dots.forEach(function(dot) {
     dot.addEventListener('click', function() { show(Number(dot.dataset.ccDot)); });
   });
+})();
+
+// Tick log panel
+(function() {
+  var dataEl = document.getElementById('tick-data');
+  var TICKS = dataEl ? JSON.parse(dataEl.textContent || '[]') : [];
+  var BATCH = 25;
+  var shown = 0;
+
+  var panel    = document.getElementById('tick-panel');
+  var backdrop = document.getElementById('tp-backdrop');
+  var list     = document.getElementById('tp-list');
+  var moreBtn  = document.getElementById('tp-more');
+  var closeBtn = document.getElementById('tp-close');
+  var ctaBtn   = document.getElementById('tick-cta');
+
+  if (!panel || !ctaBtn) return;
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function renderBatch() {
+    var end = Math.min(shown + BATCH, TICKS.length);
+    var frag = document.createDocumentFragment();
+    for (var j = shown; j < end; j++) {
+      var t = TICKS[j];
+      var a = document.createElement('a');
+      a.className = 'tp-row';
+      a.href = t.url || '#';
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.innerHTML =
+        '<div class="tp-row-left">'
+        + '<span class="tp-route">' + esc(t.name) + '</span>'
+        + (t.area ? '<span class="tp-meta">' + esc(t.area) + '</span>' : '')
+        + '</div>'
+        + '<div class="tp-right">'
+        + '<span class="tp-grade">' + esc(t.grade) + '</span>'
+        + (t.date ? '<span class="tp-date">' + esc(t.date) + '</span>' : '')
+        + '</div>';
+      frag.appendChild(a);
+    }
+    list.appendChild(frag);
+    shown = end;
+    if (moreBtn) moreBtn.hidden = shown >= TICKS.length;
+  }
+
+  function open() {
+    if (shown === 0) {
+      if (TICKS.length === 0) {
+        list.innerHTML = '<div class="tp-empty">No ticks found.</div>';
+        if (moreBtn) moreBtn.hidden = true;
+      } else {
+        renderBatch();
+      }
+    }
+    panel.classList.add('is-open');
+    panel.setAttribute('aria-hidden', 'false');
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function close() {
+    panel.classList.remove('is-open');
+    panel.setAttribute('aria-hidden', 'true');
+    ctaBtn.focus();
+  }
+
+  ctaBtn.addEventListener('click', open);
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  if (backdrop) backdrop.addEventListener('click', close);
+  if (moreBtn) moreBtn.addEventListener('click', renderBatch);
+
+  // Close when user navigates chapters
+  document.querySelectorAll('.node[data-idx], #prev-btn, #next-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (panel.classList.contains('is-open')) close();
+    });
+  });
+
+  // Keyboard: Escape closes; arrow keys blocked from chapter nav while panel is open
+  document.addEventListener('keydown', function(e) {
+    if (!panel.classList.contains('is-open')) return;
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' ||
+        e.key === 'ArrowDown'  || e.key === 'ArrowUp') {
+      e.stopPropagation();
+    }
+  }, true); // capture phase — runs before the chapter nav listener
 })();
 </script>
 
