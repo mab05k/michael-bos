@@ -1192,11 +1192,20 @@ html, body { height: 100%; overflow: hidden; }
 @media (max-width: 860px) {
   .topbar-right { display: none; }
   .stage-body { padding: 12px 20px; }
-  .rail { padding: 0 20px 16px; }
+  .rail { padding: 0 20px 12px; }
   .rail-nav { right: 0; }
   .chapter { grid-template-columns: 1fr; gap: 28px; }
   .ch-right { display: none; }
   .ch-title { font-size: clamp(32px, 8vw, 48px); }
+  .node-label { display: none; }
+  .node-dot { margin-bottom: 4px; }
+}
+
+@media (max-width: 480px) {
+  .rail-track { padding-top: 16px; }
+  .arrow { width: 32px; height: 32px; }
+  .arrow svg { width: 15px; height: 15px; }
+  .node-year { font-size: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

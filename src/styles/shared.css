@@ -133,6 +133,21 @@ body {
   .topbar-right-wrapper { display: none; }
 }
 
+@media (max-width: 720px) {
+  .site-header-inner {
+    padding: 14px 20px;
+    grid-template-columns: auto 1fr;
+  }
+  .topnav { justify-content: flex-end; gap: 2px; }
+  .topnav-link { padding: 6px 10px; }
+}
+
+@media (max-width: 480px) {
+  .site-header-inner { padding: 12px 16px; }
+  .brand .wm { display: none; }
+  .topnav-link { padding: 5px 8px; font-size: 13px; }
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
