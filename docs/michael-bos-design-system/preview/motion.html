@@ -1,0 +1,21 @@
+<!doctype html>
+<!-- @dsCard group="Brand" name="Motion" subtitle="Durations & easing" viewport="700x180" --><html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+.dot { width:18px; height:18px; border-radius:var(--r-pill); background:var(--rust); }
+.lane { position:relative; width:240px; height:18px; background:var(--bg-sand); border-radius:var(--r-pill); overflow:hidden; }
+.lane .dot { position:absolute; top:0; left:0; animation: slide 1800ms infinite; }
+.lane.fast .dot { animation-duration: 1200ms; animation-timing-function: cubic-bezier(0.2, 0.7, 0.1, 1); }
+.lane.slow .dot { animation-duration: 1800ms; animation-timing-function: cubic-bezier(0.2, 0.7, 0.1, 1); }
+@keyframes slide {
+  0% { left: 0; }
+  45% { left: calc(100% - 18px); }
+  55% { left: calc(100% - 18px); }
+  100% { left: 0; }
+}
+</style></head><body>
+<div style="display:flex; flex-direction:column; gap:14px;">
+  <div class="row"><div class="lane fast"><div class="dot"></div></div><div class="mono" style="font-size:12px;">dur-micro · 180ms</div><div class="meta">buttons, hover</div></div>
+  <div class="row"><div class="lane slow"><div class="dot"></div></div><div class="mono" style="font-size:12px;">dur-layout · 260ms</div><div class="meta">cards, modals</div></div>
+  <div class="row"><div class="mono" style="font-size:12px; padding:6px 12px; background:var(--bg-sand); border-radius:var(--r-sm);">cubic-bezier(0.2, 0.7, 0.1, 1)</div><div class="meta">ease-out · "pull hard, release soft"</div></div>
+</div>
+</body></html>

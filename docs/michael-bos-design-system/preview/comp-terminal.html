@@ -1,0 +1,30 @@
+<!doctype html>
+<!-- @dsCard group="Brand" name="Components · Terminal block" subtitle="Dark canyon-ink terminal" viewport="700x220" --><html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+.term { background:var(--canyon-ink); border-radius:var(--r-md); overflow:hidden; box-shadow:var(--shadow-2); font-family:var(--font-mono); font-size:13px; line-height:1.5; }
+.term-bar { display:flex; align-items:center; gap:8px; padding:8px 12px; background:#100a06; border-bottom:1px solid rgba(255,255,255,0.08); }
+.term-bar .dot { width:10px; height:10px; border-radius:50%; }
+.term-title { margin-left:auto; color:#8a7a68; font-size:11px; }
+.term-body { padding:14px 18px; color:#E5D3B3; }
+.prompt { color:#B8924A; }
+.ok { color:#7CCB8A; }
+.warn { color:#E0B870; }
+.dim { color:#8a7a68; }
+</style></head><body>
+<div class="term">
+  <div class="term-bar">
+    <div class="dot" style="background:#FF5F57;"></div>
+    <div class="dot" style="background:#FEBC2E;"></div>
+    <div class="dot" style="background:#28C840;"></div>
+    <div class="term-title">~/portfolio · main</div>
+  </div>
+  <div class="term-body">
+<span class="prompt">→</span> make deploy
+<span class="dim">[1/4]</span> tests passed in 64s <span class="ok">✓</span><br/>
+<span class="dim">[2/4]</span> build → docker push <span class="ok">✓</span><br/>
+<span class="dim">[3/4]</span> rolling restart (3 pods) <span class="ok">✓</span><br/>
+<span class="dim">[4/4]</span> smoke checks <span class="ok">✓</span><br/>
+<span class="ok">deployed michael-bos.com · 2m 17s</span>
+  </div>
+</div>
+</body></html>

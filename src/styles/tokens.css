@@ -1,92 +1,67 @@
 /* ============================================================
-   Design Tokens — Colors, type, spacing, radii, shadows.
+   Design Tokens — michael-bos.com
+   Desert & Red Rock · CI/CD engineering · U.S. Navy heritage
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
-
 :root {
-  --moss-50:  #F1F3EE;
-  --moss-100: #DDE3D6;
-  --moss-200: #BAC6AC;
-  --moss-300: #95A684;
-  --moss-400: #728663;
-  --moss-500: #4A6741;
-  --moss-600: #3D5636;
-  --moss-700: #30432A;
-  --moss-800: #23301F;
-  --moss-900: #161E14;
+  /* ── Surfaces & ink ─────────────────────────────────────── */
+  --bg-bone:       #F2EAD9;   /* page background — sun-bleached sandstone */
+  --bg-sand:       #E5D3B3;   /* card / secondary surface */
+  --bg-sand-deep:  #D4BC92;   /* hovered card, inset */
+  --canyon-ink:    #1F140C;   /* primary text — near-black with brown undertone */
+  --canyon-shadow: #3D2418;   /* secondary text, deep accents */
+  --canyon-fade:   #6E5945;   /* muted body, captions */
 
-  --clay-50:  #FBF1EC;
-  --clay-100: #F3DDD0;
-  --clay-200: #E7BBA3;
-  --clay-300: #DA9876;
-  --clay-400: #C8795A;
-  --clay-500: #B0624A;
-  --clay-600: #8F4E3B;
-  --clay-700: #6D3B2D;
-  --clay-800: #4D2A20;
-  --clay-900: #2F1A14;
+  /* ── Brand ──────────────────────────────────────────────── */
+  --rust:          #B84A26;   /* primary brand — climbing-photo red */
+  --rust-deep:     #8C3418;   /* hover / pressed */
+  --rust-soft:     #E8B89F;   /* tinted backgrounds */
+  --ochre:         #D4892C;   /* warm sun accent */
+  --sage:          #7A8B6E;   /* muted secondary — sage scrub */
+  --sky:           #6B92B5;   /* cool accent, info state */
 
-  --ink-50:  #F9F6F0;
-  --ink-100: #F1EDE4;
-  --ink-200: #E4DED1;
-  --ink-300: #CFC7B4;
-  --ink-400: #A69E8A;
-  --ink-500: #766F5F;
-  --ink-600: #4F4A3F;
-  --ink-700: #383530;
-  --ink-800: #2A2824;
-  --ink-900: #191814;
+  /* ── Military (USN section only) ────────────────────────── */
+  --navy:          #0C1B33;
+  --navy-soft:     #1A2E4F;
+  --brass:         #B8924A;
+  --brass-bright:  #E0B870;
+  --bone-on-navy:  #E8E0CC;
 
-  --success-50:  #E8F0E2;
-  --success-500: #4F7A3A;
-  --success-700: #34522A;
+  /* ── Status / CI ─────────────────────────────────────────── */
+  --status-pass:     #3F8A4F;
+  --status-pass-bg:  #DDEBD6;
+  --status-build:    #C8881A;
+  --status-build-bg: #F3E4C4;
+  --status-fail:     #B23A2A;
+  --status-fail-bg:  #F1D4CB;
 
-  --warning-50:  #FBF1DB;
-  --warning-500: #C8881F;
-  --warning-700: #7E5412;
+  /* ── Utility ─────────────────────────────────────────────── */
+  --hairline:        rgba(31, 20, 12, 0.12);
+  --hairline-strong: rgba(31, 20, 12, 0.22);
+  --focus-ring:      var(--sky);
 
-  --danger-50:   #F7E2DA;
-  --danger-500:  #B3432B;
-  --danger-700:  #6F2817;
+  /* ── Type: families ─────────────────────────────────────── */
+  --font-display: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-body:    'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  /* Backward compat */
+  --font-sans:    var(--font-body);
 
-  --info-50:     #E5ECEE;
-  --info-500:    #3C6772;
-  --info-700:    #264149;
+  /* ── Type: named scale ──────────────────────────────────── */
+  --fs-xs:   0.75rem;    /* 12px */
+  --fs-sm:   0.875rem;   /* 14px */
+  --fs-base: 1rem;       /* 16px */
+  --fs-md:   1.125rem;   /* 18px */
+  --fs-lg:   1.375rem;   /* 22px */
+  --fs-xl:   1.75rem;    /* 28px */
+  --fs-2xl:  2.25rem;    /* 36px */
+  --fs-3xl:  3.25rem;    /* 52px */
+  --fs-4xl:  4.75rem;    /* 76px */
 
-  --bg-canvas:      var(--ink-50);
-  --bg-surface:     #FFFFFF;
-  --bg-sunken:      var(--ink-100);
-  --bg-inverse:     var(--ink-800);
-
-  --fg-primary:     var(--ink-800);
-  --fg-secondary:   var(--ink-600);
-  --fg-tertiary:    var(--ink-500);
-  --fg-disabled:    var(--ink-400);
-  --fg-inverse:     var(--ink-50);
-  --fg-brand:       var(--moss-500);
-  --fg-accent:      var(--clay-400);
-
-  --border-subtle:  var(--ink-200);
-  --border-default: var(--ink-300);
-  --border-strong:  var(--ink-400);
-  --border-focus:   var(--moss-500);
-
-  --accent-brand:       var(--moss-500);
-  --accent-brand-hover: var(--moss-600);
-  --accent-brand-press: var(--moss-700);
-
-  --font-sans:    'Geist', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  --font-mono:    'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  --font-display: var(--font-sans);
-
-  --fw-regular:  400;
-  --fw-medium:   500;
-  --fw-semibold: 600;
-  --fw-bold:     700;
-
+  /* ── Type: pixel-named scale (backward compat) ─────────────
+     All values are correct rem sizes at the 16px root.        */
   --fs-10: 0.625rem;
-  --fs-11: 0.75rem;
+  --fs-11: 0.6875rem;
   --fs-12: 0.75rem;
   --fs-13: 0.8125rem;
   --fs-14: 0.875rem;
@@ -99,109 +74,223 @@
   --fs-56: 3.5rem;
   --fs-72: 4.5rem;
 
-  --lh-tight:   1.1;
-  --lh-snug:    1.25;
-  --lh-normal:  1.45;
-  --lh-relaxed: 1.6;
-
+  /* ── Type: rhythm ───────────────────────────────────────── */
+  --lh-tight:   1.05;
+  --lh-snug:    1.2;
+  --lh-normal:  1.5;
+  --lh-relaxed: 1.65;
   --tr-tight:  -0.02em;
-  --tr-normal: 0;
-  --tr-wide:   0.04em;
-  --tr-caps:   0.08em;
+  --tr-normal:  0em;
+  --tr-wide:    0.04em;
+  --tr-caps:    0.08em;
 
-  --sp-0:  0;
-  --sp-1:  4px;
-  --sp-2:  8px;
-  --sp-3:  12px;
-  --sp-4:  16px;
-  --sp-5:  20px;
-  --sp-6:  24px;
-  --sp-8:  32px;
-  --sp-10: 40px;
-  --sp-12: 48px;
-  --sp-16: 64px;
-  --sp-20: 80px;
+  /* ── Font weights ───────────────────────────────────────── */
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
+  /* ── Spacing — new 4px-base scale ──────────────────────── */
+  --s-1: 4px;  --s-2: 8px;   --s-3: 12px;  --s-4: 16px;
+  --s-5: 24px; --s-6: 32px;  --s-7: 48px;  --s-8: 64px;
+  --s-9: 96px; --s-10: 128px;
+
+  /* ── Spacing — old pixel-named scale (backward compat) ──── */
+  --sp-0: 0;     --sp-1: 4px;   --sp-2: 8px;   --sp-3: 12px;
+  --sp-4: 16px;  --sp-5: 20px;  --sp-6: 24px;  --sp-8: 32px;
+  --sp-10: 40px; --sp-12: 48px; --sp-16: 64px; --sp-20: 80px;
   --sp-24: 96px;
 
+  /* ── Radius ─────────────────────────────────────────────── */
   --r-none: 0;
   --r-xs:   2px;
   --r-sm:   4px;
-  --r-md:   6px;
-  --r-lg:   8px;
-  --r-xl:   12px;
+  --r-md:   8px;
+  --r-lg:   12px;
+  --r-xl:   16px;
   --r-pill: 999px;
 
-  --shadow-xs: 0 1px 0 0 rgba(42, 40, 36, 0.04), 0 1px 2px 0 rgba(42, 40, 36, 0.06);
-  --shadow-sm: 0 1px 2px -1px rgba(42, 40, 36, 0.08), 0 2px 4px -1px rgba(42, 40, 36, 0.06);
-  --shadow-md: 0 4px 8px -2px rgba(42, 40, 36, 0.08), 0 2px 4px -2px rgba(42, 40, 36, 0.06);
-  --shadow-lg: 0 12px 24px -8px rgba(42, 40, 36, 0.12), 0 4px 8px -4px rgba(42, 40, 36, 0.06);
-  --shadow-xl: 0 24px 48px -12px rgba(42, 40, 36, 0.18);
-  --shadow-focus: 0 0 0 3px rgba(74, 103, 65, 0.25);
-  --shadow-inset: inset 0 1px 2px 0 rgba(42, 40, 36, 0.08);
+  /* ── Shadow (warm-tinted, no glow) ──────────────────────── */
+  --shadow-1: 0 1px 2px rgba(31,20,12,0.06), 0 2px 8px rgba(31,20,12,0.04);
+  --shadow-2: 0 4px 12px rgba(31,20,12,0.08), 0 12px 32px rgba(31,20,12,0.06);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(31,20,12,0.06);
+  /* Backward compat */
+  --shadow-xs:    var(--shadow-1);
+  --shadow-sm:    var(--shadow-1);
+  --shadow-md:    var(--shadow-2);
+  --shadow-lg:    var(--shadow-2);
+  --shadow-xl:    var(--shadow-2);
+  --shadow-focus: 0 0 0 3px rgba(107,146,181,0.3);
 
-  --ease-out:    cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* ── Motion ─────────────────────────────────────────────── */
+  --ease-out:    cubic-bezier(0.2, 0.7, 0.1, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --dur-fast: 120ms;
-  --dur-base: 180ms;
-  --dur-slow: 280ms;
+  --dur-fast:    180ms;
+  --dur-base:    260ms;
+  --dur-slow:    360ms;
 
-  --z-base:     0;
-  --z-sticky:   100;
-  --z-dropdown: 500;
-  --z-modal:    1000;
-  --z-toast:    2000;
+  /* ── Layout ─────────────────────────────────────────────── */
+  --container: 1280px;
+  --gutter:    24px;
+  --reading:   65ch;
+
+  /* ── Z-index ─────────────────────────────────────────────── */
+  --z-base: 0;  --z-sticky: 100;  --z-dropdown: 500;
+  --z-modal: 1000;  --z-toast: 2000;
+
+  /* ════════════════════════════════════════════════════════════
+     Backward-compatibility aliases
+     Old token names resolve to new values so existing page
+     styles work without modification.
+     ════════════════════════════════════════════════════════════ */
+
+  /* Ink scale → canyon colors */
+  --ink-50:  var(--bg-bone);
+  --ink-100: var(--bg-sand);
+  --ink-200: #D4C4A8;
+  --ink-300: #BDA882;
+  --ink-400: #8C7A64;
+  --ink-500: var(--canyon-fade);
+  --ink-600: var(--canyon-shadow);
+  --ink-700: var(--canyon-shadow);
+  --ink-800: var(--canyon-ink);
+  --ink-900: var(--canyon-ink);
+
+  /* Moss → Rust */
+  --moss-50:  #FAEEE9;
+  --moss-100: #F5DDD4;
+  --moss-200: var(--rust-soft);
+  --moss-300: #D4845C;
+  --moss-400: var(--rust);
+  --moss-500: var(--rust);
+  --moss-600: var(--rust-deep);
+  --moss-700: var(--rust-deep);
+  --moss-800: #5E2210;
+  --moss-900: #3A150A;
+
+  /* Clay → Ochre / Rust warm tones */
+  --clay-50:  #FBF1DB;
+  --clay-100: #F3E4C4;
+  --clay-200: #E8C98A;
+  --clay-300: var(--ochre);
+  --clay-400: var(--ochre);
+  --clay-500: #A86E20;
+  --clay-600: var(--rust);
+  --clay-700: var(--rust-deep);
+  --clay-800: #5E2210;
+  --clay-900: #3A150A;
+
+  /* Navy (for USN pills & section) */
+  --navy-50:  #E5ECF5;
+  --navy-100: #C5D0E0;
+  --navy-500: var(--navy);
+  --navy-700: var(--navy);
+
+  /* Status */
+  --success-50:  var(--status-pass-bg);
+  --success-500: var(--status-pass);
+  --success-700: #2D6138;
+  --warning-50:  var(--status-build-bg);
+  --warning-500: var(--status-build);
+  --warning-700: #8A5F0E;
+  --danger-50:   var(--status-fail-bg);
+  --danger-500:  var(--status-fail);
+  --danger-700:  #7A2118;
+  --info-50:     #E5EEF5;
+  --info-500:    var(--sky);
+  --info-700:    #4A6880;
+
+  /* Semantic surface / text / border */
+  --bg-canvas:       var(--bg-bone);
+  --bg-surface:      var(--bg-bone);
+  --bg-sunken:       var(--bg-sand);
+  --bg-inverse:      var(--canyon-ink);
+  --site-paper:      var(--bg-bone);
+  --site-paper-deep: var(--bg-sand);
+
+  --fg-primary:   var(--canyon-ink);
+  --fg-secondary: var(--canyon-shadow);
+  --fg-tertiary:  var(--canyon-fade);
+  --fg-disabled:  var(--canyon-fade);
+  --fg-inverse:   var(--bg-bone);
+  --fg-brand:     var(--rust);
+  --fg-accent:    var(--ochre);
+  --label-mono:   var(--canyon-fade);
+  --num-color:    var(--canyon-shadow);
+
+  --border-subtle:  var(--hairline);
+  --border-default: var(--hairline-strong);
+  --border-strong:  rgba(31,20,12,0.32);
+  --border-focus:   var(--sky);
+  --rule-mono:      var(--hairline);
+  --rule-strong:    var(--hairline-strong);
+
+  /* Card */
+  --card-bg:           var(--bg-sand);
+  --card-bg-deep:      var(--bg-sand-deep);
+  --card-border:       var(--hairline);
+  --card-border-hover: var(--rust);
+
+  /* Accent brand */
+  --accent-brand:       var(--rust);
+  --accent-brand-hover: var(--rust-deep);
+  --accent-brand-press: var(--rust-deep);
 }
 
+/* ── Base element styles ─────────────────────────────────── */
+
 html, body {
-  font-family: var(--font-sans);
-  font-size: var(--fs-14);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
   line-height: var(--lh-normal);
-  color: var(--fg-primary);
-  background: var(--bg-canvas);
+  color: var(--canyon-ink);
+  background: var(--bg-bone);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   font-feature-settings: 'cv11', 'ss01';
 }
 
 h1, .h1 {
   font-family: var(--font-display);
-  font-size: var(--fs-40);
+  font-size: var(--fs-3xl);
   font-weight: var(--fw-semibold);
   line-height: var(--lh-tight);
   letter-spacing: var(--tr-tight);
-  color: var(--fg-primary);
+  color: var(--canyon-ink);
   margin: 0;
+  text-wrap: balance;
 }
 
 h2, .h2 {
   font-family: var(--font-display);
-  font-size: var(--fs-30);
+  font-size: var(--fs-2xl);
   font-weight: var(--fw-semibold);
-  line-height: var(--lh-tight);
+  line-height: var(--lh-snug);
   letter-spacing: var(--tr-tight);
   margin: 0;
 }
 
 h3, .h3 {
-  font-family: var(--font-sans);
-  font-size: var(--fs-24);
-  font-weight: var(--fw-semibold);
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-medium);
   line-height: var(--lh-snug);
   letter-spacing: var(--tr-tight);
   margin: 0;
 }
 
 h4, .h4 {
-  font-family: var(--font-sans);
-  font-size: var(--fs-20);
-  font-weight: var(--fw-semibold);
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-medium);
   line-height: var(--lh-snug);
   margin: 0;
 }
 
 h5, .h5 {
-  font-family: var(--font-sans);
-  font-size: var(--fs-16);
+  font-family: var(--font-display);
+  font-size: var(--fs-base);
   font-weight: var(--fw-semibold);
   line-height: var(--lh-snug);
   margin: 0;
@@ -209,18 +298,18 @@ h5, .h5 {
 
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: var(--fs-11);
+  font-size: var(--fs-12);
   font-weight: var(--fw-medium);
   text-transform: uppercase;
   letter-spacing: var(--tr-caps);
-  color: var(--fg-secondary);
+  color: var(--rust);
 }
 
-.body-lg { font-size: var(--fs-16); line-height: var(--lh-relaxed); }
-.body    { font-size: var(--fs-14); line-height: var(--lh-normal); }
-.body-sm { font-size: var(--fs-13); line-height: var(--lh-normal); color: var(--fg-secondary); }
-.caption { font-size: var(--fs-12); line-height: var(--lh-normal); color: var(--fg-secondary); }
-.micro   { font-size: var(--fs-11); line-height: var(--lh-normal); color: var(--fg-tertiary); text-transform: uppercase; letter-spacing: var(--tr-wide); }
+.body-lg { font-size: var(--fs-md);   line-height: var(--lh-relaxed); }
+.body    { font-size: var(--fs-base); line-height: var(--lh-normal); }
+.body-sm { font-size: var(--fs-sm);   line-height: var(--lh-normal); color: var(--canyon-shadow); }
+.caption { font-size: var(--fs-xs);   line-height: var(--lh-normal); color: var(--canyon-shadow); }
+.micro   { font-size: var(--fs-xs);   line-height: var(--lh-normal); color: var(--canyon-fade); text-transform: uppercase; letter-spacing: var(--tr-wide); }
 
 .num, code, kbd, samp {
   font-family: var(--font-mono);
@@ -229,20 +318,37 @@ h5, .h5 {
 }
 
 a {
-  color: var(--fg-brand);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color var(--dur-fast) var(--ease-out);
+  color: var(--rust);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color var(--dur-fast) var(--ease-out),
+              text-decoration-thickness var(--dur-fast) var(--ease-out);
 }
-a:hover { border-bottom-color: var(--fg-brand); }
+a:hover {
+  color: var(--rust-deep);
+  text-decoration-thickness: 2px;
+}
+a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
 
 hr {
   border: none;
-  border-top: 1px solid var(--border-subtle);
-  margin: var(--sp-6) 0;
+  border-top: 1px solid var(--hairline);
+  margin: var(--s-7) 0;
 }
 
 ::selection {
-  background: var(--moss-200);
-  color: var(--ink-900);
+  background: var(--rust-soft);
+  color: var(--canyon-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
 }

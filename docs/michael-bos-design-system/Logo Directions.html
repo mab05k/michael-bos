@@ -1,0 +1,103 @@
+<!doctype html>
+<!-- @dsCard group="Brand" name="Logo Directions" subtitle="Six logo marks in the bio-page language" viewport="1400x900" -->
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Michael Bos — Logo Directions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <style>
+    html, body { margin: 0; height: 100%; }
+    #root { height: 100%; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="marks.jsx"></script>
+  <script type="text/babel" src="cards.jsx"></script>
+
+  <script type="text/babel">
+    const { DesignCanvas, DCSection, DCArtboard, DCPostIt, LogoCard, Wordmark } = window;
+    const { MarkStrata, MarkTrunk, MarkSlash, MarkSummit, MarkCarabiner, Monogram } = window;
+
+    // each: (size, onDark) => mark node
+    const DIRECTIONS = [
+      { id: 'strata', letter: 'A', name: 'Strata', concept: 'red rock · topo',
+        note: 'The existing peak, resolved into nested topographic contour lines — a Red Rock summit that doubles as a topo map. The safe evolution of what is on the bio page today.',
+        mark: (s) => <MarkStrata s={s} /> },
+      { id: 'trunk', letter: 'B', name: 'Clean Trunk', concept: 'ci/cd · git graph',
+        note: 'An ascending commit line with deploy nodes — the “twelve years on a clean trunk” story as a mark. Reads as a sparkline and a git graph. Most engineering-forward.',
+        mark: (s) => <MarkTrunk s={s} /> },
+      { id: 'slash', letter: 'C', name: 'The Slash', concept: 'path · route',
+        note: 'The wordmark’s rust slash promoted to the whole mark: a file path (michael/bos), a climbing route, an ascent. Minimal and unmistakable at any size.',
+        mark: (s) => <MarkSlash s={s} /> },
+      { id: 'summit', letter: 'D', name: 'Summit', concept: 'beacon · node',
+        note: 'A solid summit with a node set on the peak — ship to the top, the deploy target reached. The one heavy, stamp-like option; works as a flat app icon.',
+        mark: (s) => <MarkSummit s={s} /> },
+      { id: 'carabiner', letter: 'E', name: 'Carabiner', concept: 'climb · link',
+        note: 'A carabiner — the climber’s link, and the link in a pipeline. The most human, most personal mark; leans into the climbing story over the engineering one.',
+        mark: (s) => <MarkCarabiner s={s} /> },
+      { id: 'mono', letter: 'F', name: 'Monogram m/b', concept: 'type · path',
+        note: 'No symbol at all — the lowercase wordmark compressed to “m/b” with the mono slash. Quietest and most flexible; pure typography, ages well.',
+        mark: (s, d) => <Monogram s={s} onDark={d} /> },
+    ];
+
+    function NavBar({ mark }) {
+      const link = { fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 14, fontWeight: 500, color: '#6E5B45' };
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '15px 26px', background: '#F2EAD9', borderBottom: '1px solid rgba(31,20,12,0.12)' }}>
+          <Wordmark mark={mark} size={26} role={false} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <span style={{ ...link, color: '#B84A26', fontWeight: 600 }}>Home</span>
+            <span style={link}>Writing</span>
+            <span style={link}>Bio</span>
+            <span style={link}>Contact</span>
+            <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: '#6E5B45', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#3F8A4F', display: 'inline-block' }}></span>main · 12 deploys
+            </span>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      return (
+        <DesignCanvas>
+          <DCSection id="marks" title="Logo directions" subtitle="Six marks in the bio-page language — rust + ochre, IBM Plex + JetBrains Mono. Each shown on sandstone, on canyon ink, as a lockup, and as a favicon.">
+            {DIRECTIONS.map((d) => (
+              <DCArtboard key={d.id} id={d.id} label={`${d.letter} · ${d.name}`} width={480} height={712}>
+                <div style={{ height: '100%', background: '#FBF6EC' }}>
+                  <LogoCard {...d} />
+                </div>
+              </DCArtboard>
+            ))}
+          </DCSection>
+
+          <DCSection id="context" title="In the nav" subtitle="The same six, read in situ on the portfolio top bar — the truest test of a wordmark.">
+            <DCArtboard id="nav-compare" label="Nav · all six" width={840} height={612}>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {DIRECTIONS.map((d) => (
+                  <div key={d.id} style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: 10, top: 10, zIndex: 2, fontFamily: "'JetBrains Mono',monospace", fontSize: 10, color: '#B84A26', fontWeight: 700 }}>{d.letter}</span>
+                    <NavBar mark={d.mark} />
+                  </div>
+                ))}
+              </div>
+            </DCArtboard>
+          </DCSection>
+        </DesignCanvas>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

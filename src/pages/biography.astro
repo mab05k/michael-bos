@@ -1,741 +1,1589 @@
 ---
-import InnerLayout from '../layouts/InnerLayout.astro';
+import '../styles/shared.css';
+import SiteHeader from '../components/SiteHeader.astro';
 
-const startDate = new Date('1987-08-20');
+interface Tick {
+  name: string;
+  grade: string;
+  area: string;
+  date: string;
+  url: string;
+}
 
-const years = (() => {
-  const now = new Date();
+let ticks: Tick[] = [];
 
-  let age = now.getFullYear() - startDate.getFullYear();
+try {
+  const res = await fetch('https://www.mountainproject.com/rss/user-ticks/200700760');
+  if (res.ok) {
+    const xml = await res.text();
+    const itemRe = /<item>([\s\S]*?)<\/item>/g;
+    let m: RegExpExecArray | null;
+    while ((m = itemRe.exec(xml)) !== null) {
+      const block = m[1];
+      const rawTitle =
+        (block.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/) || block.match(/<title>(.*?)<\/title>/) || [])[1] || '';
+      const link = ((block.match(/<link>([\s\S]*?)<\/link>/) || [])[1] || '').trim();
+      const pubDate = (block.match(/<pubDate>(.*?)<\/pubDate>/) || [])[1] || '';
+      // Description may be CDATA or HTML-entity encoded — handle both
+      let desc = (block.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/) || [])[1];
+      if (!desc) {
+        const raw = (block.match(/<description>([\s\S]*?)<\/description>/) || [])[1] || '';
+        desc = raw
+          .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+          .replace(/&amp;/g, '&').replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'");
+      }
 
-  const hasHadAnniversaryThisYear =
-      now.getMonth() > startDate.getMonth() ||
-      (now.getMonth() === startDate.getMonth() &&
-          now.getDate() >= startDate.getDate());
+      const tm = rawTitle.match(/^Tick:\s*(.*?)\s*\(([^)]+)\)\s*$/);
+      const name = tm ? tm[1].trim() : rawTitle.replace(/^Tick:\s*/, '').trim();
+      const grade = tm ? tm[2].trim() : '';
 
-  if (!hasHadAnniversaryThisYear) {
-    age--;
+      const decodeEnt = (s: string) => s
+        .replace(/&hellip;/g, '…').replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
+      const areaMatches = [...desc.matchAll(/href="[^"]*\/area\/[^"]*">([^<]+)<\/a>/g)];
+      // Last 2 area levels give context without overflowing (e.g. "Whiskey Peak · N Face")
+      const area = areaMatches.length >= 2
+        ? areaMatches.slice(-2).map(m => decodeEnt(m[1])).join(' · ')
+        : areaMatches.length === 1 ? decodeEnt(areaMatches[0][1]) : '';
+
+      let date = '';
+      if (pubDate) {
+        try {
+          date = new Date(pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        } catch (_) {}
+      }
+
+      if (name) ticks.push({ name, grade, area, date, url: link });
+    }
+  }
+} catch (e: unknown) {
+  console.warn('[mp-ticks] fetch failed:', e instanceof Error ? e.message : String(e));
+}
+
+const preview = ticks.slice(0, 5);
+const tickJSON = JSON.stringify(ticks).replace(/<\/script>/gi, '<\\/script>');
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bio — Michael Bos</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" href="/favicon.ico">
+</head>
+<body>
+
+<div class="stage" id="stage" data-theme="keys" data-anim="in">
+
+  <SiteHeader activePage="biography">
+    <div slot="right" class="topbar-right">
+      <span class="loc"><span class="pin"></span>Las Vegas, NV</span>
+      <span class="chapter-count"><b id="chap-current">01</b> / 06</span>
+    </div>
+  </SiteHeader>
+
+  <!-- Chapter stage -->
+  <main class="stage-body" id="stage-body">
+
+    <!-- 01 · Florida Keys -->
+    <div class="chapter" id="ch-0" style="display:none">
+      <div class="ch-left">
+        <div class="ch-kicker">
+          <span class="ch-num">01</span>
+          Florida Keys <span class="yr">&middot; before everything</span>
+        </div>
+        <h2 class="ch-title">Where I&rsquo;m from.</h2>
+        <div class="ch-body">
+          <p>
+            Islamorada, Florida Keys. A chain of islands with one road in and one road
+            out, 45 minutes from the nearest major city.
+          </p>
+          <p>
+            Hurricane season taught me to plan for the worst and hope for the best. Living on an
+            island taught me the rest is rarely an emergency. Those ideals carried over into the way I live
+            my life and my career: clear priorities when something breaks, perspective on
+            everything else.
+          </p>
+          <p>
+            Four years at Coral Shores High School ended as co-captain of the swim team,
+            competing at the district and regional levels in the 200m freestyle and
+            100m butterfly.
+          </p>
+        </div>
+        <div class="ch-chips">
+          <span class="ch-chip">
+            <svg width="13" height="13" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+              <path d="M76.9,92c0.1,0.3,0,0.6,0.2,0.8c0.5,0.4,1.3-0.1,1.9-0.3c0.4-0.1,0.8-0.1,1-0.4c0.2-0.3,0.3-1.3,0-1.5C79.2,89.9,78,91.6,76.9,92z"/>
+              <path d="M82.4,89.9c-0.4,0.1-0.9,0-1.2,0.3c-0.2,0.3-0.3,1.2,0,1.4c0.5,0.4,1.2-0.5,1.8-0.8c0.4-0.2,0.8-0.3,1.3-0.5c0,0,0.2-0.7,0-0.9C83.8,89.1,83,89.8,82.4,89.9z"/>
+              <path d="M89.2,86.5c-0.7,0-2.2,1-2.8,2.1c-0.1,0.2-0.2,0.8,0,0.9c1,0.6,3.5-1.4,3.2-1.5"/>
+              <path d="M91.7,86.4c1.3-0.1,2.2-3.5,2.2-5.9c-0.5-0.1-0.9-0.2-1.3-0.3c1.6-6.3,2.2-12.6,1.9-19c-0.1-1.3-0.1-2.8-0.6-4c-2.4-5.7-5-11.3-8.7-16.2c-1.1-1.5-1.7-3.6-2.3-5.5c-0.6-1.8-0.7-3.8-1.5-5.4c-3.2-7-7.2-13.5-9-21.1c-0.4-1.9-1.9-3-3.7-3.1c-2.5-0.2-3.6,1.4-2.9,3.9c0.1,0.3,0.2,0.6,0.3,1.3c-0.7-0.6-1.1-1-1.6-1.2C63.8,9.5,63,9,62.3,9C56,8.8,49.7,8.8,43.5,8.7c-2.6,0-5.2,0.1-7.7,0c-0.6,0-1.5-0.5-1.7-1.1c-0.5-1.2-1.2-1.3-2.3-1.3c-7.1,0.1-14.2,0.2-21.3,0.4C8.3,6.7,6.2,6.9,3.8,7C4.1,8.2,4,9.6,4.6,10.1c1.4,1.3,1.5,2.8,1.3,4.4c-0.1,1.3,0.6,2.3,1.6,2.5c0.4,0.1,1.2-1.2,1.5-2c0.3-1,0.7-1.6,1.7-1.4c0.7,2.3,2.2,3,4,1.6c2.3-1.7,4.5-1.4,6.6,0.6c0.7,0.6,1.6,1.3,2.5,1.3c2,0.1,3.1,1.5,4.4,2.6c0.8,0.6,1.4,1.5,0.7,2.8c-0.3,0.6-0.3,1.3-0.5,2c0.7,0.1,1.4,0.4,2,0.4c0.6,0,1.2-0.4,1.8-0.7c1.1-0.7,2.2-1.9,3.4-2.1c2.4-0.5,4.2-2,6-3.6c1-0.9,2-0.8,3.1-0.1c1.5,1,3,2,4.3,3.2c0.8,0.7,1.2,1.8,1.7,2.7c0.4,0.7,0.7,1.5,1.3,2c1.3,1.2,2.7,2.3,4,3.4c0.2,0.1,0.4,0.3,0.5,0.3c1.7,0,2.1,0.5,3,2.5c0,0.1,0.4,0.5,0.4,0.5c1.9,2.1,1.2,4.3,0.8,6.7c-0.3,1.8-0.7,3.7-0.8,5.5c-0.1,1.4,0,2.8,1.6,3.6c0.1-0.6,0.1-1.2,0.3-1.4c0.4-0.3,1.2-0.7,1.5-0.4c0.6,0.4,1.3,1.6,1.2,1.7c-0.8,1-1.7,1.9-2.6,2.8c-0.3,0.3-0.7,0.6-1,1c0.4,0.4,0.7,0.8,1.1,1c1.9,1.1,3.6,2.3,4,4.9c0.1,0.6,0.5,1.3,0.9,1.7c0.3,0.3,0.9,0.5,1.4,0.5c0.1,0,0.2-0.8,0.4-1.1c0.2-0.4,0.6-0.7,0.9-1c0.2,0.1,0.3,0.2,0.5,0.3c-1.2,2.7-0.6,5.4,1.5,6.7c1.8,1.2,1.7,2.6,2,4.3c0.4,1.8,1.4,3,3.2,3.6c1.9,0.6,3.6,1.6,5.4,2.5c0.2,0.1,0.4,0.4,0.4,0.6c-0.2,2,0.4,3.6,2.6,4.6c-0.8,0-1.1,0-1.3,0.1c-0.5,0.4-0.9,1-1.4,1.5c0.5,0.3,1.1,0.9,1.6,0.8c2.2-0.3,4.4-0.9,6.6-1.3c0.3-0.1-0.8,3.8,0.3,4M90.3,60.9c-0.2,0.9-1.1,2.6-1.9,2.8c-0.8,0.3-3.1-1.1-3.1-1.1l-1-0.3c0,0-1.7-0.7-1.8-1.2c-0.1-0.7,1.3-2.3,1.3-2.3l1-1.8l1.9-1l1.9,0.1c0,0,1.5,0.9,1.8,1.4C90.7,58.2,90.5,60.1,90.3,60.9z"/>
+            </svg>
+            Islamorada, FL
+          </span>
+          <span class="ch-chip">
+            <svg width="13" height="13" viewBox="-5 -10 110 112" fill="currentColor" aria-hidden="true">
+              <path d="m62.82 27.531-0.87891-2.1016c-0.69141-1.6289-2.2812-2.6797-4.0586-2.6797h-27.414c-1.7812 0-3.3789 1.0508-4.0586 2.6797l-0.87891 2.1016c5.7812-0.92188 12.129-1.4102 18.648-1.4102 6.5195 0 12.859 0.48828 18.641 1.4102z"/>
+              <path d="m61.68 72.98c1.2188 0.21094 2.4805-0.039063 3.2812-0.69922 0.30078-0.25 0.67969-0.64844 0.69922-1.2109l0.28906-7.2383v-2.3203l-5.9102 1.1094c-0.67969 0.98047-1.8086 1.6289-3.0898 1.6289-1.1289 0-2.1289-0.51172-2.8086-1.2891-2.4492 2.4492-6 3.9883-9.9492 3.9883-3.9609 0-7.5117-1.5508-9.9609-3.9883-0.69141 0.78906-1.6914 1.2891-2.8086 1.2891-1.2812 0-2.4102-0.64062-3.0898-1.6289l-5.8984-1.0898v2.3281l0.28125 7.2188c0.03125 0.55078 0.39844 0.96094 0.71094 1.2109 0.80859 0.64844 2.0586 0.92188 3.2695 0.69922 4.5781-0.82812 10.809-1.2891 17.512-1.2891 6.6914 0 12.883 0.44922 17.473 1.2812z"/>
+              <path d="m35.172 60.512c0 0.14062-0.03125 0.28906-0.039063 0.42188 2.0586 2.3984 5.3398 3.9688 9.0508 3.9688 3.6992 0 6.9883-1.5703 9.0508-3.9688-0.019531-0.12891-0.039063-0.28125-0.039063-0.42188v-0.35938l-3.6914-5.0508-3.3086-4.5195c-0.46875-0.64062-1.2109-1.0117-2.0117-1.0117-0.80859 0-1.5508 0.37109-2.0195 1.0117l-3.3086 4.5195-3.6797 5.0508z"/>
+              <path d="m44.18 47.512c1.4609 0 2.8008 0.67969 3.6602 1.8516l5.3398 7.3203v-3.8594l-3.8789-5.3281c-1.1992-1.6602-3.0703-2.6094-5.1289-2.6094-2.0703 0-3.9297 0.94922-5.1406 2.6094l-3.8711 5.3281v3.8594l5.3281-7.3203c0.88281-1.1719 2.2109-1.8516 3.6914-1.8516z"/>
+              <path d="m27.648 58.07-16.379-2.7383c-1.6016-0.26953-2.7617-1.6289-2.7617-3.2305l0.12891-13.172c0.019531-1.1914 0.73828-2.25 1.8398-2.6992 3.5703-1.4492 8.9414-3.3203 13.32-4.1602 1.1992-0.23828 2.4492-0.46094 3.8086-0.67187 0.30859-0.050782 0.64844-0.10156 0.98828-0.14063l0.37109-0.058593c1.0312-0.14844 2.0586-0.28125 3.0195-0.37109l0.23047-0.03125c7.8008-0.82031 16.129-0.82031 23.91 0l0.25 0.03125c0.94922 0.089844 1.9609 0.21094 3 0.37109l0.37891 0.058593c0.33984 0.039063 0.67969 0.089844 1 0.14063 1.3398 0.19922 2.5898 0.42969 3.8008 0.67187 4.3711 0.85156 9.7383 2.7109 13.309 4.1602 1.1094 0.44922 1.8281 1.5117 1.8398 2.6992l0.12891 13.16c0 1.6211-1.1719 2.9805-2.7617 3.2383l-16.379 2.7383v2.3398l7.2188-1.3516c0.019532 0 0.03125-0.011719 0.050782-0.011719l11.371-2.1211c1.75-0.32812 3.0117-1.8281 3.0117-3.5781l0.007812-15.562c0-1.2812-0.71094-2.4297-1.8398-3-8.2188-4.1406-21.809-6.6211-36.328-6.6211-14.531 0-28.109 2.4805-36.34 6.6211-1.1289 0.57031-1.8281 1.7188-1.8398 3v15.57c0 1.75 1.2695 3.25 3.0117 3.5781l11.328 2.1094c0.039062 0.011719 0.078125 0.019532 0.12109 0.03125l7.1914 1.3398z"/>
+              <path d="m76.738 53.32c0.60938-0.10156 1.0508-0.60937 1.0508-1.2188l-0.12891-13.148c-0.011718-0.35938-0.23047-0.69141-0.55859-0.82812-3.4805-1.4102-8.7109-3.2188-12.941-4.0508-1.1797-0.23828-2.3906-0.44141-3.7188-0.64062-0.32031-0.058594-0.62891-0.10156-0.94922-0.14062l-0.39844-0.058594c-1-0.14062-1.9883-0.26953-2.9297-0.35938l-0.23828-0.03125c-3.8281-0.39844-7.7812-0.60156-11.738-0.60156-3.9688 0-7.9219 0.19922-11.75 0.60156l-0.21094 0.03125c-0.96094 0.089844-1.9414 0.21094-2.9414 0.35938l-0.35938 0.050781c-0.35938 0.050782-0.67969 0.089844-0.98047 0.14062-1.3516 0.21094-2.5703 0.42188-3.7305 0.64844-4.25 0.82812-9.4805 2.6406-12.949 4.0508-0.33984 0.14062-0.55078 0.46875-0.55859 0.82812l-0.12891 13.16c0 0.58984 0.44141 1.1094 1.0508 1.2109l16.469 2.75 5.4102-4.4609c0.019532-0.011719 0.03125-0.019531 0.050782-0.03125l3.8398-5.2891c1.6016-2.1914 4.0703-3.4492 6.7891-3.4492s5.1914 1.2617 6.7812 3.4492l3.8398 5.2891c0.019531 0.011719 0.039062 0.019531 0.050781 0.03125l5.4102 4.4609zm-53.047-15.07c-0.44141 0.14062-0.96094 0.28125-1.5195 0.39844-0.30859 0.070312-0.62891 0.14062-0.96094 0.19922-2.6719 0.57031-6 1.2812-6.1914 3.3281-0.16016 1.6289-0.21094 3.2812-0.19922 4.9219 0 0.39062-0.011718 0.76953 0 1.1484 0.011719 0.55859-0.42969 1.0312-0.98828 1.0508h-0.03125c-0.55078 0-1.0117-0.44141-1.0195-0.98828-0.070312-2.1016 0-4.2383 0.19922-6.3203 0.35156-3.5508 4.6719-4.4609 7.8086-5.1289 0.87109-0.17969 1.6914-0.35938 2.2617-0.55078 0.53906-0.17969 1.1211 0.10938 1.3008 0.64062 0.16016 0.55078-0.13281 1.1211-0.66016 1.3008z"/>
+              <path d="m31.41 62.199c0.94922 0 1.7188-0.76172 1.7188-1.6914v-5.9492l-3.4297 2.8203v3.1211c0 0.94141 0.76953 1.6992 1.7109 1.6992z"/>
+              <path d="m56.941 62.199c0.94141 0 1.7109-0.76172 1.7109-1.6914v-3.1211l-3.4219-2.8203v5.9492c0 0.92578 0.76953 1.6836 1.7109 1.6836z"/>
+              <path d="m40.52 87.289c0-0.87891 0.35156-1.6992 0.98828-2.3008 0.58984-0.58984 1.4102-0.92969 2.3008-0.92969h10.891c-0.98828-2.0586-3.0898-3.4805-5.5312-3.4805h-8.4297c-3.3906 0-6.1406 2.75-6.1406 6.1406v1.1484c0 3.3906 2.75 6.1406 6.1406 6.1406h8.4297c2.4414 0 4.5312-1.4219 5.5312-3.4805l-10.879 0.003906c-1.8203-0.011719-3.3008-1.4609-3.3008-3.2422z"/>
+              <path d="m90.93 75.84c0 5.6602-4.7305 10.262-10.539 10.262h-32.129v2.3711h32.66c7.2109 0 13.078-5.6914 13.078-12.672v-55.141h-3.0703z"/>
+              <path d="m42.941 86.449c-0.25 0.23828-0.37109 0.51953-0.37109 0.83984 0 0.64844 0.55859 1.1914 1.25 1.1914h2.3906v-2.3789h-2.3906c-0.33984 0-0.66016 0.11719-0.87891 0.34766z"/>
+              <path d="m92.539 6h-4.5586c-0.80859 0-1.4609 0.64062-1.4609 1.4297v6.1094c0 0.32031 0.10938 0.62891 0.32031 0.89063l3.3906 4.1914h3.7695v-11.191c0-0.78906-0.64844-1.4297-1.4609-1.4297z"/>
+            </svg>
+            Free diving
+          </span>
+          <span class="ch-chip">
+            <svg width="13" height="13" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+              <path d="M42.3,39.8c2.4-0.2,4.8,0.1,7.1-0.9c0.5-0.2,0.9-0.4,1.4-0.7c0.1,0,0.1-0.1,0.2-0.2c-0.1,0-0.2-0.1-0.3-0.1c-0.5,0.1-1,0.3-1.4,0.5c-1.7,0.6-3.4,0.4-5.1,0.5c-0.1,0-0.1-0.1-0.2-0.1c0.1-0.1,0.1-0.2,0.2-0.2c0.6-0.3,1.1-0.6,1.7-0.9c4-2.1,7.9-4.2,11.9-6.2c0.4-0.2,0.6-0.5,0.6-0.9c0.1-1.2,0.3-2.3,0.5-3.4c0.2-1.2,0.9-1.7,2-1.2c0.7,0.3,1.3,0.7,2,1.1c-0.4,0.6-0.8,1.2-1.2,1.8c-0.2,0.3-0.6,0.6-0.8,0.9c-0.1,0.1-0.1,0.2-0.1,0.3c0.1,0,0.2,0,0.3-0.1c0.4-0.3,0.8-0.5,1.1-0.9c0.3-0.3,0.6-0.6,0.8-0.9c1.3-1.7,2.9-2.9,4.9-3.6c1.5-0.5,2.9-1.1,4.3-1.7c1.1-0.4,1.9-1,2.4-2.1c0.3-0.6,0.2-1.1-0.1-1.7c-0.9-1.5-1.9-2.9-3.3-4.1c-0.3-0.3-0.7-0.6-1-1c-0.7-0.7-0.7-1.4-0.1-2.1c1.3-1.4,2.7-2.8,4.3-3.8c1-0.6,2.1-1.1,3.4-0.6c0.7,0.2,1.2,0.6,1.4,1.3c0.2,0.6,0.6,1,1.2,1.2c1.5,0.5,2.8,1.4,3.7,2.7c0.4,0.5,0.9,0.9,1.4,1.3c1.8,1.4,3.2,3.1,3.7,5.5c0,0.3,0.2,0.6,0.4,0.7c2.1,1.7,2.9,4.1,3.1,6.7c0.1,0.6,0.2,1.3,0.4,1.9c0.8,2.3,1.2,4.5,0.4,6.9c-0.2,0.5,0,0.8,0.5,1.1c0.8,0.5,1,0.9,0.7,1.8c-0.2,0.5-0.5,1.1-0.8,1.5c-0.6,0.6-1.2,1.2-2,1.6c-1.4,0.9-2.9,1.6-4.4,2.4c-0.3,0.2-0.7,0.3-1.1,0.3c-1.1,0.1-1.9-0.4-2.1-1.5c-0.1-0.4-0.2-0.9-0.1-1.3c0.3-1.7-0.5-3.2-1.1-4.7c-0.2-0.6-0.5-1.1-0.8-1.7c-0.4-0.7-0.9-0.9-1.6-0.5c-0.8,0.5-1.5,1.1-2.2,1.7c-1.1,0.9-2.1,2-3.2,2.9c-2,1.6-4.2,2.5-6.8,2.8c-2.4,0.3-4.4,1.4-6.2,3.1c-0.4,0.4-1,0.8-1.5,1.1c-4.4,2.1-8.8,4-13.4,5.4c-1.2,0.4-1.8,1.2-2.4,2.1c-0.7,1-0.7,1-1.9,0.5c-0.3-0.1-0.7-0.1-1.1-0.1c-3.9,0.4-7.3,1.9-10.7,3.8c-1.8,1-3.5,2.2-4.8,3.9c-0.1,0.1-0.2,0.2-0.2,0.3c0,0.1,0,0.3,0,0.4c0.1,0,0.3-0.1,0.4-0.1c0.6-0.4,1.1-0.9,1.7-1.3c1.1-0.7,2.2-0.6,3.2,0.3c0.3,0.3,0.6,0.6,0.9,0.9c0.2,0.3,0.4,0.7,0.3,1c-0.1,0.5-0.5,0.5-0.9,0.5c-1.8,0.1-3.4,0.5-4.9,1.4c-0.4,0.2-0.8,0.6-1.1,0.9c-1.7,1.7-3.4,3.3-4.9,5.1c-1.9,2.1-3.7,4.3-5.4,6.5c-1.8,2.3-3.5,4.8-5.3,7.1c-0.4,0.5-0.3,0.9,0.1,1.3c0.4,0.5,0.3,1.1-0.2,1.1c-1.1,0-1.5,0.8-1.9,1.6c-0.7,1.1-1.2,2.2-1.9,3.3c-0.1,0.3-0.5,0.6-0.7,0.6c-0.5,0-0.6-0.5-0.5-0.9c0-0.2,0-0.5,0.1-0.7c0.5-1.9,1-3.9,1.5-5.8c0.7-2.6,2-5,3.1-7.5c2.2-4.5,4.6-9,7.9-12.9c1-1.2,2.3-2.3,3.4-3.4c0.5-0.5,1.1-0.9,1.6-1.4c0.2-0.2,0.3-0.4-0.2-0.4c-0.7,0-0.9-0.4-0.5-0.9c0.6-0.7,1.2-1.4,1.8-2.1c0.4-0.5,0.9-1.1,1.3-1.7c1.5-2.6,3.6-4.8,5.5-7.2c1.2-1.5,2.5-2.1,4.3-2.2c1-0.1,2-0.3,2.9-0.4c1.6-0.2,3-0.8,4.3-1.7c0.1-0.1,0.2-0.2,0.3-0.4c-0.2,0-0.4,0-0.5,0.1c-1.6,0.9-3.5,1.1-5.3,1.3c-3.4,0.4-6.9,0.6-10.3,0.9c-0.2,0-0.4,0.1-0.5,0c-0.2-0.1-0.5-0.3-0.6-0.5c-0.1-0.2,0.1-0.5,0.2-0.6c0.3-0.2,0.6-0.4,0.9-0.6c2.9-1.4,6-2.5,9.2-2.9c1.7-0.2,3.4-0.5,5-0.7C41.1,39.9,41.7,39.9,42.3,39.8zM70,43.3c-0.1-0.1-0.4-0.3-0.5-0.2c-2.2,0.4-4.2,1.2-5.9,2.8c-0.3,0.3-0.4,0.5,0,0.9c2.8,2.6,4.8,5.7,6.5,9.1c0.2,0.4,0.3,1,0.9,0.8c0.4-0.1,0.6-0.6,0.9-0.9c0.1-0.1,0.1-0.3,0.1-0.5c0.1-1.1,0.3-2.2,0.4-3.3C72.5,48.9,71.1,46.1,70,43.3z"/>
+            </svg>
+            Spearfishing
+          </span>
+          <span class="ch-chip">
+            <svg width="13" height="13" viewBox="-5 5 110 88" fill="currentColor" aria-hidden="true">
+              <path d="m30.691 90c-4.5039 0-9.1055-0.39844-13.68-1.1875-0.51562-0.089844-0.90625-0.51953-0.94141-1.043-0.035156-0.52344 0.29297-1.0039 0.79688-1.1602 5.4844-1.7188 10.363-5.8086 13.215-11.039-7.8164-6.1016-12.465-15.543-12.496-25.465-0.003907-0.035157-0.003907-0.066407-0.003907-0.10156 0-7.1836 2.3086-13.996 6.6758-19.695 9.7305-13.09 25.734-20.305 45.055-20.305 4.5039 0 9.1055 0.39844 13.68 1.1875 0.51562 0.089844 0.90625 0.51953 0.94141 1.043s-0.29297 1.0039-0.79688 1.1602c-5.4844 1.7188-10.363 5.8086-13.215 11.039 7.8164 6.1016 12.465 15.543 12.496 25.465 0.003906 0.035156 0.003906 0.066406 0.003906 0.10156 0 7.1836-2.3086 13.996-6.6758 19.695-9.7305 13.09-25.738 20.305-45.055 20.305zm7.9922-40c0 6.2422 5.0781 11.32 11.32 11.32 6.207 0 11.266-5.0234 11.32-11.223-0.003907-0.03125-0.003907-0.0625-0.003907-0.09375 0-6.2422-5.0781-11.32-11.32-11.32-6.207 0-11.266 5.0234-11.32 11.223 0.003906 0.03125 0.003906 0.0625 0.003906 0.097656z"/>
+            </svg>
+            Coral Shores HS
+          </span>
+          <span class="ch-chip">
+            <svg width="14" height="13" viewBox="100 200 290 175" fill="currentColor" aria-hidden="true">
+              <ellipse transform="matrix(0.297 -0.9549 0.9549 0.297 17.5622 513.3229)" cx="357.4" cy="244.7" rx="30.6" ry="30.6"/>
+              <path d="M249.1,322.4c-13.3,7.6-24.8,14.2-49.2,14.2c-24.3,0-35.8-6.6-49.2-14.2c-5.7-3.2-11.6-6.6-18.6-9.6l-10.9,25.8c5.5,2.3,10.4,5.1,15.6,8.1c14.7,8.4,31.3,17.8,63,17.8c31.8,0,48.4-9.5,63-17.8c13.3-7.6,24.8-14.2,49.2-14.2c18.7,0,29.8,3.8,40.6,9.4l13-24.8c-11.9-6.2-27.6-12.6-53.6-12.6C280.3,304.6,263.7,314,249.1,322.4z"/>
+              <path d="M237.4,230.7l36.2,33.1c-30.9,13-69.4,33.7-105.7,54.1c-0.5,0.3-0.4,1,0.1,1.1c7.6,2.6,16.6,4.3,28.9,4.3c24.3,0,35.8-6.6,49.2-14.2c14.7-8.4,31.3-17.8,63-17.8c10.6,0,19.6,1.1,27.3,2.8c0.6,0.1,1-0.5,0.6-1c-9.1-12.8-20.9-30-33.2-39.7l-52.6-48.1c-3.2-2.9-7.6-4.2-11.9-3.5l-89.7,18.3l3.4,19.1L237.4,230.7z"/>
+            </svg>
+            Swim team co-captain
+          </span>
+        </div>
+      </div>
+      <div class="ch-right">
+        <div class="keys-carousel" id="keys-carousel">
+          <div class="kc-slides">
+            <div class="kc-slide" data-kc="0">
+              <img src="/keys-lighthouse.jpg" alt="Alligator Reef Lighthouse, Islamorada, Florida Keys" loading="lazy">
+              <span class="kc-tag">24.85&deg; N &middot; 80.62&deg; W &middot; Alligator Reef</span>
+            </div>
+            <div class="kc-slide" data-kc="1">
+              <img src="/keys-islamorada.jpg" alt="Aerial view of Overseas Highway, Florida Keys" loading="lazy">
+              <span class="kc-tag">MM 81 &middot; Islamorada, FL &middot; Overseas Hwy</span>
+            </div>
+          </div>
+          <button class="kc-arrow kc-prev" id="kc-prev" aria-label="Previous photo" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button class="kc-arrow kc-next" id="kc-next" aria-label="Next photo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+          <div class="kc-dots">
+            <span class="kc-dot is-active" data-kc-dot="0"></span>
+            <span class="kc-dot" data-kc-dot="1"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 · Florida State University -->
+    <div class="chapter" id="ch-1" style="display:none">
+      <div class="ch-left">
+        <div class="ch-kicker">
+          <span class="ch-num">02</span>
+          Florida State University <span class="yr">&middot; 2005 &mdash; 2009</span>
+        </div>
+        <h2 class="ch-title">Garnet &amp; gold.</h2>
+        <div class="ch-body">
+          <p>
+            I left the islands for Tallahassee and Florida State&rsquo;s College of
+            Business &mdash; finishing in 2009 with a <strong>B.S. in Finance and Real Estate</strong>.
+            The classroom was half of it; the other half was <strong>Theta Chi</strong>, which at the time
+            had the highest overall GPA on campus and took its philanthropic work and
+            intramural athletics seriously.
+          </p>
+          <p>
+            Brotherhood Chairman for one year, running the annual retreat and internal
+            programming. Athletic Chairman for two, assembling teams and coordinating
+            participation across intramural sports. A lot of what came later &mdash;
+            organizing people, sequencing work, keeping a group moving in the same
+            direction &mdash; got its first rep here.
+          </p>
+        </div>
+        <div class="ch-chips">
+          <span class="ch-chip">
+            <svg width="13" height="13" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+              <path d="M76.9,92c0.1,0.3,0,0.6,0.2,0.8c0.5,0.4,1.3-0.1,1.9-0.3c0.4-0.1,0.8-0.1,1-0.4c0.2-0.3,0.3-1.3,0-1.5C79.2,89.9,78,91.6,76.9,92z"/>
+              <path d="M82.4,89.9c-0.4,0.1-0.9,0-1.2,0.3c-0.2,0.3-0.3,1.2,0,1.4c0.5,0.4,1.2-0.5,1.8-0.8c0.4-0.2,0.8-0.3,1.3-0.5c0,0,0.2-0.7,0-0.9C83.8,89.1,83,89.8,82.4,89.9z"/>
+              <path d="M89.2,86.5c-0.7,0-2.2,1-2.8,2.1c-0.1,0.2-0.2,0.8,0,0.9c1,0.6,3.5-1.4,3.2-1.5"/>
+              <path d="M91.7,86.4c1.3-0.1,2.2-3.5,2.2-5.9c-0.5-0.1-0.9-0.2-1.3-0.3c1.6-6.3,2.2-12.6,1.9-19c-0.1-1.3-0.1-2.8-0.6-4c-2.4-5.7-5-11.3-8.7-16.2c-1.1-1.5-1.7-3.6-2.3-5.5c-0.6-1.8-0.7-3.8-1.5-5.4c-3.2-7-7.2-13.5-9-21.1c-0.4-1.9-1.9-3-3.7-3.1c-2.5-0.2-3.6,1.4-2.9,3.9c0.1,0.3,0.2,0.6,0.3,1.3c-0.7-0.6-1.1-1-1.6-1.2C63.8,9.5,63,9,62.3,9C56,8.8,49.7,8.8,43.5,8.7c-2.6,0-5.2,0.1-7.7,0c-0.6,0-1.5-0.5-1.7-1.1c-0.5-1.2-1.2-1.3-2.3-1.3c-7.1,0.1-14.2,0.2-21.3,0.4C8.3,6.7,6.2,6.9,3.8,7C4.1,8.2,4,9.6,4.6,10.1c1.4,1.3,1.5,2.8,1.3,4.4c-0.1,1.3,0.6,2.3,1.6,2.5c0.4,0.1,1.2-1.2,1.5-2c0.3-1,0.7-1.6,1.7-1.4c0.7,2.3,2.2,3,4,1.6c2.3-1.7,4.5-1.4,6.6,0.6c0.7,0.6,1.6,1.3,2.5,1.3c2,0.1,3.1,1.5,4.4,2.6c0.8,0.6,1.4,1.5,0.7,2.8c-0.3,0.6-0.3,1.3-0.5,2c0.7,0.1,1.4,0.4,2,0.4c0.6,0,1.2-0.4,1.8-0.7c1.1-0.7,2.2-1.9,3.4-2.1c2.4-0.5,4.2-2,6-3.6c1-0.9,2-0.8,3.1-0.1c1.5,1,3,2,4.3,3.2c0.8,0.7,1.2,1.8,1.7,2.7c0.4,0.7,0.7,1.5,1.3,2c1.3,1.2,2.7,2.3,4,3.4c0.2,0.1,0.4,0.3,0.5,0.3c1.7,0,2.1,0.5,3,2.5c0,0.1,0.4,0.5,0.4,0.5c1.9,2.1,1.2,4.3,0.8,6.7c-0.3,1.8-0.7,3.7-0.8,5.5c-0.1,1.4,0,2.8,1.6,3.6c0.1-0.6,0.1-1.2,0.3-1.4c0.4-0.3,1.2-0.7,1.5-0.4c0.6,0.4,1.3,1.6,1.2,1.7c-0.8,1-1.7,1.9-2.6,2.8c-0.3,0.3-0.7,0.6-1,1c0.4,0.4,0.7,0.8,1.1,1c1.9,1.1,3.6,2.3,4,4.9c0.1,0.6,0.5,1.3,0.9,1.7c0.3,0.3,0.9,0.5,1.4,0.5c0.1,0,0.2-0.8,0.4-1.1c0.2-0.4,0.6-0.7,0.9-1c0.2,0.1,0.3,0.2,0.5,0.3c-1.2,2.7-0.6,5.4,1.5,6.7c1.8,1.2,1.7,2.6,2,4.3c0.4,1.8,1.4,3,3.2,3.6c1.9,0.6,3.6,1.6,5.4,2.5c0.2,0.1,0.4,0.4,0.4,0.6c-0.2,2,0.4,3.6,2.6,4.6c-0.8,0-1.1,0-1.3,0.1c-0.5,0.4-0.9,1-1.4,1.5c0.5,0.3,1.1,0.9,1.6,0.8c2.2-0.3,4.4-0.9,6.6-1.3c0.3-0.1-0.8,3.8,0.3,4M90.3,60.9c-0.2,0.9-1.1,2.6-1.9,2.8c-0.8,0.3-3.1-1.1-3.1-1.1l-1-0.3c0,0-1.7-0.7-1.8-1.2c-0.1-0.7,1.3-2.3,1.3-2.3l1-1.8l1.9-1l1.9,0.1c0,0,1.5,0.9,1.8,1.4C90.7,58.2,90.5,60.1,90.3,60.9z"/>
+            </svg>
+            Tallahassee, FL
+          </span>
+          <span class="ch-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+            B.S. Finance &amp; Real Estate
+          </span>
+          <span class="ch-chip">
+            <svg width="20" height="10" viewBox="0 0 190 100" fill="currentColor" aria-hidden="true">
+              <g transform="translate(1.5,0) scale(0.1548)">
+                <path d="M274 646c-129,-1 -270,-64 -274,-324 -4,-229 138,-320 275,-322 138,-2 284,96 287,318 3,157 -68,330 -288,328zm177 -326c-8,-198 -100,-295 -175,-295 -148,-1 -172,206 -168,295 10,207 94,293 167,291 141,-5 180,-201 176,-291z"/>
+                <path d="M218 285c-23,-5 -35,-25 -56,-42l0 159c21,-17 33,-36 56,-42 33,-6 93,-6 126,0 25,5 35,25 56,42l0 -159c-21,17 -31,37 -56,42 -33,6 -92,6 -126,0z"/>
+              </g>
+              <g transform="translate(97.5,0) scale(0.1244) translate(-54,-21)">
+                <polygon points="423,298 617,21 793,21 511,423 793,825 617,825 423,549 230,825 54,825 335,423 54,21 230,21"/>
+              </g>
+            </svg>
+            Theta Chi
+          </span>
+          <span class="ch-chip">
+            <svg width="20" height="10" viewBox="0 0 190 100" fill="currentColor" aria-hidden="true">
+              <g transform="translate(1.5,0) scale(0.1548)">
+                <path d="M274 646c-129,-1 -270,-64 -274,-324 -4,-229 138,-320 275,-322 138,-2 284,96 287,318 3,157 -68,330 -288,328zm177 -326c-8,-198 -100,-295 -175,-295 -148,-1 -172,206 -168,295 10,207 94,293 167,291 141,-5 180,-201 176,-291z"/>
+                <path d="M218 285c-23,-5 -35,-25 -56,-42l0 159c21,-17 33,-36 56,-42 33,-6 93,-6 126,0 25,5 35,25 56,42l0 -159c-21,17 -31,37 -56,42 -33,6 -92,6 -126,0z"/>
+              </g>
+              <g transform="translate(97.5,0) scale(0.1244) translate(-54,-21)">
+                <polygon points="423,298 617,21 793,21 511,423 793,825 617,825 423,549 230,825 54,825 335,423 54,21 230,21"/>
+              </g>
+            </svg>
+            Brotherhood &amp; Athletic Chair
+          </span>
+        </div>
+      </div>
+      <div class="ch-right">
+        <div class="degree-card">
+          <img src="/fsu-logo.svg" alt="Florida State Seminoles" class="fsu-logo" width="72" height="72">
+          <div>
+            <div class="dc-deg">B.S. &middot; Finance &amp; Real Estate</div>
+            <div class="dc-school">Florida State University</div>
+            <div class="dc-meta">Tallahassee, FL &middot; Class of 2009</div>
+          </div>
+        </div>
+        <div class="dc-rule"></div>
+      </div>
+    </div>
+
+    <!-- 03 · U.S. Navy -->
+    <div class="chapter" id="ch-2" style="display:none">
+      <div class="ch-left">
+        <div class="ch-kicker">
+          <span class="ch-num">03</span>
+          United States Navy <span class="yr">&middot; 2010 &mdash; 2016</span>
+        </div>
+        <h2 class="ch-title">Where I learned my true potential.</h2>
+        <div class="ch-body">
+          <p>
+            I enlisted in 2010 with the goal of becoming a SEAL. I made it through boot camp,
+            additional physical training, and the first three weeks of BUD/S before not being selected to continue.
+            This turned out to be one of the major inflection points of my life.
+            I pivoted to the Intelligence Specialist rating and graduated at the top of my class at
+            the Navy and Marine Corps Intelligence Training Center in Dam&nbsp;Neck,
+            Virginia and earned a screen for Naval Special Warfare Development Group.
+          </p>
+          <p>
+            Over four overseas combat deployments I took on roles not typical for IS2s:
+            <strong>Analyst</strong>, <strong>ISR Manager</strong> (10,000+ hours
+            coordinated), <strong>CIA Liaison Officer</strong>, and
+            <strong>Joint Staff Intelligence Officer (J2)</strong> for a 70-person task force
+            &mdash; a position normally held by officers. Honorably discharged
+            January&nbsp;2016.
+          </p>
+          <p>
+            I run engineering teams with the same discipline I ran a watch: clear roles,
+            written decisions, room to act. Standups are short. Postmortems are blameless.
+            Pagers go off less.
+          </p>
+        </div>
+      </div>
+      <div class="ch-right">
+        <div class="service-card">
+          <div class="service-card-head">
+            <img src="/navy-emblem.svg" alt="United States Navy" class="navy-emblem" width="56" height="56">
+            <div>
+              <div class="service-k">United States Navy</div>
+              <div class="service-title">Naval Special Warfare Development Group</div>
+              <div class="service-subtitle">Honorable Discharge &middot; January 2016</div>
+            </div>
+          </div>
+          <div class="service-grid">
+            <div class="service-line">
+              <div class="service-k">Rate</div>
+              <div class="service-v">IS2 &middot; Intelligence Specialist, 2nd Class</div>
+            </div>
+            <!--<div class="service-line">-->
+            <!--  <div class="service-k">Svc</div>-->
+            <!--  <div class="service-v">Four combat deployments</div>-->
+            <!--</div>-->
+            <div class="service-line">
+              <div class="service-k">ISR</div>
+              <div class="service-v">10,000+ hours coordinated</div>
+            </div>
+            <!--<div class="service-line">-->
+            <!--  <div class="service-k">Sep.</div>-->
+            <!--  <div class="service-v">Honorable Discharge &middot; January 2016</div>-->
+            <!--</div>-->
+          </div>
+          <div class="deploy-tally">
+            <span class="deploy-label">Combat deployments</span>
+            <div class="deploy-marks">
+              <span class="deploy-mark"></span>
+              <span class="deploy-mark"></span>
+              <span class="deploy-mark"></span>
+              <span class="deploy-mark"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 · Software engineering -->
+    <div class="chapter" id="ch-3" style="display:none">
+      <div class="ch-left">
+        <div class="ch-kicker">
+          <span class="ch-num">04</span>
+          Software engineering <span class="yr">&middot; 2016 &mdash; present</span>
+        </div>
+        <h2 class="ch-title">Software became my focus.</h2>
+        <div class="ch-body">
+          <p>
+            Started writing code as a hobby while still in the Navy. First role: Junior
+            PHP Developer at Partner&nbsp;Weekly in Las Vegas. From there, Switch,&nbsp;Inc.
+            &mdash; where software engineer became manager of software engineering (2019),
+            where a team of eight built the APIs that ran day-to-day operations. I set up
+            development environments and a scalable automated CI/CD pipeline that became how the
+            engineering org built and shipped new features.
+          </p>
+          <p>
+            Joined Guidepoint Global in April&nbsp;2023 as Lead Software Engineer.
+            Promoted to Software Engineering Manager in 2025, then to
+            <strong>Senior Software Engineering Manager</strong> in January&nbsp;2026,
+            now leading architecture and delivery for the next-generation agentic platform:
+            MCP-based tooling, AKS-hosted services, and the reliability and auth models
+            that production agentic systems demand.
+          </p>
+          <div class="tech-stack">
+            <span class="ch-chip">php</span>
+            <span class="ch-chip">symfony</span>
+            <span class="ch-chip">api platform</span>
+            <span class="ch-chip">doctrine</span>
+            <span class="ch-chip">javascript/typescript</span>
+            <span class="ch-chip">apollo</span>
+            <span class="ch-chip">nodejs</span>
+            <span class="ch-chip">docker</span>
+            <span class="ch-chip">kubernetes</span>
+            <span class="ch-chip">ci/cd</span>
+            <span class="ch-chip">azure</span>
+            <span class="ch-chip">observability/open telemetry</span>
+          </div>
+        </div>
+      </div>
+      <div class="ch-right">
+        <div class="term">
+          <div class="term-bar">
+            <div class="tdot" style="background:#FF5F57"></div>
+            <div class="tdot" style="background:#FEBC2E"></div>
+            <div class="tdot" style="background:#28C840"></div>
+            <div class="term-title">career.log &middot; git log</div>
+          </div>
+          <div class="term-body">
+            <span class="dim">$ git log --oneline --author=mbos</span><br>
+            <span class="acc">a1f9c0</span> guidepoint &mdash; sr. engineering manager &middot; jan 2026<br>
+            <span class="acc">4b6f46</span> guidepoint &mdash; engineering manager &middot; jan 2025<br>
+            <span class="acc">7b2e44</span> guidepoint &mdash; engineering team lead &middot; apr 2023<br>
+            <span class="acc">3c0d18</span> switch &mdash; technical project manager &middot; jul 2021<br>
+            <span class="acc">fba501</span> switch &mdash; software engineer III &middot; feb 2020<br>
+            <span class="acc">caf4ba</span> switch &mdash; manager of software engineering &middot; jan 2019<br>
+            <span class="acc">9e5a2f</span> switch &mdash; software engineer I &middot; jul 2017<br>
+            <span class="acc">c4b8d1</span> partner weekly &mdash; php developer &middot; dec 2015<br>
+            <span class="ok">HEAD &rarr; main &middot; clean working tree &#10003;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 · UNLV Executive MBA -->
+    <div class="chapter" id="ch-4" style="display:none">
+      <div class="ch-left">
+        <div class="ch-kicker">
+          <span class="ch-num">05</span>
+          UNLV &middot; Executive MBA <span class="yr">&middot; 2022</span>
+        </div>
+        <h2 class="ch-title">Growth on the business side.</h2>
+        <div class="ch-body">
+          <p>
+            By 2022 I was already managing engineers in Las Vegas and could see where the
+            ceiling was &mdash; the point where a purely technical reputation stops opening
+            doors. The Executive MBA at UNLV&rsquo;s Lee Business School was the move:
+            build the leadership range and keep the option of running something of my
+            own someday.
+          </p>
+          <p>
+            What I actually took away was a financial lens. Not vocabulary &mdash; a way
+            of seeing. How executives frame capital allocation. How to translate an
+            engineering proposal into a business case. How to argue for investment in
+            terms of IRR and opportunity cost rather than technical correctness.
+            <strong>That changed how I run teams:</strong> technical decisions got
+            business arguments, rewrites got ROI models, conversations with
+            non-engineering stakeholders got shorter.
+          </p>
+        </div>
+        <div class="ch-chips">
+          <span class="ch-chip">
+            <svg width="13" height="13" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+              <path d="M20.79,10H75V75.74c0,3.06-.49,5.14-1.35,4.28S71.2,77.45,70,77.94s-2,1.24-1.1,2.27,1.35,1.77.61,2.87.62,2.08.62,3.18.49,2.45.12,3.55-.49,1.47-1.1,1.1S20.79,45.76,20.79,45.76Z"/>
+            </svg>
+            Las Vegas, NV
+          </span>
+          <span class="ch-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 16v5"/>
+              <path d="M16 14v7"/>
+              <path d="M20 10v11"/>
+              <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/>
+              <path d="M4 18v3"/>
+              <path d="M8 14v7"/>
+            </svg>
+            Finance &amp; strategy
+          </span>
+          <span class="ch-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"/>
+              <path d="m7 16.5-4.74-2.85"/>
+              <path d="m7 16.5 5-3"/>
+              <path d="M7 16.5v5.17"/>
+              <path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"/>
+              <path d="m17 16.5-5-3"/>
+              <path d="m17 16.5 4.74-2.85"/>
+              <path d="M17 16.5v5.17"/>
+              <path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"/>
+              <path d="M12 8 7.26 5.15"/>
+              <path d="m12 8 4.74-2.85"/>
+              <path d="M12 13.5V8"/>
+            </svg>
+            Systems thinking
+          </span>
+        </div>
+      </div>
+      <div class="ch-right">
+        <div class="ledger">
+          <div class="ledger-head">
+            <div class="seal">UNLV</div>
+            <div>
+              <div class="lh-deg">Executive MBA &middot; 2022</div>
+              <div class="lh-school">Lee Business School</div>
+            </div>
+          </div>
+          <div class="ledger-row">
+            <div class="ledger-l"><em>&ldquo;rewrite it&rdquo;</em></div>
+            <div class="ledger-eq">&rarr;</div>
+            <div class="ledger-r">IRR vs. status quo</div>
+          </div>
+          <div class="ledger-row">
+            <div class="ledger-l"><em>&ldquo;tech debt&rdquo;</em></div>
+            <div class="ledger-eq">&rarr;</div>
+            <div class="ledger-r">carrying cost</div>
+          </div>
+          <div class="ledger-row">
+            <div class="ledger-l"><em>&ldquo;platform investment&rdquo;</em></div>
+            <div class="ledger-eq">&rarr;</div>
+            <div class="ledger-r">future optionality</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 · Red Rock -->
+    <div class="chapter" id="ch-5" style="display:none">
+      <div class="ch-left">
+        <div class="ch-kicker">
+          <span class="ch-num">06</span>
+          Red Rock Canyon <span class="yr">&middot; now</span>
+        </div>
+        <h2 class="ch-title">Another side of Las Vegas.</h2>
+        <div class="ch-body">
+          <p>
+            Trad climbing in Red Rock Canyon &mdash; long, committing routes on
+            ancient sandstone where the rack I build and the placements I make are
+            all that keeps me on the wall. The exposure is real; the commitment
+            is the point.
+          </p>
+          <p>
+            It rewards the same habits that make a team run well: methodical
+            preparation, clear thinking under pressure, and knowing when to back
+            off and reset. The wall doesn&rsquo;t care about confidence without
+            competence.
+          </p>
+        </div>
+      </div>
+      <div class="ch-right">
+        <div class="climb-carousel" id="climb-carousel">
+          <div class="cc-slides">
+            <div class="cc-slide" data-cc="0">
+              <img src="/climb-redrock-1.jpg" alt="Looking down a crack system in Red Rock Canyon, Nevada" loading="lazy" style="object-position:center 60%">
+              <span class="cc-tag">Whiskey Peak > Frogland &middot; 5.8</span>
+            </div>
+            <div class="cc-slide" data-cc="1">
+              <img src="/climb-redrock-2.jpg" alt="Climber ascending dark sandstone face, Red Rock Canyon, Nevada" loading="lazy" style="object-position:center 75%">
+              <span class="cc-tag">Brownstone Wall > Armatron &middot; 5.9-</span>
+            </div>
+          </div>
+          <button class="kc-arrow kc-prev" id="cc-prev" aria-label="Previous photo" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button class="kc-arrow kc-next" id="cc-next" aria-label="Next photo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+          <div class="kc-dots">
+            <span class="kc-dot is-active" data-cc-dot="0"></span>
+            <span class="kc-dot" data-cc-dot="1"></span>
+          </div>
+        </div>
+        <div class="tick-list">
+          <div class="tick-list-head">
+            Recent sends
+            {ticks.length > 0 && <span class="tick-list-count">&middot; {ticks.length} logged</span>}
+          </div>
+          {preview.map(t => (
+            <div class="tick-row">
+              <span class="tick-name">
+                <span class="tick-route">{t.name}</span>
+                {t.area && <span class="tick-area">{t.area}</span>}
+              </span>
+              <span class="tick-grade">{t.grade}</span>
+            </div>
+          ))}
+          {ticks.length > 5 && (
+            <button class="tick-cta" id="tick-cta">
+              <span>View all {ticks.length} sends</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Timeline rail -->
+  <nav class="rail" aria-label="Life timeline">
+    <div class="rail-track">
+      <div class="rail-line" id="rail-line"></div>
+      <div class="rail-progress" id="rail-progress"></div>
+
+      <button class="node" data-idx="0" aria-current="step">
+        <span class="node-dot"></span>
+        <span class="node-year">&#x221E;</span>
+        <span class="node-label">Florida Keys</span>
+      </button>
+      <button class="node" data-idx="1">
+        <span class="node-dot"></span>
+        <span class="node-year">2005</span>
+        <span class="node-label">FSU</span>
+      </button>
+      <button class="node" data-idx="2">
+        <span class="node-dot"></span>
+        <span class="node-year">2010</span>
+        <span class="node-label">U.S. Navy</span>
+      </button>
+      <button class="node" data-idx="3">
+        <span class="node-dot"></span>
+        <span class="node-year">2016</span>
+        <span class="node-label">Engineering</span>
+      </button>
+      <button class="node" data-idx="4">
+        <span class="node-dot"></span>
+        <span class="node-year">2022</span>
+        <span class="node-label">UNLV Executive MBA</span>
+      </button>
+      <button class="node" data-idx="5">
+        <span class="node-dot"></span>
+        <span class="node-year">&#x221E;</span>
+        <span class="node-label">Red Rock</span>
+      </button>
+
+      <div class="rail-nav">
+        <button class="arrow" id="prev-btn" disabled aria-label="Previous chapter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+        <button class="arrow" id="next-btn" aria-label="Next chapter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <p class="icon-credits" id="icon-credits"></p>
+  </nav>
+
+  <!-- Tick data for client -->
+  <script type="application/json" id="tick-data" set:html={tickJSON}></script>
+
+  <!-- Tick log panel -->
+  <div class="tick-panel" id="tick-panel" aria-hidden="true">
+    <div class="tp-backdrop" id="tp-backdrop"></div>
+    <aside class="tp-drawer" role="dialog" aria-modal="true" aria-label="Full tick log — Mountain Project">
+      <div class="tp-head">
+        <div>
+          <div class="tp-title">Tick log</div>
+          <div class="tp-sub">Mountain Project &middot; {ticks.length} routes</div>
+        </div>
+        <button class="tp-close" id="tp-close" aria-label="Close tick log">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="tp-body">
+        <div class="tp-list" id="tp-list"></div>
+        <button class="tp-more" id="tp-more" hidden>Load more</button>
+      </div>
+    </aside>
+  </div>
+
+</div><!-- /stage -->
+
+<style is:global>
+
+html, body { height: 100%; overflow: hidden; }
+
+/* =========================================================
+   THEME DEFINITIONS — one block per chapter.
+   [data-theme] on .stage re-themes the entire page.
+   ========================================================= */
+
+.stage {
+  /* default = Red Rock Sandstone */
+  --bone:       #F2EAD9;
+  --sand:       #E5D3B3;
+  --ink:        #1F140C;
+  --sub:        #3D2418;
+  --fade:       #6E5B45;
+  --accent:     #B84A26;
+  --accent2:    #D4892C;
+  --line:       rgba(31,20,12,0.12);
+  --line-2:     rgba(31,20,12,0.22);
+  --on-accent:  #F8F2E6;
+  --device-bg:  #2B2018;
+  --device-ink: #EAD9BE;
+  --wash:       radial-gradient(120% 80% at 85% -10%, rgba(184,74,38,0.10), transparent 60%);
+}
+
+/* 01 · Florida Keys */
+.stage[data-theme="keys"] {
+  --bone: #EAF1EE; --sand: #DCEAE6; --ink: #15282B; --sub: #274A4D; --fade: #5C7B7C;
+  --accent: #0E8C99; --accent2: #E0824A;
+  --line: rgba(21,40,43,0.12); --line-2: rgba(21,40,43,0.22);
+  --on-accent: #EAF6F7; --device-bg: #0F2D31; --device-ink: #EAF6F7;
+  --wash: radial-gradient(130% 90% at 80% -20%, rgba(14,140,153,0.16), transparent 58%),
+          linear-gradient(180deg, rgba(224,130,74,0.06), transparent 30%);
+}
+
+/* 02 · FSU */
+.stage[data-theme="fsu"] {
+  --bone: #F4EBDC; --sand: #EADBC3; --ink: #2A1118; --sub: #5A2734; --fade: #7E5A5F;
+  --accent: #782F40; --accent2: #9A7B33;
+  --line: rgba(42,17,24,0.12); --line-2: rgba(120,47,64,0.30);
+  --on-accent: #F6EFE1; --device-bg: #5C2230; --device-ink: #F3E7CF;
+  --wash: radial-gradient(130% 90% at 82% -18%, rgba(120,47,64,0.16), transparent 56%);
+}
+
+/* 03 · U.S. Navy */
+.stage[data-theme="navy"] {
+  --bone: #0E1B30; --sand: #16263F; --ink: #ECE3CF; --sub: #C7CEDB; --fade: #8C99AD;
+  --accent: #D8B23E; --accent2: #6E9BC8;
+  --line: rgba(236,227,207,0.14); --line-2: rgba(216,178,62,0.40);
+  --on-accent: #14233F; --device-bg: #0A1424; --device-ink: #ECE3CF;
+  --wash: radial-gradient(130% 90% at 80% -16%, rgba(216,178,62,0.12), transparent 56%);
+}
+
+/* 04 · Technology */
+.stage[data-theme="tech"] {
+  --bone: #F2EAD9; --sand: #E5D3B3; --ink: #1F140C; --sub: #3D2418; --fade: #6E5B45;
+  --accent: #B84A26; --accent2: #3F8A4F;
+  --line: rgba(31,20,12,0.12); --line-2: rgba(31,20,12,0.22);
+  --on-accent: #F8F2E6; --device-bg: #181410; --device-ink: #EAD9BE;
+  --wash: linear-gradient(180deg, rgba(63,138,79,0.06), transparent 26%),
+          radial-gradient(120% 80% at 86% -10%, rgba(184,74,38,0.09), transparent 58%);
+}
+
+/* 05 · UNLV */
+.stage[data-theme="unlv"] {
+  --bone: #F4ECE2; --sand: #E7DDD2; --ink: #1C1A1B; --sub: #3A3739; --fade: #76777A;
+  --accent: #CF0A2C; --accent2: #76777A;
+  --line: rgba(28,26,27,0.12); --line-2: rgba(207,10,44,0.28);
+  --on-accent: #F6EFE6; --device-bg: #201D1E; --device-ink: #ECE6DE;
+  --wash: radial-gradient(130% 90% at 82% -18%, rgba(207,10,44,0.12), transparent 54%);
+}
+
+/* 06 · Red Rock */
+.stage[data-theme="climb"] {
+  --bone: #EFE2CC; --sand: #E0CBA6; --ink: #221409; --sub: #46280F; --fade: #6E5232;
+  --accent: #B84A26; --accent2: #D4892C;
+  --line: rgba(34,20,9,0.13); --line-2: rgba(184,74,38,0.32);
+  --on-accent: #F8F2E6; --device-bg: #2B1B10; --device-ink: #EAD9BE;
+  --wash: radial-gradient(135% 95% at 78% -16%, rgba(212,137,44,0.18), transparent 56%),
+          linear-gradient(180deg, rgba(184,74,38,0.05), transparent 22%);
+}
+
+/* =========================================================
+   LAYOUT — full-screen stage
+   ========================================================= */
+
+.stage {
+  position: fixed; inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--bone);
+  color: var(--ink);
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1), color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+/* ── SiteHeader inside the stage ───────────────────────────
+   Transparent background, no blur — stage color shows through.
+   Nav colors and brand inherit from the active chapter theme
+   and transition with it at the same timing as the stage.
+   ─────────────────────────────────────────────────────────── */
+.stage .site-header {
+  position: relative;
+  top: auto;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom-color: var(--line);
+  transition: border-color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.stage .site-header-inner {
+  height: auto;
+}
+.stage .brand .wm {
+  color: var(--ink);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.stage .brand .slash {
+  color: var(--accent);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.stage .brand:hover .wm { color: var(--accent); }
+.stage .topnav-link {
+  color: var(--fade);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1),
+              background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.stage .topnav-link:hover { color: var(--ink); }
+.stage .topnav-link.is-active {
+  color: var(--accent);
+  font-weight: 600;
+  background: color-mix(in oklab, var(--accent) 13%, transparent);
+}
+.topbar-right {
+  display: flex; align-items: center; gap: 18px; flex: 0 0 auto;
+}
+.loc {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.06em; color: var(--fade);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.loc .pin {
+  width: 8px; height: 8px;
+  border: 1.5px solid var(--accent); border-radius: 50%;
+  position: relative;
+  transition: border-color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.loc .pin::after {
+  content: ""; position: absolute; inset: 2px;
+  background: var(--accent); border-radius: 50%;
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.chapter-count {
+  font-family: var(--font-mono); font-size: 12px; color: var(--fade);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.chapter-count b {
+  color: var(--accent); font-weight: 700;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.stage::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: var(--wash);
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1);
+  z-index: 0;
+}
+
+/* =========================================================
+   STAGE BODY
+   ========================================================= */
+
+.stage-body {
+  position: relative; z-index: 2;
+  min-height: 0;
+  padding: 12px 40px;
+  display: grid;
+  place-items: safe center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+.stage-body::-webkit-scrollbar { width: 8px; }
+.stage-body::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 8px; }
+
+/* =========================================================
+   TIMELINE RAIL (bottom)
+   ========================================================= */
+
+.rail {
+  position: relative; z-index: 5;
+  padding: 0 40px 22px;
+}
+.rail-track {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: start;
+  padding-top: 26px;
+}
+.rail-line {
+  position: absolute; top: 32px; height: 2px;
+  background: var(--line-2); border-radius: 2px;
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.rail-progress {
+  position: absolute; top: 32px; height: 2px;
+  background: var(--accent); border-radius: 2px;
+  transition: width 460ms cubic-bezier(0.2,0.7,0.1,1),
+              background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+
+.node {
+  position: relative;
+  background: none; border: 0; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 0; text-align: center; font-family: inherit;
+}
+.node-dot {
+  position: relative; z-index: 2;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--bone);
+  border: 2px solid var(--line-2);
+  margin-bottom: 12px;
+  transition: border-color 460ms cubic-bezier(0.2,0.7,0.1,1),
+              background 460ms cubic-bezier(0.2,0.7,0.1,1),
+              transform 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.node:hover .node-dot { border-color: var(--accent); }
+.node.is-active .node-dot {
+  border-color: var(--accent); background: var(--accent);
+  transform: scale(1.25);
+  box-shadow: 0 0 0 5px color-mix(in oklab, var(--accent) 22%, transparent);
+}
+.node.is-done .node-dot { border-color: var(--accent); }
+
+.node-year {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.04em; color: var(--fade);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.node.is-active .node-year { color: var(--accent); }
+.node-label {
+  font-family: var(--font-display); font-size: 13px; font-weight: 500;
+  color: var(--sub); white-space: nowrap;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.node.is-active .node-label { color: var(--ink); font-weight: 600; }
+
+.rail-nav {
+  position: absolute; right: 40px; top: -2px;
+  display: flex; gap: 8px;
+}
+.arrow {
+  width: 38px; height: 38px; border-radius: 999px;
+  border: 1.5px solid var(--line-2); background: transparent;
+  color: var(--ink); cursor: pointer;
+  display: grid; place-items: center;
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1),
+              border-color 460ms cubic-bezier(0.2,0.7,0.1,1),
+              opacity 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.arrow:hover { border-color: var(--accent); color: var(--accent); }
+.arrow:disabled { opacity: 0.32; cursor: default; }
+.arrow svg { width: 18px; height: 18px; }
+
+/* =========================================================
+   CHAPTER CONTENT
+   ========================================================= */
+
+.chapter {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 64px;
+  align-items: center;
+  max-width: 1240px; margin: auto;
+}
+.ch-left { min-width: 0; }
+.ch-right { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+
+.ch-kicker {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.ch-kicker .yr { color: var(--fade); transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.ch-num {
+  font-family: var(--font-mono); font-weight: 700; font-size: 12px;
+  color: var(--on-accent); background: var(--accent);
+  padding: 3px 8px; border-radius: 4px;
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1),
+              color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.ch-title {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(38px, 5.2vw, 62px); line-height: 1.02;
+  letter-spacing: -0.025em; color: var(--ink);
+  margin: 22px 0 0; text-wrap: balance; max-width: 16ch;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.ch-body { margin-top: 22px; max-width: 60ch; }
+.ch-body p {
+  font-size: 17px; line-height: 1.66; color: var(--sub);
+  margin: 0 0 16px;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.ch-body p:last-child { margin-bottom: 0; }
+.ch-body strong { color: var(--ink); font-weight: 600; }
+
+.ch-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.ch-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid color-mix(in oklab, var(--accent) 42%, transparent);
+  background: color-mix(in oklab, var(--accent) 9%, transparent);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1),
+              border-color 460ms cubic-bezier(0.2,0.7,0.1,1),
+              background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.ch-chip svg { flex-shrink: 0; }
+
+.icon-credits {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.04em;
+  color: var(--fade); opacity: 0.55; margin: 6px 0 0; text-align: center;
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
+  min-height: 1em;
+}
+.icon-credits a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+.tech-stack { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+
+/* generic seal monogram */
+.seal {
+  width: 54px; height: 54px; flex-shrink: 0; border-radius: 50%;
+  border: 2px solid var(--accent2); color: var(--accent2);
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-weight: 700; font-size: 13px;
+  letter-spacing: 0.02em;
+  transition: border-color 460ms cubic-bezier(0.2,0.7,0.1,1),
+              color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+
+/* =========================================================
+   ENTRANCE ANIMATION
+   ========================================================= */
+
+@media (prefers-reduced-motion: no-preference) {
+  .stage[data-anim="in"] .ch-left > * {
+    opacity: 0; transform: translateY(14px);
+    animation: rise 560ms cubic-bezier(0.2,0.7,0.1,1) forwards;
+  }
+  .stage[data-anim="in"] .ch-right {
+    opacity: 0; transform: translateY(18px);
+    animation: rise 620ms cubic-bezier(0.2,0.7,0.1,1) 80ms forwards;
+  }
+  .stage[data-anim="in"] .ch-left > *:nth-child(1) { animation-delay: 40ms; }
+  .stage[data-anim="in"] .ch-left > *:nth-child(2) { animation-delay: 110ms; }
+  .stage[data-anim="in"] .ch-left > *:nth-child(3) { animation-delay: 180ms; }
+  .stage[data-anim="in"] .ch-left > *:nth-child(4) { animation-delay: 250ms; }
+}
+@keyframes rise { to { opacity: 1; transform: none; } }
+
+/* =========================================================
+   SIGNATURE DEVICES
+   ========================================================= */
+
+/* Keys — photo carousel */
+.keys-carousel {
+  position: relative; height: 300px; border-radius: 14px;
+  overflow: hidden; border: 1px solid var(--line);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+}
+.kc-slides { position: absolute; inset: 0; }
+.kc-slide {
+  position: absolute; inset: 0;
+  opacity: 0; transition: opacity 480ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.kc-slide.is-active { opacity: 1; }
+.kc-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.kc-tag {
+  position: absolute; left: 14px; bottom: 14px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
+  color: #EAF6F7; padding: 5px 10px; border-radius: 4px;
+  background: rgba(10,30,34,0.62); backdrop-filter: blur(4px);
+}
+.kc-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 34px; height: 34px; border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  background: rgba(10,30,34,0.48); backdrop-filter: blur(4px);
+  color: #EAF6F7; cursor: pointer;
+  display: grid; place-items: center;
+  transition: background 200ms, border-color 200ms, opacity 200ms;
+  z-index: 4;
+}
+.kc-arrow:hover { background: rgba(10,30,34,0.72); border-color: rgba(255,255,255,0.62); }
+.kc-arrow:disabled { opacity: 0.28; cursor: default; }
+.kc-arrow svg { width: 16px; height: 16px; }
+.kc-prev { left: 10px; }
+.kc-next { right: 10px; }
+.kc-dots {
+  position: absolute; bottom: 14px; right: 14px;
+  display: flex; gap: 6px; z-index: 4;
+}
+.kc-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.38);
+  transition: background 300ms, transform 300ms;
+}
+.kc-dot.is-active { background: #fff; transform: scale(1.3); }
+
+/* FSU — degree card */
+.degree-card {
+  display: flex; align-items: center; gap: 18px;
+  padding: 26px 28px; border-radius: 14px;
+  background: linear-gradient(180deg, var(--accent), color-mix(in oklab, var(--accent) 78%, #000));
+  border: 1px solid color-mix(in oklab, var(--accent2) 45%, transparent);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.degree-card .fsu-logo { width:72px; height:72px; flex-shrink:0; object-fit:contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)); }
+.dc-deg { font-family: var(--font-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color: var(--accent2); font-weight: bold; }
+.dc-school { font-family: var(--font-display); font-weight:600; font-size:21px; color:#F6EFE1; margin:5px 0 3px; letter-spacing:-0.01em; }
+.dc-meta { font-family: var(--font-mono); font-size:12px; color:rgba(246,239,225,0.78); letter-spacing:0.03em; }
+.dc-rule { height:4px; margin-top:14px; border-radius:2px; background: linear-gradient(90deg, var(--accent) 0 50%, var(--accent2) 50% 100%); transition: background 460ms cubic-bezier(0.2,0.7,0.1,1); }
+
+/* Navy — service record */
+.service-card {
+  border-radius: 14px; border: 1px solid var(--line-2);
+  background: var(--device-bg); padding: 26px 28px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1),
+              border-color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.service-card-head {
+  display:flex; align-items:center; gap:16px;
+  padding-bottom:18px; margin-bottom:4px;
+  border-bottom:1px solid rgba(216,178,62,0.22);
+}
+.navy-emblem { width:56px; height:56px; flex-shrink:0; object-fit:contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
+.service-title { font-family: var(--font-display); font-weight:600; font-size:15px; color: var(--device-ink); margin-top:0px; }
+.service-subtitle { font-family: var(--font-display); font-weight:500; font-size:12px; color: var(--device-ink); margin-top:0px; }
+.service-grid { display:flex; flex-direction:column; gap:0; }
+.service-line {
+  display:grid; grid-template-columns:92px 1fr; gap:16px; align-items:baseline;
+  padding:13px 0; border-bottom:1px solid rgba(216,178,62,0.18);
+}
+.service-line:last-child { border-bottom:0; }
+.service-k { font-family: var(--font-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color: var(--accent); }
+.service-v { font-family: var(--font-body); font-size:15px; color: var(--device-ink); }
+.deploy-tally {
+  display:flex; align-items:center; gap:16px; justify-content: end;
+  padding-top:18px;
+  border-top:1px solid rgba(216,178,62,0.22);
+}
+.deploy-marks { display:flex; gap:10px; }
+.deploy-mark {
+  width:12px; height:12px;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  background: var(--accent);
+}
+.deploy-label {
+  font-family: var(--font-mono); font-size:11px;
+  letter-spacing:0.1em; text-transform:uppercase;
+  color: var(--fade);
+}
+
+/* UNLV — ledger */
+.ledger { border-radius:14px; border:1px solid var(--line-2); overflow:hidden; background: var(--sand); box-shadow:0 12px 32px rgba(0,0,0,0.12); transition: background 460ms cubic-bezier(0.2,0.7,0.1,1), border-color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.ledger-head { display:flex; align-items:center; gap:16px; padding:18px 22px; background: color-mix(in oklab, var(--accent) 12%, transparent); border-bottom:1px solid var(--line-2); }
+.ledger-head .seal { width:50px; height:50px; font-size:11px; border-color: var(--accent); color: var(--accent); }
+.lh-deg { font-family: var(--font-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color: var(--accent); }
+.lh-school { font-family: var(--font-display); font-weight:600; font-size:17px; color: var(--ink); margin-top:3px; transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.ledger-row { display:grid; grid-template-columns:1fr 26px 1fr; align-items:center; gap:12px; padding:14px 22px; border-bottom:1px solid var(--line); }
+.ledger-row:last-child { border-bottom:0; }
+.ledger-l { font-family: var(--font-body); font-size:14px; color: var(--fade); }
+.ledger-l em { font-style:normal; text-decoration:line-through; text-decoration-color: var(--accent); }
+.ledger-eq { font-family: var(--font-mono); color: var(--accent); text-align:center; font-size:15px; transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.ledger-r { font-family: var(--font-body); font-size:14px; color: var(--ink); font-weight:500; transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+
+/* Tech — terminal */
+.term { border-radius:14px; overflow:hidden; border:1px solid var(--line-2); box-shadow:0 12px 32px rgba(0,0,0,0.22); background: var(--device-bg); transition: background 460ms cubic-bezier(0.2,0.7,0.1,1); }
+.term-bar { display:flex; align-items:center; gap:8px; padding:12px 16px; background:rgba(255,255,255,0.04); border-bottom:1px solid rgba(255,255,255,0.06); }
+.tdot { width:11px; height:11px; border-radius:50%; }
+.term-title { font-family: var(--font-mono); font-size:11px; color:rgba(234,217,190,0.6); margin-left:8px; letter-spacing:0.04em; }
+.term-body { padding:20px 22px; font-family: var(--font-mono); font-size:13.5px; line-height:1.9; color: var(--device-ink); }
+.term-body .dim { color:rgba(234,217,190,0.5); }
+.term-body .acc { color: var(--accent2); }
+.term-body .ok { color:#6FCB7F; }
+
+/* Climb — carousel */
+.climb-carousel {
+  position:relative; height:300px; border-radius:14px;
+  overflow:hidden; border:1px solid var(--line);
+  box-shadow:0 16px 40px rgba(34,20,9,0.32);
+}
+.cc-slides { position:absolute; inset:0; }
+.cc-slide {
+  position:absolute; inset:0;
+  opacity:0; transition:opacity 480ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.cc-slide.is-active { opacity:1; }
+.cc-slide img { width:100%; height:100%; object-fit:cover; object-position:center 30%; display:block; }
+.cc-tag {
+  position:absolute; left:14px; bottom:14px;
+  font-family: var(--font-mono); font-size:11px; letter-spacing:0.04em;
+  color:#F0E4D1; padding:5px 10px; border-radius:4px;
+  background:rgba(20,14,9,0.55); backdrop-filter:blur(3px);
+}
+
+/* Climb — tick list */
+.tick-list {
+  border-radius:10px; border:1px solid var(--line);
+  overflow:hidden; background:var(--sand);
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1), border-color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.tick-list-head {
+  font-family: var(--font-mono); font-size:10px; letter-spacing:0.12em;
+  text-transform:uppercase; color: var(--fade);
+  padding:10px 16px 8px;
+  border-bottom:1px solid var(--line);
+  transition: color 460ms cubic-bezier(0.2,0.7,0.1,1), border-color 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.tick-row {
+  display:grid; grid-template-columns:1fr auto; gap:10px; align-items:baseline;
+  padding:10px 16px; border-bottom:1px solid var(--line);
+}
+.tick-row:last-child { border-bottom:0; }
+.tick-name { display:inline-flex; align-items:baseline; gap:6px; min-width:0; }
+.tick-route { font-family: var(--font-display); font-size:14px; font-weight:600; color: var(--ink); transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); white-space:nowrap; }
+.tick-area { font-family: var(--font-mono); font-size:11px; color: var(--fade); letter-spacing:0.02em; transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); white-space:nowrap; }
+.tick-grade { font-family: var(--font-mono); font-size:12px; font-weight:700; color: var(--accent); transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 860px) {
+  .topbar-right { display: none; }
+  .stage-body { padding: 12px 20px; }
+  .rail { padding: 0 20px 16px; }
+  .rail-nav { right: 0; }
+  .chapter { grid-template-columns: 1fr; gap: 28px; }
+  .ch-right { display: none; }
+  .ch-title { font-size: clamp(32px, 8vw, 48px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
+
+/* =========================================================
+   TICK LIST — CTA row
+   ========================================================= */
+
+.tick-list-count { color: var(--fade); font-weight: 400; }
+
+.tick-cta {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 10px 16px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 8%, transparent);
+  border: 0; border-top: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 160ms var(--ease-out), color 160ms var(--ease-out);
+}
+.tick-cta:hover { background: color-mix(in oklab, var(--accent) 15%, transparent); }
+.tick-cta svg { flex-shrink: 0; transition: transform 160ms var(--ease-out); }
+.tick-cta:hover svg { transform: translateX(3px); }
+
+/* =========================================================
+   TICK LOG PANEL (slide-out)
+   ========================================================= */
+
+.tick-panel {
+  position: fixed; inset: 0; z-index: 200;
+  pointer-events: none;
+}
+.tick-panel.is-open { pointer-events: all; }
+
+.tp-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(34,20,9,0);
+  transition: background 320ms var(--ease-out);
+}
+.tick-panel.is-open .tp-backdrop { background: rgba(34,20,9,0.52); }
+
+.tp-drawer {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: min(460px, 100vw);
+  background: var(--bone);
+  border-left: 1px solid var(--line-2);
+  box-shadow: -16px 0 56px rgba(34,20,9,0.32);
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 380ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.tick-panel.is-open .tp-drawer { transform: translateX(0); }
+
+.tp-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.tp-title {
+  font-family: var(--font-display); font-weight: 600; font-size: 18px;
+  color: var(--ink); letter-spacing: -0.01em;
+}
+.tp-sub {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--fade); margin-top: 4px;
+}
+.tp-close {
+  width: 32px; height: 32px; flex-shrink: 0; border-radius: 6px;
+  border: 1px solid var(--line); background: transparent;
+  color: var(--fade); cursor: pointer;
+  display: grid; place-items: center;
+  transition: border-color 160ms, color 160ms, background 160ms;
+}
+.tp-close:hover {
+  border-color: var(--accent); color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 9%, transparent);
+}
+
+.tp-body {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: thin; scrollbar-color: var(--line-2) transparent;
+  display: flex; flex-direction: column;
+}
+.tp-body::-webkit-scrollbar { width: 6px; }
+.tp-body::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 4px; }
+
+.tp-list { flex: 1; }
+
+.tp-row {
+  display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center;
+  padding: 11px 24px; border-bottom: 1px solid var(--line);
+  text-decoration: none; color: inherit;
+  transition: background 120ms;
+}
+.tp-row:hover { background: color-mix(in oklab, var(--accent) 7%, transparent); }
+.tp-row:last-child { border-bottom: 0; }
+.tp-row-left { min-width: 0; }
+.tp-route {
+  font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
+}
+.tp-meta {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em;
+  color: var(--fade); margin-top: 2px; display: block;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tp-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+.tp-grade { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--accent); }
+.tp-date { font-family: var(--font-mono); font-size: 10px; color: var(--fade); white-space: nowrap; }
+
+.tp-more {
+  display: block; width: 100%; padding: 14px 24px; flex-shrink: 0;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent); background: transparent; border: 0; border-top: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 160ms var(--ease-out);
+}
+.tp-more:hover { background: color-mix(in oklab, var(--accent) 9%, transparent); }
+.tp-more[hidden] { display: none; }
+
+.tp-empty {
+  padding: 48px 24px; text-align: center;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em;
+  color: var(--fade); text-transform: uppercase;
+}
+</style>
+
+<script is:inline>
+(function() {
+  var NP = 'https://thenounproject.com';
+  var CHAPTERS = [
+    { theme: 'keys', credits: 'Icons by <a href="'+NP+'/browse/icons/term/florida/" target="_blank" rel="noopener">Michael Thompson</a>, <a href="'+NP+'/browse/icons/term/diving/" target="_blank" rel="noopener">Olifernes Tejeros</a>, <a href="'+NP+'/browse/icons/term/hammerhead-shark/" target="_blank" rel="noopener">T. Kiefer Robertson</a>, <a href="'+NP+'/browse/icons/term/hurricane/" target="_blank" rel="noopener">Lewen Design</a>, <a href="'+NP+'/browse/icons/term/swimmer/" target="_blank" rel="noopener">Pixelz Studio</a> via <a href="'+NP+'" target="_blank" rel="noopener">Noun Project</a> (CC BY 3.0)' },
+    { theme: 'fsu',   credits: 'Florida by <a href="'+NP+'/browse/icons/term/florida/" target="_blank" rel="noopener">Michael Thompson</a> &middot; Theta by <a href="'+NP+'/browse/icons/term/theta/" target="_blank" rel="noopener">doniprayogo</a> &middot; X by <a href="'+NP+'/browse/icons/term/x/" target="_blank" rel="noopener">Imam</a> via <a href="'+NP+'" target="_blank" rel="noopener">Noun Project</a> (CC BY 3.0) &middot; Graduation cap: <a href="https://lucide.dev" target="_blank" rel="noopener">Lucide</a> (ISC)' },
+    { theme: 'navy',  credits: '' },
+    { theme: 'tech',  credits: '' },
+    { theme: 'unlv',  credits: 'Nevada by <a href="'+NP+'/browse/icons/term/nevada/" target="_blank" rel="noopener">Tyler Gobberdiel</a> via <a href="'+NP+'" target="_blank" rel="noopener">Noun Project</a> (CC BY 3.0) &middot; Chart &amp; Boxes: <a href="https://lucide.dev" target="_blank" rel="noopener">Lucide</a> (ISC)' },
+    { theme: 'climb', credits: '' },
+  ];
+  var N = CHAPTERS.length;
+  var edge = 100 / (2 * N);
+  var span = 100 - 2 * edge;
+
+  var stage = document.getElementById('stage');
+  var stageBody = document.getElementById('stage-body');
+  var chapCurrent = document.getElementById('chap-current');
+  var iconCredits = document.getElementById('icon-credits');
+  var railLine = document.getElementById('rail-line');
+  var railProgress = document.getElementById('rail-progress');
+  var prevBtn = document.getElementById('prev-btn');
+  var nextBtn = document.getElementById('next-btn');
+  var nodes = document.querySelectorAll('.node[data-idx]');
+  var slides = document.querySelectorAll('.chapter[id^="ch-"]');
+
+  // Set fixed rail line bounds
+  railLine.style.left = edge + '%';
+  railLine.style.right = edge + '%';
+
+  // Restore saved chapter
+  var i = 0;
+  try {
+    var saved = Number(localStorage.getItem('bio-chapter'));
+    if (Number.isFinite(saved) && saved >= 0 && saved < N) i = saved;
+  } catch(e) {}
+
+  function update(animate) {
+    try { localStorage.setItem('bio-chapter', String(i)); } catch(e) {}
+
+    // Theme
+    stage.setAttribute('data-theme', CHAPTERS[i].theme);
+
+    // Entrance animation re-trigger
+    if (animate) {
+      stage.setAttribute('data-anim', 'out');
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          stage.setAttribute('data-anim', 'in');
+        });
+      });
+    } else {
+      stage.setAttribute('data-anim', 'in');
+    }
+
+    // Chapter count
+    chapCurrent.textContent = String(i + 1).padStart(2, '0');
+
+    // Rail progress
+    var progress = N > 1 ? (i / (N - 1)) * span : 0;
+    railProgress.style.left = edge + '%';
+    railProgress.style.width = progress + '%';
+
+    // Nodes
+    nodes.forEach(function(node, idx) {
+      node.classList.toggle('is-active', idx === i);
+      node.classList.toggle('is-done', idx < i);
+      if (idx === i) { node.setAttribute('aria-current', 'step'); }
+      else { node.removeAttribute('aria-current'); }
+    });
+
+    // Slides
+    slides.forEach(function(slide, idx) {
+      slide.style.display = idx === i ? '' : 'none';
+    });
+
+    // Arrows
+    prevBtn.disabled = i === 0;
+    nextBtn.disabled = i === N - 1;
+
+    // Icon credits
+    var credits = CHAPTERS[i].credits || '';
+    iconCredits.innerHTML = credits;
+    iconCredits.style.visibility = credits ? 'visible' : 'hidden';
   }
 
-  return age;
+  function go(next) {
+    var n = Math.max(0, Math.min(N - 1, next));
+    if (n === i) return;
+    i = n;
+    update(true);
+  }
+
+  // Initial render (no animation flash)
+  update(false);
+
+  // Controls
+  prevBtn.addEventListener('click', function() { go(i - 1); });
+  nextBtn.addEventListener('click', function() { go(i + 1); });
+  nodes.forEach(function(node) {
+    node.addEventListener('click', function() { go(Number(node.dataset.idx)); });
+  });
+
+  // Keyboard
+  window.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); go(i + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); go(i - 1); }
+  });
 })();
----
-<InnerLayout title="Biography" activePage="biography">
-  <style is:global>
-    .page-intro {
-      max-width: 1280px;
-      margin: 32px auto 0;
-      padding: 0 24px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 32px;
-      align-items: end;
-    }
-    .page-intro .eyebrow { margin-bottom: 12px; }
-    .page-intro h1 {
-      font-family: var(--font-sans);
-      font-size: 56px;
-      font-weight: var(--fw-medium);
-      letter-spacing: -0.025em;
-      line-height: 1;
-      color: var(--ink-900);
-    }
-    .page-intro .dek {
-      max-width: 100ch;
-      margin-top: 18px;
-      color: var(--ink-700);
-      font-size: var(--fs-16);
-      line-height: 1.55;
-      text-wrap: pretty;
-    }
-    .page-intro .legend {
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--label-mono);
-      text-align: right;
-      line-height: 1.7;
-    }
-    .page-intro .legend .num { color: var(--ink-800); }
 
-    .map-card {
-      max-width: 1280px;
-      margin: 40px auto 0;
-      padding: 0 24px;
-    }
-    .map-frame {
-      position: relative;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--r-lg);
-      overflow: hidden;
-      box-shadow: var(--shadow-sm);
-    }
-    .map-band {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 18px;
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-    }
-    .map-band .left { display: inline-flex; align-items: center; gap: 10px; }
-    .map-band .right .sep { color: var(--ink-300); padding: 0 8px; }
+// Keys photo carousel
+(function() {
+  var slides = document.querySelectorAll('.kc-slide');
+  var dots   = document.querySelectorAll('.kc-dot[data-kc-dot]');
+  var prev   = document.getElementById('kc-prev');
+  var next   = document.getElementById('kc-next');
+  if (!prev || !next || slides.length === 0) return;
 
-    .chart-wrap {
-      position: relative;
-      background: var(--site-paper-deep);
-      background-image:
-        linear-gradient(rgba(42,40,36,0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(42,40,36,0.05) 1px, transparent 1px);
-      background-size: 20px 20px;
-      padding: 24px 16px 16px;
+  var current = 0;
+
+  function show(n) {
+    slides[current].classList.remove('is-active');
+    dots[current].classList.remove('is-active');
+    current = n;
+    slides[current].classList.add('is-active');
+    dots[current].classList.add('is-active');
+    prev.disabled = current === 0;
+    next.disabled = current === slides.length - 1;
+  }
+
+  show(0);
+  prev.addEventListener('click', function() { if (current > 0) show(current - 1); });
+  next.addEventListener('click', function() { if (current < slides.length - 1) show(current + 1); });
+  dots.forEach(function(dot) {
+    dot.addEventListener('click', function() { show(Number(dot.dataset.kcDot)); });
+  });
+})();
+
+// Climb photo carousel
+(function() {
+  var slides = document.querySelectorAll('.cc-slide');
+  var dots   = document.querySelectorAll('.kc-dot[data-cc-dot]');
+  var prev   = document.getElementById('cc-prev');
+  var next   = document.getElementById('cc-next');
+  if (!prev || !next || slides.length === 0) return;
+
+  var current = 0;
+
+  function show(n) {
+    slides[current].classList.remove('is-active');
+    dots[current].classList.remove('is-active');
+    current = n;
+    slides[current].classList.add('is-active');
+    dots[current].classList.add('is-active');
+    prev.disabled = current === 0;
+    next.disabled = current === slides.length - 1;
+  }
+
+  show(0);
+  prev.addEventListener('click', function() { if (current > 0) show(current - 1); });
+  next.addEventListener('click', function() { if (current < slides.length - 1) show(current + 1); });
+  dots.forEach(function(dot) {
+    dot.addEventListener('click', function() { show(Number(dot.dataset.ccDot)); });
+  });
+})();
+
+// Tick log panel
+(function() {
+  var dataEl = document.getElementById('tick-data');
+  var TICKS = dataEl ? JSON.parse(dataEl.textContent || '[]') : [];
+  var BATCH = 25;
+  var shown = 0;
+
+  var panel    = document.getElementById('tick-panel');
+  var backdrop = document.getElementById('tp-backdrop');
+  var list     = document.getElementById('tp-list');
+  var moreBtn  = document.getElementById('tp-more');
+  var closeBtn = document.getElementById('tp-close');
+  var ctaBtn   = document.getElementById('tick-cta');
+
+  if (!panel || !ctaBtn) return;
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function renderBatch() {
+    var end = Math.min(shown + BATCH, TICKS.length);
+    var frag = document.createDocumentFragment();
+    for (var j = shown; j < end; j++) {
+      var t = TICKS[j];
+      var a = document.createElement('a');
+      a.className = 'tp-row';
+      a.href = t.url || '#';
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.innerHTML =
+        '<div class="tp-row-left">'
+        + '<span class="tp-route">' + esc(t.name) + '</span>'
+        + (t.area ? '<span class="tp-meta">' + esc(t.area) + '</span>' : '')
+        + '</div>'
+        + '<div class="tp-right">'
+        + '<span class="tp-grade">' + esc(t.grade) + '</span>'
+        + (t.date ? '<span class="tp-date">' + esc(t.date) + '</span>' : '')
+        + '</div>';
+      frag.appendChild(a);
     }
-    .chart {
-      width: 100%;
-      height: auto;
-      display: block;
-      color: var(--ink-700);
+    list.appendChild(frag);
+    shown = end;
+    if (moreBtn) moreBtn.hidden = shown >= TICKS.length;
+  }
+
+  function open() {
+    if (shown === 0) {
+      if (TICKS.length === 0) {
+        list.innerHTML = '<div class="tp-empty">No ticks found.</div>';
+        if (moreBtn) moreBtn.hidden = true;
+      } else {
+        renderBatch();
+      }
     }
+    panel.classList.add('is-open');
+    panel.setAttribute('aria-hidden', 'false');
+    if (closeBtn) closeBtn.focus();
+  }
 
-    .chart .grid-major { stroke: rgba(42,40,36,0.08); stroke-width: 1; }
-    .chart .grid-axis-label { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-500); letter-spacing: 0.06em; text-transform: uppercase; }
-    .chart .us-outline {
-      fill: var(--ink-50);
-      stroke: var(--ink-400);
-      stroke-width: 1.1;
-      stroke-linejoin: round;
-      stroke-linecap: round;
+  function close() {
+    panel.classList.remove('is-open');
+    panel.setAttribute('aria-hidden', 'true');
+    ctaBtn.focus();
+  }
+
+  ctaBtn.addEventListener('click', open);
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  if (backdrop) backdrop.addEventListener('click', close);
+  if (moreBtn) moreBtn.addEventListener('click', renderBatch);
+
+  // Close when user navigates chapters
+  document.querySelectorAll('.node[data-idx], #prev-btn, #next-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (panel.classList.contains('is-open')) close();
+    });
+  });
+
+  // Keyboard: Escape closes; arrow keys blocked from chapter nav while panel is open
+  document.addEventListener('keydown', function(e) {
+    if (!panel.classList.contains('is-open')) return;
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' ||
+        e.key === 'ArrowDown'  || e.key === 'ArrowUp') {
+      e.stopPropagation();
     }
-    .chart .us-outline-shadow { fill: rgba(74, 103, 65, 0.05); stroke: none; }
-    .chart .route { fill: none; stroke: var(--clay-400); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0.85; }
-    .chart .route-glow { fill: none; stroke: var(--clay-400); stroke-width: 6; opacity: 0.12; stroke-linecap: round; }
-    .chart .bearing-label { font-family: var(--font-mono); font-size: 9px; fill: var(--clay-700); letter-spacing: 0.05em; text-transform: uppercase; }
-    .chart .marker .ring { fill: var(--card-bg); stroke: var(--ink-900); stroke-width: 1.2; }
-    .chart .marker .ring-active { fill: var(--moss-500); stroke: var(--moss-700); }
-    .chart .marker .num { font-family: var(--font-mono); font-weight: 600; font-size: 10px; fill: var(--ink-900); text-anchor: middle; }
-    .chart .marker .num-on { fill: var(--ink-50); }
-    .chart .marker .pin-label { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; fill: var(--ink-900); letter-spacing: 0.04em; }
-    .chart .marker .pin-coord { font-family: var(--font-mono); font-size: 8px; fill: var(--ink-500); letter-spacing: 0.04em; }
-    .chart .marker .pin-year { font-family: var(--font-mono); font-size: 8.5px; fill: var(--clay-600); letter-spacing: 0.06em; }
-    .chart .compass { fill: var(--ink-700); }
-    .chart .compass-bg { fill: var(--card-bg); stroke: var(--ink-300); stroke-width: 1; }
-    .chart .compass-label { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-700); text-anchor: middle; font-weight: 600; }
-    .chart .scalebar-line { stroke: var(--ink-700); stroke-width: 1.5; }
-    .chart .scalebar-tick { stroke: var(--ink-700); stroke-width: 1; }
-    .chart .scalebar-label { font-family: var(--font-mono); font-size: 8.5px; fill: var(--ink-700); }
+  }, true); // capture phase — runs before the chapter nav listener
+})();
+</script>
 
-    .chapters {
-      max-width: 1280px;
-      margin: 64px auto 0;
-      padding: 0 24px;
-    }
-    .chapters-head {
-      display: flex; align-items: baseline; gap: 16px;
-      padding-bottom: 14px;
-      margin-bottom: 32px;
-      border-bottom: 1px solid var(--rule-strong);
-    }
-    .chapters-head h2 {
-      font-family: var(--font-sans);
-      font-size: 26px;
-      font-weight: var(--fw-medium);
-      letter-spacing: -0.02em;
-      color: var(--ink-900);
-    }
-    .chapters-head .meta {
-      margin-left: auto;
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      text-transform: uppercase;
-      letter-spacing: var(--tr-caps);
-      color: var(--label-mono);
-    }
-
-    .chapter {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 48px;
-      padding: 32px 0 36px;
-      border-top: 1px solid var(--border-subtle);
-      position: relative;
-    }
-    .chapter:first-of-type { border-top: 1px solid var(--rule-strong); }
-
-    .chapter .meta-col { position: sticky; top: 24px; align-self: start; }
-    .chapter .marker {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 16px;
-    }
-    .chapter .marker .num {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: var(--moss-500);
-      color: var(--ink-50);
-      font-family: var(--font-mono);
-      font-weight: var(--fw-semibold);
-      font-size: var(--fs-13);
-    }
-    .chapter .marker .target {
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--ink-500);
-    }
-    .chapter .loc {
-      font-family: var(--font-sans);
-      font-size: 28px;
-      font-weight: var(--fw-medium);
-      letter-spacing: -0.02em;
-      line-height: 1.05;
-      color: var(--ink-900);
-      margin-bottom: 8px;
-    }
-    .chapter .state {
-      font-family: var(--font-mono);
-      font-size: var(--fs-12);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--ink-600);
-    }
-    .chapter .meta-list {
-      margin-top: 22px;
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 6px 14px;
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-    }
-    .chapter .meta-list .k { color: var(--ink-500); }
-    .chapter .meta-list .v { color: var(--ink-800); }
-    .chapter .meta-list .v.accent { color: var(--clay-600); }
-
-    .chapter .body { padding-top: 4px; min-width: 0; }
-    .chapter .role-tag {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 0 0 12px;
-      color: var(--clay-600);
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      border-bottom: 1px solid var(--clay-100);
-      margin-bottom: 18px;
-    }
-    .chapter .body p {
-      margin: 0 0 14px;
-      font-size: var(--fs-16);
-      line-height: 1.6;
-      color: var(--ink-700);
-      //max-width: 65ch;
-      text-wrap: pretty;
-    }
-    .chapter .body p:last-child { margin-bottom: 0; }
-
-    .chapter .highlights {
-      margin-top: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      max-width: 880px;
-    }
-    .chapter .hi {
-      background: var(--site-paper-deep);
-      border-left: 2px solid var(--moss-400);
-      padding: 12px 14px;
-      border-radius: var(--r-sm);
-    }
-    .chapter .hi .k {
-      font-family: var(--font-mono);
-      font-size: var(--fs-10);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--ink-500);
-      margin-bottom: 4px;
-    }
-    .chapter .hi .v {
-      font-family: var(--font-mono);
-      font-size: var(--fs-13);
-      font-weight: var(--fw-semibold);
-      color: var(--ink-900);
-    }
-    .chapter .hi .v .unit { font-size: var(--fs-11); color: var(--ink-500); font-weight: var(--fw-regular); letter-spacing: var(--tr-wide); }
-
-    .bio-cta {
-      max-width: 1280px;
-      margin: 48px auto 0;
-      padding: 0 24px;
-    }
-    .bio-cta-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      padding: 32px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--r-lg);
-    }
-    .bio-cta .lead {
-      font-family: var(--font-sans);
-      font-size: 22px;
-      letter-spacing: -0.015em;
-      color: var(--ink-900);
-      font-weight: var(--fw-medium);
-    }
-    .bio-cta .sub {
-      font-family: var(--font-mono);
-      font-size: var(--fs-12);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--ink-500);
-      margin-top: 4px;
-    }
-    .bio-cta .actions { display: flex; gap: 12px; }
-    .bio-cta a {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 12px 18px;
-      background: var(--moss-500);
-      color: var(--ink-50);
-      font-family: var(--font-mono);
-      font-size: var(--fs-12);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      border-radius: var(--r-sm);
-      border: 1px solid var(--moss-700);
-      transition: background var(--dur-fast) var(--ease-out);
-    }
-    .bio-cta a.secondary {
-      background: var(--card-bg);
-      color: var(--ink-800);
-      border: 1px solid var(--card-border);
-    }
-    .bio-cta a:hover { background: var(--moss-600); border-bottom-color: var(--moss-700); }
-    .bio-cta a.secondary:hover { background: var(--card-bg-deep); }
-    .bio-cta a::after { content: '→'; transition: transform var(--dur-fast) var(--ease-out); }
-    .bio-cta a:hover::after { transform: translateX(3px); }
-
-    @media (max-width: 880px) {
-      .chapter { grid-template-columns: 1fr; gap: 20px; }
-      .chapter .meta-col { position: static; }
-      .page-intro { grid-template-columns: 1fr; }
-      .page-intro h1 { font-size: 40px; }
-      .page-intro .legend { text-align: left; }
-      .bio-cta-inner { flex-direction: column; align-items: flex-start; }
-    }
-  </style>
-
-  <!-- Intro -->
-  <header class="page-intro">
-    <div>
-      <div class="eyebrow">02 / Biography</div>
-      <h1>The route map.</h1>
-      <p class="dek">
-        Four chapters. One story, plotted by where it happened.
-        Islamorada to Tallahassee, Virginia to Las Vegas &mdash; from a Florida Keys
-        swim team, through six years in Naval Special Warfare intelligence, into
-        a decade of building software and the teams that ship it.
-      </p>
-    </div>
-    <div class="legend">
-      <div><span class="num">01</span> · Islamorada, FL</div>
-      <div><span class="num">02</span> · Tallahassee, FL</div>
-      <div><span class="num">03</span> · Virginia Beach, VA</div>
-      <div><span class="num">04</span> · Las Vegas, NV</div>
-    </div>
-  </header>
-
-  <!-- Map -->
-  <section class="map-card" aria-label="Route map">
-    <div class="map-frame">
-      <div class="map-band" style="background: var(--card-bg-deep); color: var(--ink-700); border-bottom: 1px solid var(--card-border);">
-        <div class="left" style="color: var(--ink-700);">
-          <span>Route map · Continental US · 1987 — present</span>
-        </div>
-        <div class="right" style="color: var(--ink-500);">
-          <span>4 markers · 3 legs</span>
-          <span class="sep" style="color: var(--ink-300);">·</span>
-          <span>~5,200 mi traveled</span>
-        </div>
-      </div>
-      <div class="chart-wrap">
-        <svg class="chart" viewBox="-40 0 1240 550" xmlns="http://www.w3.org/2000/svg" aria-hidden="false">
-          <rect x="30" y="30" width="1120" height="494" fill="none" stroke="rgba(42,40,36,0.18)" stroke-width="1"></rect>
-
-          <g class="grid-major">
-            <line x1="144" y1="30" x2="144" y2="524"></line>
-            <line x1="334" y1="30" x2="334" y2="524"></line>
-            <line x1="524" y1="30" x2="524" y2="524"></line>
-            <line x1="714" y1="30" x2="714" y2="524"></line>
-            <line x1="904" y1="30" x2="904" y2="524"></line>
-            <line x1="1094" y1="30" x2="1094" y2="524"></line>
-            <line x1="30" y1="125" x2="1150" y2="125"></line>
-            <line x1="30" y1="220" x2="1150" y2="220"></line>
-            <line x1="30" y1="315" x2="1150" y2="315"></line>
-            <line x1="30" y1="410" x2="1150" y2="410"></line>
-            <line x1="30" y1="505" x2="1150" y2="505"></line>
-          </g>
-
-          <g class="grid-axis-label">
-            <text x="144"  y="22" text-anchor="middle">120° W</text>
-            <text x="334"  y="22" text-anchor="middle">110° W</text>
-            <text x="524"  y="22" text-anchor="middle">100° W</text>
-            <text x="714"  y="22" text-anchor="middle">90° W</text>
-            <text x="904"  y="22" text-anchor="middle">80° W</text>
-            <text x="1094" y="22" text-anchor="middle">70° W</text>
-            <text x="24" y="128" text-anchor="end">45° N</text>
-            <text x="24" y="223" text-anchor="end">40° N</text>
-            <text x="24" y="318" text-anchor="end">35° N</text>
-            <text x="24" y="413" text-anchor="end">30° N</text>
-            <text x="24" y="508" text-anchor="end">25° N</text>
-          </g>
-
-          <!-- CONUS outline -->
-          <path class="us-outline-shadow" transform="translate(2,3)" d="
-            M 54.7,60.4 L 92.7,58.5 L 96.5,87.0 L 68.0,102.2 L 68.0,134.5
-            L 64.2,182.0 L 68.0,220.0 L 90.2,248.5 L 97.8,267.5 L 125.0,305.5
-            L 153.5,326.4 L 172.5,334.0 L 199.1,358.7 L 202.9,362.5 L 246.4,362.5
-            L 308.0,385.3 L 361.2,385.3 L 393.5,375.8 L 431.5,398.6 L 460.0,429.0
-            L 488.5,413.8 L 509.4,436.6 L 526.5,457.5 L 568.3,487.9 L 572.1,457.5
-            L 604.4,434.7 L 631.0,419.5 L 659.5,413.8 L 688.0,423.3 L 716.5,429.0
-            L 722.2,410.0 L 745.0,406.2 L 754.5,404.3 L 792.5,410.0 L 815.3,413.8
-            L 830.5,419.5 L 840.0,429.0 L 845.7,448.0 L 855.2,476.5 L 862.8,489.8
-            L 872.3,499.3 L 879.9,503.1 L 887.5,503.1 L 893.2,497.4 L 895.1,491.7
-            L 897.0,472.7 L 885.6,438.5 L 872.3,400.5 L 878.0,381.5 L 898.9,356.8
-            L 917.9,339.7 L 953.0,324.5 L 981.5,309.3 L 979.6,286.5 L 972.0,279.1
-            L 966.3,263.9 L 983.4,258.0 L 989.1,244.7 L 1002.4,231.4 L 1010.0,210.5
-            L 1019.5,210.5 L 1029.0,201.0 L 1051.8,201.0 L 1078.4,191.5 L 1087.9,185.8
-            L 1076.5,176.3 L 1072.7,163.0 L 1080.3,153.5 L 1086.0,149.7 L 1105.0,144.0
-            L 1124.0,138.3 L 1143.0,128.8 L 1143.0,113.6 L 1127.8,96.5 L 1120.2,79.4
-            L 1105.0,79.4 L 1076.5,115.5 L 1057.5,119.3 L 1019.5,125.0 L 1000.5,125.0
-            L 991.0,134.5 L 962.5,144.0 L 933.0,153.5 L 914.0,157.3 L 914.0,172.5
-            L 876.0,185.8 L 847.5,189.6 L 838.0,185.8 L 838.0,144.0 L 828.5,125.0
-            L 803.9,109.8 L 761.0,96.5 L 713.5,87.0 L 666.0,90.8 L 637.5,77.5
-            L 628.0,58.5 L 609.0,49.0 L 533.0,49.0 L 438.0,49.0 L 324.0,49.0
-            L 210.0,49.0 L 106.0,49.0 L 87.0,49.0 Z"></path>
-
-          <path class="us-outline" d="
-            M 54.7,60.4 L 92.7,58.5 L 96.5,87.0 L 68.0,102.2 L 68.0,134.5
-            L 64.2,182.0 L 68.0,220.0 L 90.2,248.5 L 97.8,267.5 L 125.0,305.5
-            L 153.5,326.4 L 172.5,334.0 L 199.1,358.7 L 202.9,362.5 L 246.4,362.5
-            L 308.0,385.3 L 361.2,385.3 L 393.5,375.8 L 431.5,398.6 L 460.0,429.0
-            L 488.5,413.8 L 509.4,436.6 L 526.5,457.5 L 568.3,487.9 L 572.1,457.5
-            L 604.4,434.7 L 631.0,419.5 L 659.5,413.8 L 688.0,423.3 L 716.5,429.0
-            L 722.2,410.0 L 745.0,406.2 L 754.5,404.3 L 792.5,410.0 L 815.3,413.8
-            L 830.5,419.5 L 840.0,429.0 L 845.7,448.0 L 855.2,476.5 L 862.8,489.8
-            L 872.3,499.3 L 879.9,503.1 L 887.5,503.1 L 893.2,497.4 L 895.1,491.7
-            L 897.0,472.7 L 885.6,438.5 L 872.3,400.5 L 878.0,381.5 L 898.9,356.8
-            L 917.9,339.7 L 953.0,324.5 L 981.5,309.3 L 979.6,286.5 L 972.0,279.1
-            L 966.3,263.9 L 983.4,258.0 L 989.1,244.7 L 1002.4,231.4 L 1010.0,210.5
-            L 1019.5,210.5 L 1029.0,201.0 L 1051.8,201.0 L 1078.4,191.5 L 1087.9,185.8
-            L 1076.5,176.3 L 1072.7,163.0 L 1080.3,153.5 L 1086.0,149.7 L 1105.0,144.0
-            L 1124.0,138.3 L 1143.0,128.8 L 1143.0,113.6 L 1127.8,96.5 L 1120.2,79.4
-            L 1105.0,79.4 L 1076.5,115.5 L 1057.5,119.3 L 1019.5,125.0 L 1000.5,125.0
-            L 991.0,134.5 L 962.5,144.0 L 933.0,153.5 L 914.0,157.3 L 914.0,172.5
-            L 876.0,185.8 L 847.5,189.6 L 838.0,185.8 L 838.0,144.0 L 828.5,125.0
-            L 803.9,109.8 L 761.0,96.5 L 713.5,87.0 L 666.0,90.8 L 637.5,77.5
-            L 628.0,58.5 L 609.0,49.0 L 533.0,49.0 L 438.0,49.0 L 324.0,49.0
-            L 210.0,49.0 L 106.0,49.0 L 87.0,49.0 Z"></path>
-
-          <!-- Compass rose -->
-          <g transform="translate(75,80)">
-            <circle class="compass-bg" cx="0" cy="0" r="24"></circle>
-            <path class="compass" d="M0,-20 L4,-2 L0,0 L-4,-2 Z" fill-opacity="0.85"></path>
-            <path class="compass" d="M0,20 L4,2 L0,0 L-4,2 Z" fill-opacity="0.25"></path>
-            <text class="compass-label" x="0" y="-28">N</text>
-          </g>
-
-          <!-- Scale bar -->
-          <g transform="translate(990,530)">
-            <line class="scalebar-line" x1="0" y1="0" x2="152" y2="0"></line>
-            <line class="scalebar-tick" x1="0" y1="-3" x2="0" y2="3"></line>
-            <line class="scalebar-tick" x1="76" y1="-3" x2="76" y2="3"></line>
-            <line class="scalebar-tick" x1="152" y1="-3" x2="152" y2="3"></line>
-            <text class="scalebar-label" x="0" y="14">0</text>
-            <text class="scalebar-label" x="76" y="14" text-anchor="middle">300</text>
-            <text class="scalebar-label" x="152" y="14" text-anchor="end">600 mi</text>
-          </g>
-
-          <!-- Route line: 01 → 02 → 03 → 04 -->
-          <g>
-            <path class="route-glow" d="M 892.2,506.5 L 822.7,401.6 L 980.4,279.9 L 236.3,292.8"></path>
-            <path class="route" d="M 892.2,506.5 L 822.7,401.6 L 980.4,279.9 L 236.3,292.8">
-              <animate attributeName="stroke-dashoffset" from="8" to="0" dur="0.6s" repeatCount="indefinite"></animate>
-            </path>
-            <text class="bearing-label" x="825" y="452">+ 380 mi · NW</text>
-            <text class="bearing-label" x="908" y="335">+ 740 mi · NE</text>
-            <text class="bearing-label" x="580" y="276">+ 2,090 mi · W</text>
-          </g>
-
-          <!-- 01 Islamorada -->
-          <g class="marker" transform="translate(892.2,506.5)">
-            <circle class="ring" r="10"></circle>
-            <text class="num" y="4">01</text>
-            <text class="pin-label" x="-14" y="-7" text-anchor="end">Islamorada, FL</text>
-            <text class="pin-coord" x="-14" y="6" text-anchor="end">24.92° N · 80.62° W</text>
-            <text class="pin-year" x="-14" y="19" text-anchor="end">1987 — 2005</text>
-          </g>
-
-          <!-- 02 Tallahassee -->
-          <g class="marker" transform="translate(822.7,401.6)">
-            <circle class="ring" r="10"></circle>
-            <text class="num" y="4">02</text>
-            <text class="pin-label" x="-14" y="-7" text-anchor="end">Tallahassee, FL</text>
-            <text class="pin-coord" x="-14" y="6" text-anchor="end">30.44° N · 84.28° W</text>
-            <text class="pin-year" x="-14" y="19" text-anchor="end">2005 — 2009</text>
-          </g>
-
-          <!-- 03 Virginia Beach -->
-          <g class="marker" transform="translate(980.4,279.9)">
-            <circle class="ring" r="10"></circle>
-            <text class="num" y="4">03</text>
-            <text class="pin-label" x="16" y="-2">Virginia Beach, VA</text>
-            <text class="pin-coord" x="16" y="11">36.85° N · 75.98° W</text>
-            <text class="pin-year" x="16" y="24">2010 — 2016</text>
-          </g>
-
-          <!-- 04 Las Vegas (active) -->
-          <g class="marker" transform="translate(236.3,292.8)">
-            <circle class="ring-active ring" r="12"></circle>
-            <circle r="22" fill="none" stroke="var(--moss-500)" stroke-width="1" opacity="0.4">
-              <animate attributeName="r" from="12" to="28" dur="2.2s" repeatCount="indefinite"></animate>
-              <animate attributeName="opacity" from="0.5" to="0" dur="2.2s" repeatCount="indefinite"></animate>
-            </circle>
-            <text class="num num-on" y="4">04</text>
-            <text class="pin-label" x="18" y="-2">Las Vegas, NV</text>
-            <text class="pin-coord" x="18" y="11">36.17° N · 115.14° W</text>
-            <text class="pin-year" x="18" y="24">2016 — present · active</text>
-          </g>
-        </svg>
-      </div>
-    </div>
-  </section>
-
-  <!-- Chapters -->
-  <section class="chapters">
-    <div class="chapters-head">
-      <h2>Chapters</h2>
-      <span class="meta">4 locations · {years} yr</span>
-    </div>
-
-    <!-- 01 ISLAMORADA -->
-    <article class="chapter">
-      <div class="meta-col">
-        <div class="marker">
-          <span class="num">01</span>
-          <span class="target">Chapter one</span>
-        </div>
-        <div class="loc">Islamorada</div>
-        <div class="state">Florida Keys · USA</div>
-        <div class="meta-list">
-          <div class="k">Years</div>   <div class="v">1987 — 2005</div>
-          <div class="k">Coords</div>  <div class="v">24.92° N · 80.62° W</div>
-          <div class="k">School</div>  <div class="v">Coral Shores HS · '05</div>
-          <div class="k">Status</div>  <div class="v accent">Origin</div>
-        </div>
-      </div>
-      <div class="body">
-        <span class="role-tag">Growing up in the Keys</span>
-        <p>
-          A six-mile stretch of islands in the Florida Keys is hard to leave but harder
-          to take seriously as a base of operations. Growing up there meant the water was
-          always close and the ceiling was always low &mdash; if you wanted somewhere bigger,
-          you had to go find it.
-        </p>
-        <p>
-          Sports filled most of the days that school didn&rsquo;t &mdash; soccer, baseball,
-          basketball, tennis, ping pong, chess. The saxophone in middle and high school.
-          The four years at Coral Shores High School ended as co-captain of the swim team,
-          competing at the district and regional levels in the 200&nbsp;m freestyle and
-          100&nbsp;m butterfly.
-        </p>
-        <div class="highlights">
-          <div class="hi"><div class="k">Sports</div><div class="v">6+ <span class="unit">disciplines</span></div></div>
-          <div class="hi"><div class="k">Swim team</div><div class="v">Co-captain</div></div>
-          <div class="hi"><div class="k">Best events</div><div class="v">200 FR / 100 FLY</div></div>
-        </div>
-      </div>
-    </article>
-
-    <!-- 02 TALLAHASSEE -->
-    <article class="chapter">
-      <div class="meta-col">
-        <div class="marker">
-          <span class="num">02</span>
-          <span class="target">Chapter two</span>
-        </div>
-        <div class="loc">Tallahassee</div>
-        <div class="state">Florida · USA</div>
-        <div class="meta-list">
-          <div class="k">Years</div>       <div class="v">2005 — 2009</div>
-          <div class="k">Coords</div>      <div class="v">30.44° N · 84.28° W</div>
-          <div class="k">Institution</div> <div class="v">Florida State Univ.</div>
-          <div class="k">Degree</div>      <div class="v accent">B.S. Fin. &amp; RE</div>
-        </div>
-      </div>
-      <div class="body">
-        <span class="role-tag">Florida State University · College of Business</span>
-        <p>
-          Four years at Florida State&rsquo;s College of Business, finishing in 2009
-          with a B.S. in Finance and Real Estate. The classroom was half of it; the
-          other half was Theta Chi &mdash; at the time, the fraternity with the highest
-          overall GPA on campus, and the one that took its philanthropic work and
-          intramural athletics seriously.
-        </p>
-        <p>
-          Brotherhood Chairman for one year (running the annual retreat and internal
-          programming), Athletic Chairman for two (assembling teams and coordinating
-          participation across intramural sports). A lot of what came later &mdash;
-          organizing people, sequencing work, keeping a group moving in the same
-          direction &mdash; got its first rep here.
-        </p>
-        <div class="highlights">
-          <div class="hi"><div class="k">Degree</div><div class="v">B.S. <span class="unit">Finance + Real Estate</span></div></div>
-          <div class="hi"><div class="k">Theta Chi</div><div class="v">Brotherhood / Athletic Chair</div></div>
-          <div class="hi"><div class="k">Tenure</div><div class="v">4 <span class="unit">yr</span></div></div>
-        </div>
-      </div>
-    </article>
-
-    <!-- 03 VIRGINIA BEACH -->
-    <article class="chapter">
-      <div class="meta-col">
-        <div class="marker">
-          <span class="num">03</span>
-          <span class="target">Chapter three</span>
-        </div>
-        <div class="loc">Virginia&nbsp;Beach</div>
-        <div class="state">Virginia · USA</div>
-        <div class="meta-list">
-          <div class="k">Years</div>   <div class="v">2010 — 2016</div>
-          <div class="k">Coords</div>  <div class="v">36.85° N · 75.98° W</div>
-          <div class="k">Service</div> <div class="v">U.S. Navy</div>
-          <div class="k">Unit</div>    <div class="v">NSWDG</div>
-          <div class="k">Rate</div>    <div class="v accent">IS2</div>
-          <div class="k">Status</div>  <div class="v">Honorable disch.</div>
-        </div>
-      </div>
-      <div class="body">
-        <span class="role-tag">U.S. Navy · Naval Special Warfare Development Group</span>
-        <p>
-          Enlisted in 2010 with the goal of becoming a SEAL. Made it through boot camp
-          and several weeks of additional physical training, then was not selected to
-          continue. Pivoted to the Intelligence Specialist rating and reported to the
-          Navy and Marine Corps Intelligence Training Center in Dam&nbsp;Neck, Virginia,
-          where the previous failure became the motivation &mdash; graduated at the top
-          of the class in both general naval intelligence and the follow-on ground
-          operations course.
-        </p>
-        <p>
-          That earned an invitation to screen for an intelligence position with an
-          elite special missions unit. After a week of psychological evaluations,
-          physical and written tests, and a series of boards, joined Naval Special
-          Warfare Development Group (NSWDG) in April&nbsp;2011.
-        </p>
-        <p>
-          Over four overseas combat deployments, took on roles not typically assigned
-          to Intelligence Specialists. As an <strong>Analyst</strong>, researched and
-          aggregated intelligence to support special operations missions targeting
-          high-value individuals. As an <strong>ISR Manager</strong>, coordinated the
-          deployment of manned and unmanned ISR assets in excess of 10,000&nbsp;hours.
-          Served as a <strong>Liaison Officer</strong> between the Central Intelligence
-          Agency and the commander of NSWDG. Most notably, served as
-          <strong>Joint Staff Intelligence Officer</strong> for a 70-person task force
-          &mdash; a position normally reserved for military officers as the most senior
-          intelligence role in the area of operations.
-        </p>
-        <p>
-          Honorably discharged in January&nbsp;2016 at the rank of Petty Officer
-          Second Class.
-        </p>
-        <div class="highlights">
-          <div class="hi"><div class="k">Deployments</div><div class="v">04 <span class="unit">combat tours</span></div></div>
-          <div class="hi"><div class="k">ISR coordinated</div><div class="v">10,000+ <span class="unit">hrs</span></div></div>
-          <div class="hi"><div class="k">Task force</div><div class="v">70 <span class="unit">pax · JSIO</span></div></div>
-          <div class="hi"><div class="k">Rank at EAS</div><div class="v">PO2 · IS2</div></div>
-        </div>
-      </div>
-    </article>
-
-    <!-- 04 LAS VEGAS -->
-    <article class="chapter">
-      <div class="meta-col">
-        <div class="marker">
-          <span class="num">04</span>
-          <span class="target">Chapter four · Active</span>
-        </div>
-        <div class="loc">Las&nbsp;Vegas</div>
-        <div class="state">Nevada · USA</div>
-        <div class="meta-list">
-          <div class="k">Years</div>     <div class="v">2016 — present</div>
-          <div class="k">Coords</div>    <div class="v">36.17° N · 115.14° W</div>
-          <div class="k">Vertical</div>  <div class="v">Software</div>
-          <div class="k">Current</div>   <div class="v accent">Sr. Eng. Mgr.</div>
-          <div class="k">Element</div>   <div class="v">Guidepoint Global</div>
-          <div class="k">Education</div> <div class="v">UNLV EMBA '22</div>
-        </div>
-      </div>
-      <div class="body">
-        <span class="role-tag">Software engineering · ten years · engineer → lead → manager</span>
-        <p>
-          Started writing code as a hobby while still in the Navy. Building small
-          websites turned into a strong-enough interest that engineering became the
-          next career on purpose. First role was Junior PHP Developer at
-          Partner&nbsp;Weekly &mdash; a marketing agency in the consumer specialty
-          finance space &mdash; learning the fundamentals, attending and speaking at
-          local PHP meetups, and contributing to open source.
-        </p>
-        <p>
-          From there, Switch,&nbsp;Inc. &mdash; the data center company &mdash; for a
-          long run that went Software Engineer → Manager of Software Engineering
-          (2019) → Software Engineer III → Technical Project Manager. Built APIs and
-          back-end systems supporting day-to-day operations, then a team of eight
-          building them. The most lasting contribution was an automated CI/CD
-          pipeline that became how the engineering org shipped.
-        </p>
-        <p>
-          Joined Guidepoint Global in April&nbsp;2023 as Lead Software Engineer,
-          architecting a company-wide migration to containerized, cloud-native
-          workflows across 10+ teams and 20+ services on Azure Kubernetes Service.
-          Promoted to Software Engineering Manager in 2025, leading two teams (11
-          direct reports) delivering AI-powered features. Promoted again in
-          January&nbsp;2026 to <strong>Senior Software Engineering Manager</strong>,
-          leading architecture and delivery for Guidepoint&rsquo;s next-generation
-          agentic platform &mdash; defining MCP-based tooling, integration patterns
-          with the core CRM, and the reliability and auth models that production
-          agentic systems demand.
-        </p>
-        <p>
-          UNLV Executive&nbsp;MBA in 2022 along the way. Climbing rock for the last
-          stretch of it, on whatever weekends will allow.
-        </p>
-        <div class="highlights">
-          <div class="hi"><div class="k">Migration</div><div class="v">20+ <span class="unit">services · 10+ teams</span></div></div>
-          <div class="hi"><div class="k">Org built</div><div class="v">11 <span class="unit">direct reports</span></div></div>
-          <div class="hi"><div class="k">Tenure</div><div class="v">10 <span class="unit">yr software</span></div></div>
-          <div class="hi"><div class="k">Degree</div><div class="v">EMBA <span class="unit">UNLV '22</span></div></div>
-        </div>
-      </div>
-    </article>
-  </section>
-
-  <!-- CTA -->
-  <section class="bio-cta">
-    <div class="bio-cta-inner">
-      <div>
-        <div class="lead">The summarized version lives next door.</div>
-        <div class="sub">Sheet 03 · Operational history · printable</div>
-      </div>
-      <div class="actions">
-        <a href="/resume">Open resume</a>
-        <a class="secondary" href="mailto:mab05k@gmail.com">Contact</a>
-      </div>
-    </div>
-  </section>
-
-</InnerLayout>
+</body>
+</html>
