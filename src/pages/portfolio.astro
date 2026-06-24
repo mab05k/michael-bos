@@ -232,6 +232,112 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       }
     }
 
+    /* ── Forex Algo Trader featured project ──────────────────────── */
+    .forex-wrap { margin-top: 40px; }
+    .forex-label {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: #0D9488;
+      margin-bottom: 16px;
+    }
+    .forex-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(20, 184, 166, 0.22);
+      border-top: 3px solid #0D9488;
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 440px;
+    }
+    .forex-content {
+      padding: 40px 44px;
+      display: flex;
+      flex-direction: column;
+    }
+    .forex-identity { margin-bottom: 6px; }
+    .forex-appname {
+      font-family: var(--font-display);
+      font-size: var(--fs-24);
+      font-weight: var(--fw-semibold);
+      letter-spacing: -0.02em;
+      color: var(--ink-900);
+      line-height: 1;
+    }
+    .forex-tagline {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: #0D9488;
+      margin: 0 0 20px;
+    }
+    .forex-desc {
+      font-size: var(--fs-16);
+      line-height: 1.6;
+      color: var(--ink-700);
+      text-wrap: pretty;
+      margin: 0 0 28px;
+    }
+    .forex-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .forex-chip {
+      display: inline-flex;
+      align-items: center;
+      height: 26px;
+      padding: 0 12px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      font-weight: var(--fw-medium);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-radius: var(--r-sm);
+      border: 1px solid rgba(20, 184, 166, 0.25);
+      background: rgba(204, 251, 241, 0.5);
+      color: #0F766E;
+      white-space: nowrap;
+    }
+    .forex-footer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 24px;
+      border-top: 1px solid rgba(20, 184, 166, 0.15);
+    }
+    .forex-status {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: #0D9488;
+    }
+    .forex-chart-panel {
+      position: relative;
+      overflow: hidden;
+      background: #0B1426;
+      border-left: 1px solid rgba(20, 184, 166, 0.18);
+    }
+    #forex-chart { position: absolute; inset: 0; }
+
+    @media (max-width: 900px) {
+      .forex-card { grid-template-columns: 1fr; }
+      .forex-chart-panel {
+        height: 240px;
+        border-left: none;
+        border-top: 1px solid rgba(20, 184, 166, 0.18);
+        order: -1;
+      }
+      .forex-content { padding: 28px 24px; }
+    }
+
     @media (max-width: 900px) {
       .port-intro h1 { font-size: 40px; }
       .port-grid { grid-template-columns: 1fr; }
@@ -242,13 +348,12 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     <div class="eyebrow">Portfolio</div>
     <h1>Selected work.</h1>
     <p class="dek">
-      Projects, tools, and systems — built in production and in the open.
-      Platform engineering, agentic tooling, and the infrastructure that makes software actually ship.
+      A few things I've worked on to build my skills and challenge myself.
     </p>
   </header>
 
   <section class="featured-wrap" aria-label="Featured project">
-    <div class="featured-label">Featured project</div>
+    <div class="featured-label">Side hustle</div>
     <div class="featured-card">
       <div class="featured-content">
         <div class="featured-identity">
@@ -285,87 +390,237 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     </div>
   </section>
 
-  <section class="port-grid" aria-label="Portfolio items">
-
-    <div class="port-card">
-      <div class="port-card-body">
-        <span class="idn">Platform</span>
-        <div class="title">Guidepoint Agentic Platform</div>
-        <p class="blurb">
-          MCP-based tooling layer abstracting Guidepoint's core CRM for agent-driven workflows.
-          Architecture, tool contracts, and auth model for production AI at scale.
-        </p>
-      </div>
-      <div class="port-card-footer">
-        <span class="pill active"><span class="dot"></span>Active</span>
-        <span class="status wip">In progress</span>
-      </div>
-    </div>
-
-    <div class="port-card">
-      <div class="port-card-body">
-        <span class="idn">Infrastructure</span>
-        <div class="title">Cloud-Native Migration · Switch</div>
-        <p class="blurb">
-          Spearheaded containerized deployment standards enabling 10+ teams and 20+ services
-          to ship on Azure Kubernetes Service with unified CI/CD pipelines.
-        </p>
-      </div>
-      <div class="port-card-footer">
-        <span class="pill"><span class="dot"></span>Complete</span>
-        <span class="status planned">Documenting</span>
-      </div>
-    </div>
-
-    <!--<div class="port-card">-->
-    <!--  <div class="port-card-body">-->
-    <!--    <span class="idn">Open source</span>-->
-    <!--    <div class="title">michael-bos.com</div>-->
-    <!--    <p class="blurb">-->
-    <!--      This site. Static Astro build with a custom design system —-->
-    <!--      Moss, Clay, Ink — and a full-screen interactive biography.-->
-    <!--    </p>-->
-    <!--  </div>-->
-    <!--  <div class="port-card-footer">-->
-    <!--    <span class="pill active"><span class="dot"></span>Active</span>-->
-    <!--    <a href="https://github.com/mab05k" target="_blank" rel="noopener" style="font-family: var(&#45;&#45;font-mono); font-size: var(&#45;&#45;fs-11); letter-spacing: var(&#45;&#45;tr-caps); text-transform: uppercase; color: var(&#45;&#45;rust); text-decoration: none;">GitHub →</a>-->
-    <!--  </div>-->
-    <!--</div>-->
-
-    <!--<div class="port-card">-->
-    <!--  <div class="port-card-body">-->
-    <!--    <span class="idn">SaaS · Side project</span>-->
-    <!--    <div class="title">Field Service Manager</div>-->
-    <!--    <p class="blurb">-->
-    <!--      Full-stack field-service management platform — Symfony API, Go CLI, React web, and React Native mobile-->
-    <!--      in a Turborepo monorepo. Keycloak SSO, Mercure + RabbitMQ event bus, PHPStan level 8.-->
-    <!--      Product covers job scheduling, team dispatch, recurring schedules (RFC 5545), and service catalogs-->
-    <!--      across HVAC, pool, and landscaping verticals.-->
-    <!--    </p>-->
-    <!--  </div>-->
-    <!--  <div class="port-card-footer">-->
-    <!--    <span class="pill active"><span class="dot"></span>Active</span>-->
-    <!--    <span class="status wip">In progress</span>-->
-    <!--  </div>-->
-    <!--</div>-->
-
-    <div class="port-card">
-      <div class="port-card-body">
-        <span class="idn">Algorithmic trading · Side project</span>
-        <div class="title">Forex Algo Trader</div>
-        <p class="blurb">
+  <section class="featured-wrap forex-wrap" aria-label="Forex Algo Trader project">
+    <div class="forex-label">Algorithmic trading · Archived</div>
+    <div class="forex-card">
+      <div class="forex-content">
+        <div class="forex-identity">
+          <span class="forex-appname">Forex Algo Trader</span>
+        </div>
+        <p class="forex-tagline">Autonomous trend-following · Live forex via Oanda API</p>
+        <p class="forex-desc">
           Autonomous trend-following system for live forex trading via the Oanda API.
           Evaluates Heiken Ashi candles, 20-period moving averages, and Renko charts for market entry.
           Implements Zone Recovery — a counter-trend hedging strategy that layers opposing orders
           to recover from losing positions without closing at a loss.
         </p>
+        <div class="forex-stack">
+          <span class="forex-chip">PHP / Symfony</span>
+          <span class="forex-chip">Oanda API</span>
+          <span class="forex-chip">Heiken Ashi</span>
+          <span class="forex-chip">Zone Recovery</span>
+          <span class="forex-chip">Renko Charts</span>
+          <span class="forex-chip">20-Period MA</span>
+        </div>
+        <div class="forex-footer">
+          <span class="pill"><span class="dot"></span>Archived</span>
+          <span class="forex-status">No longer maintained</span>
+        </div>
       </div>
-      <div class="port-card-footer">
-        <span class="pill"><span class="dot"></span>Archived</span>
-        <span class="status planned">PHP / Symfony</span>
+      <div class="forex-chart-panel">
+        <div id="forex-chart"></div>
       </div>
     </div>
-
   </section>
 
+  <!--<section class="port-grid" aria-label="Portfolio items">-->
+
+  <!--  <div class="port-card">-->
+  <!--    <div class="port-card-body">-->
+  <!--      <span class="idn">Platform</span>-->
+  <!--      <div class="title">Guidepoint Agentic Platform</div>-->
+  <!--      <p class="blurb">-->
+  <!--        MCP-based tooling layer abstracting Guidepoint's core CRM for agent-driven workflows.-->
+  <!--        Architecture, tool contracts, and auth model for production AI at scale.-->
+  <!--      </p>-->
+  <!--    </div>-->
+  <!--    <div class="port-card-footer">-->
+  <!--      <span class="pill active"><span class="dot"></span>Active</span>-->
+  <!--      <span class="status wip">In progress</span>-->
+  <!--    </div>-->
+  <!--  </div>-->
+
+  <!--  <div class="port-card">-->
+  <!--    <div class="port-card-body">-->
+  <!--      <span class="idn">Infrastructure</span>-->
+  <!--      <div class="title">Cloud-Native Migration · Switch</div>-->
+  <!--      <p class="blurb">-->
+  <!--        Spearheaded containerized deployment standards enabling 10+ teams and 20+ services-->
+  <!--        to ship on Azure Kubernetes Service with unified CI/CD pipelines.-->
+  <!--      </p>-->
+  <!--    </div>-->
+  <!--    <div class="port-card-footer">-->
+  <!--      <span class="pill"><span class="dot"></span>Complete</span>-->
+  <!--      <span class="status planned">Documenting</span>-->
+  <!--    </div>-->
+  <!--  </div>-->
+
+  <!--  &lt;!&ndash;<div class="port-card">&ndash;&gt;-->
+  <!--  &lt;!&ndash;  <div class="port-card-body">&ndash;&gt;-->
+  <!--  &lt;!&ndash;    <span class="idn">Open source</span>&ndash;&gt;-->
+  <!--  &lt;!&ndash;    <div class="title">michael-bos.com</div>&ndash;&gt;-->
+  <!--  &lt;!&ndash;    <p class="blurb">&ndash;&gt;-->
+  <!--  &lt;!&ndash;      This site. Static Astro build with a custom design system —&ndash;&gt;-->
+  <!--  &lt;!&ndash;      Moss, Clay, Ink — and a full-screen interactive biography.&ndash;&gt;-->
+  <!--  &lt;!&ndash;    </p>&ndash;&gt;-->
+  <!--  &lt;!&ndash;  </div>&ndash;&gt;-->
+  <!--  &lt;!&ndash;  <div class="port-card-footer">&ndash;&gt;-->
+  <!--  &lt;!&ndash;    <span class="pill active"><span class="dot"></span>Active</span>&ndash;&gt;-->
+  <!--  &lt;!&ndash;    <a href="https://github.com/mab05k" target="_blank" rel="noopener" style="font-family: var(&#45;&#45;font-mono); font-size: var(&#45;&#45;fs-11); letter-spacing: var(&#45;&#45;tr-caps); text-transform: uppercase; color: var(&#45;&#45;rust); text-decoration: none;">GitHub →</a>&ndash;&gt;-->
+  <!--  &lt;!&ndash;  </div>&ndash;&gt;-->
+  <!--  &lt;!&ndash;</div>&ndash;&gt;-->
+
+  <!--  &lt;!&ndash;<div class="port-card">&ndash;&gt;-->
+  <!--  &lt;!&ndash;  <div class="port-card-body">&ndash;&gt;-->
+  <!--  &lt;!&ndash;    <span class="idn">SaaS · Side project</span>&ndash;&gt;-->
+  <!--  &lt;!&ndash;    <div class="title">Field Service Manager</div>&ndash;&gt;-->
+  <!--  &lt;!&ndash;    <p class="blurb">&ndash;&gt;-->
+  <!--  &lt;!&ndash;      Full-stack field-service management platform — Symfony API, Go CLI, React web, and React Native mobile&ndash;&gt;-->
+  <!--  &lt;!&ndash;      in a Turborepo monorepo. Keycloak SSO, Mercure + RabbitMQ event bus, PHPStan level 8.&ndash;&gt;-->
+  <!--  &lt;!&ndash;      Product covers job scheduling, team dispatch, recurring schedules (RFC 5545), and service catalogs&ndash;&gt;-->
+  <!--  &lt;!&ndash;      across HVAC, pool, and landscaping verticals.&ndash;&gt;-->
+  <!--  &lt;!&ndash;    </p>&ndash;&gt;-->
+  <!--  &lt;!&ndash;  </div>&ndash;&gt;-->
+  <!--  &lt;!&ndash;  <div class="port-card-footer">&ndash;&gt;-->
+  <!--  &lt;!&ndash;    <span class="pill active"><span class="dot"></span>Active</span>&ndash;&gt;-->
+  <!--  &lt;!&ndash;    <span class="status wip">In progress</span>&ndash;&gt;-->
+  <!--  &lt;!&ndash;  </div>&ndash;&gt;-->
+  <!--  &lt;!&ndash;</div>&ndash;&gt;-->
+
+
+  <!--</section>-->
+
+  <script is:inline>
+  (function () {
+    function boot() {
+      var el = document.getElementById('forex-chart');
+      if (!el) return;
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js';
+      s.onload = function () { init(el); };
+      document.head.appendChild(s);
+    }
+
+    function lcg(seed) {
+      var s = seed >>> 0;
+      return function () {
+        s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+        return s / 4294967296;
+      };
+    }
+
+    function init(el) {
+      var chart = LightweightCharts.createChart(el, {
+        width: el.clientWidth || 500,
+        height: el.clientHeight || 440,
+        layout: { background: { type: 'solid', color: '#0B1426' }, textColor: '#475569' },
+        grid: {
+          vertLines: { color: 'rgba(255,255,255,0.04)' },
+          horzLines: { color: 'rgba(255,255,255,0.04)' },
+        },
+        crosshair: {
+          vertLine: { color: 'rgba(20,184,166,0.6)', labelBackgroundColor: '#0D9488' },
+          horzLine: { color: 'rgba(20,184,166,0.6)', labelBackgroundColor: '#0D9488' },
+        },
+        rightPriceScale: { borderColor: 'rgba(255,255,255,0.06)' },
+        timeScale: { borderColor: 'rgba(255,255,255,0.06)', timeVisible: true, secondsVisible: false },
+        watermark: {
+          visible: true,
+          fontSize: 11,
+          horzAlign: 'left',
+          vertAlign: 'top',
+          color: 'rgba(255,255,255,0.10)',
+          text: 'USD/EUR · Daily · 20-MA',
+          fontFamily: 'monospace',
+        },
+        handleScroll: false,
+        handleScale: false,
+      });
+
+      var series = chart.addCandlestickSeries({
+        upColor: '#2DD4BF',
+        downColor: '#F87171',
+        borderVisible: false,
+        wickUpColor: '#2DD4BF',
+        wickDownColor: '#F87171',
+      });
+      var maLine = chart.addLineSeries({
+        color: '#FBBF24',
+        lineWidth: 1,
+        priceLineVisible: false,
+        lastValueVisible: false,
+        crosshairMarkerVisible: false,
+      });
+
+      var rand = lcg(2741);
+      var PERIOD = 20;
+      var ohlc = [], closes = [], maData = [], markers = [];
+      var close = 0.9215;
+      var DAY = 86400;
+      var calStart = Math.floor(Date.now() / 1000) - 128 * DAY;
+      var count = 0;
+
+      for (var d = 0; count < 90; d++) {
+        var ts = calStart + d * DAY;
+        var dow = new Date(ts * 1000).getUTCDay();
+        if (dow === 0 || dow === 6) continue;
+        count++;
+
+        var t = count / 90;
+        var drift = 0.00020 * Math.sin(t * Math.PI * 2.8 + 0.5) - 0.00008;
+        var noise = (rand() - 0.5) * 0.0042;
+        var open = close;
+        close = Math.max(0.888, Math.min(0.958, open + drift + noise));
+        var body = Math.abs(close - open);
+        var hi = Math.max(open, close) + rand() * (body * 0.6 + 0.0009);
+        var lo = Math.min(open, close) - rand() * (body * 0.6 + 0.0009);
+        var snap = ts - (ts % DAY);
+
+        ohlc.push({
+          time: snap,
+          open: +open.toFixed(4),
+          high: +hi.toFixed(4),
+          low: +lo.toFixed(4),
+          close: +close.toFixed(4),
+        });
+        closes.push(close);
+
+        var n = closes.length;
+        if (n >= PERIOD) {
+          var sum = 0;
+          for (var i = n - PERIOD; i < n; i++) sum += closes[i];
+          var ma = sum / PERIOD;
+          maData.push({ time: snap, value: +ma.toFixed(4) });
+
+          if (n > PERIOD) {
+            var prevSum = 0;
+            for (var j = n - PERIOD - 1; j < n - 1; j++) prevSum += closes[j];
+            var prevMa = prevSum / PERIOD;
+            var prevClose = closes[n - 2];
+            if (prevClose < prevMa && close > ma) {
+              markers.push({ time: snap, position: 'belowBar', color: '#2DD4BF', shape: 'arrowUp', size: 1 });
+            } else if (prevClose > prevMa && close < ma) {
+              markers.push({ time: snap, position: 'aboveBar', color: '#F87171', shape: 'arrowDown', size: 1 });
+            }
+          }
+        }
+      }
+
+      series.setData(ohlc);
+      maLine.setData(maData);
+      series.setMarkers(markers);
+      chart.timeScale().fitContent();
+
+      new ResizeObserver(function () {
+        chart.applyOptions({ width: el.clientWidth, height: el.clientHeight });
+      }).observe(el);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot);
+    } else {
+      boot();
+    }
+  })();
+  </script>
 </InnerLayout>
