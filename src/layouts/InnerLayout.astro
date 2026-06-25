@@ -1,15 +1,30 @@
 ---
 import '../styles/shared.css';
 import SiteHeader from '../components/SiteHeader.astro';
-const { title, activePage } = Astro.props;
+import { ClientRouter } from 'astro:transitions';
+const { title, description, activePage } = Astro.props;
+
+const pageTitle = title ? `${title} — Michael Bos` : 'Michael Bos';
+const pageDescription = description ?? 'Senior Engineering Manager with twelve years building software and leading teams. Based in Las Vegas, NV.';
+const canonicalURL = new URL(Astro.url.pathname, 'https://michael-bos.com');
 ---
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{title ? `${title} — Michael Bos` : 'Michael Bos'}</title>
+  <title>{pageTitle}</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content={pageDescription}>
+  <meta name="author" content="Michael A. Bos">
+  <link rel="canonical" href={canonicalURL}>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" href="/favicon.ico">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content={canonicalURL}>
+  <meta property="og:title" content={pageTitle}>
+  <meta property="og:description" content={pageDescription}>
+  <meta property="og:image" content="https://michael-bos.com/og-image.png">
+  <ClientRouter />
 </head>
 <body>
 
