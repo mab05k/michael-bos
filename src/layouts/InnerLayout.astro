@@ -1,7 +1,7 @@
 ---
 import '../styles/shared.css';
 import SiteHeader from '../components/SiteHeader.astro';
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 const { title, description, activePage } = Astro.props;
 
 const pageTitle = title ? `${title} — Michael Bos` : 'Michael Bos';
@@ -24,7 +24,7 @@ const canonicalURL = new URL(Astro.url.pathname, 'https://michael-bos.com');
   <meta property="og:title" content={pageTitle}>
   <meta property="og:description" content={pageDescription}>
   <meta property="og:image" content="https://michael-bos.com/og-image.png">
-  <ViewTransitions />
+  <ClientRouter />
 </head>
 <body>
 
