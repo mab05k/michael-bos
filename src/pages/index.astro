@@ -2,7 +2,10 @@
 import InnerLayout from '../layouts/InnerLayout.astro';
 import { User, FileText, Briefcase } from '@lucide/astro';
 ---
-<InnerLayout activePage="home">
+<InnerLayout
+  activePage="home"
+  description="Senior Engineering Manager with twelve years building software and leading teams. Navy veteran, Executive MBA, based in Las Vegas, NV."
+>
   <style is:global>
 
     /* ── Hero ─────────────────────────────────────────────── */
@@ -191,7 +194,6 @@ import { User, FileText, Briefcase } from '@lucide/astro';
     <section class="hero">
       <div class="hero-left">
         <div class="hero-kicker">
-          <span class="dot"></span>
           Senior Engineering Manager · Las Vegas, NV
         </div>
         <h1 class="hero-h1">Engineering leader. Always learning.</h1>
