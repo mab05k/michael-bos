@@ -3,6 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  schedule:
+    # Daily rebuild so build-time data (Mountain Project ticks) stays fresh
+    - cron: '0 14 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: read
