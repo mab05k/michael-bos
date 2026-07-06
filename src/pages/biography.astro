@@ -1,6 +1,36 @@
 ---
 import '../styles/shared.css';
 import SiteHeader from '../components/SiteHeader.astro';
+import PhotoCarousel from '../components/PhotoCarousel.astro';
+import FloridaChip from '../components/FloridaChip.astro';
+
+const keysSlides = [
+  {
+    src: '/keys-lighthouse.jpg',
+    alt: 'Alligator Reef Lighthouse, Islamorada, Florida Keys',
+    tag: '24.85° N · 80.62° W · Alligator Reef',
+  },
+  {
+    src: '/keys-islamorada.jpg',
+    alt: 'Aerial view of Overseas Highway, Florida Keys',
+    tag: 'MM 81 · Islamorada, FL · Overseas Hwy',
+  },
+];
+
+const climbSlides = [
+  {
+    src: '/climb-redrock-1.jpg',
+    alt: 'Looking down a crack system in Red Rock Canyon, Nevada',
+    tag: 'Whiskey Peak > Frogland · 5.8',
+    objectPosition: 'center 60%',
+  },
+  {
+    src: '/climb-redrock-2.jpg',
+    alt: 'Climber ascending dark sandstone face, Red Rock Canyon, Nevada',
+    tag: 'Brownstone Wall > Armatron · 5.9-',
+    objectPosition: 'center 75%',
+  },
+];
 
 interface Tick {
   name: string;
@@ -13,7 +43,10 @@ interface Tick {
 let ticks: Tick[] = [];
 
 try {
-  const res = await fetch('https://www.mountainproject.com/rss/user-ticks/200700760');
+  // Timeout so a hung Mountain Project response can't stall the build
+  const res = await fetch('https://www.mountainproject.com/rss/user-ticks/200700760', {
+    signal: AbortSignal.timeout(10_000),
+  });
   if (res.ok) {
     const xml = await res.text();
     const itemRe = /<item>([\s\S]*?)<\/item>/g;
@@ -96,8 +129,8 @@ const tickJSON = JSON.stringify(ticks).replace(/<\/script>/gi, '<\\/script>');
   <!-- Chapter stage -->
   <main class="stage-body" id="stage-body">
 
-    <!-- 01 · Florida Keys -->
-    <div class="chapter" id="ch-0" style="display:none">
+    <!-- 01 · Florida Keys — visible by default so the page renders without JS -->
+    <div class="chapter" id="ch-0">
       <div class="ch-left">
         <div class="ch-kicker">
           <span class="ch-num">01</span>
@@ -118,15 +151,7 @@ const tickJSON = JSON.stringify(ticks).replace(/<\/script>/gi, '<\\/script>');
           </p>
         </div>
         <div class="ch-chips">
-          <span class="ch-chip">
-            <svg width="13" height="13" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
-              <path d="M76.9,92c0.1,0.3,0,0.6,0.2,0.8c0.5,0.4,1.3-0.1,1.9-0.3c0.4-0.1,0.8-0.1,1-0.4c0.2-0.3,0.3-1.3,0-1.5C79.2,89.9,78,91.6,76.9,92z"/>
-              <path d="M82.4,89.9c-0.4,0.1-0.9,0-1.2,0.3c-0.2,0.3-0.3,1.2,0,1.4c0.5,0.4,1.2-0.5,1.8-0.8c0.4-0.2,0.8-0.3,1.3-0.5c0,0,0.2-0.7,0-0.9C83.8,89.1,83,89.8,82.4,89.9z"/>
-              <path d="M89.2,86.5c-0.7,0-2.2,1-2.8,2.1c-0.1,0.2-0.2,0.8,0,0.9c1,0.6,3.5-1.4,3.2-1.5"/>
-              <path d="M91.7,86.4c1.3-0.1,2.2-3.5,2.2-5.9c-0.5-0.1-0.9-0.2-1.3-0.3c1.6-6.3,2.2-12.6,1.9-19c-0.1-1.3-0.1-2.8-0.6-4c-2.4-5.7-5-11.3-8.7-16.2c-1.1-1.5-1.7-3.6-2.3-5.5c-0.6-1.8-0.7-3.8-1.5-5.4c-3.2-7-7.2-13.5-9-21.1c-0.4-1.9-1.9-3-3.7-3.1c-2.5-0.2-3.6,1.4-2.9,3.9c0.1,0.3,0.2,0.6,0.3,1.3c-0.7-0.6-1.1-1-1.6-1.2C63.8,9.5,63,9,62.3,9C56,8.8,49.7,8.8,43.5,8.7c-2.6,0-5.2,0.1-7.7,0c-0.6,0-1.5-0.5-1.7-1.1c-0.5-1.2-1.2-1.3-2.3-1.3c-7.1,0.1-14.2,0.2-21.3,0.4C8.3,6.7,6.2,6.9,3.8,7C4.1,8.2,4,9.6,4.6,10.1c1.4,1.3,1.5,2.8,1.3,4.4c-0.1,1.3,0.6,2.3,1.6,2.5c0.4,0.1,1.2-1.2,1.5-2c0.3-1,0.7-1.6,1.7-1.4c0.7,2.3,2.2,3,4,1.6c2.3-1.7,4.5-1.4,6.6,0.6c0.7,0.6,1.6,1.3,2.5,1.3c2,0.1,3.1,1.5,4.4,2.6c0.8,0.6,1.4,1.5,0.7,2.8c-0.3,0.6-0.3,1.3-0.5,2c0.7,0.1,1.4,0.4,2,0.4c0.6,0,1.2-0.4,1.8-0.7c1.1-0.7,2.2-1.9,3.4-2.1c2.4-0.5,4.2-2,6-3.6c1-0.9,2-0.8,3.1-0.1c1.5,1,3,2,4.3,3.2c0.8,0.7,1.2,1.8,1.7,2.7c0.4,0.7,0.7,1.5,1.3,2c1.3,1.2,2.7,2.3,4,3.4c0.2,0.1,0.4,0.3,0.5,0.3c1.7,0,2.1,0.5,3,2.5c0,0.1,0.4,0.5,0.4,0.5c1.9,2.1,1.2,4.3,0.8,6.7c-0.3,1.8-0.7,3.7-0.8,5.5c-0.1,1.4,0,2.8,1.6,3.6c0.1-0.6,0.1-1.2,0.3-1.4c0.4-0.3,1.2-0.7,1.5-0.4c0.6,0.4,1.3,1.6,1.2,1.7c-0.8,1-1.7,1.9-2.6,2.8c-0.3,0.3-0.7,0.6-1,1c0.4,0.4,0.7,0.8,1.1,1c1.9,1.1,3.6,2.3,4,4.9c0.1,0.6,0.5,1.3,0.9,1.7c0.3,0.3,0.9,0.5,1.4,0.5c0.1,0,0.2-0.8,0.4-1.1c0.2-0.4,0.6-0.7,0.9-1c0.2,0.1,0.3,0.2,0.5,0.3c-1.2,2.7-0.6,5.4,1.5,6.7c1.8,1.2,1.7,2.6,2,4.3c0.4,1.8,1.4,3,3.2,3.6c1.9,0.6,3.6,1.6,5.4,2.5c0.2,0.1,0.4,0.4,0.4,0.6c-0.2,2,0.4,3.6,2.6,4.6c-0.8,0-1.1,0-1.3,0.1c-0.5,0.4-0.9,1-1.4,1.5c0.5,0.3,1.1,0.9,1.6,0.8c2.2-0.3,4.4-0.9,6.6-1.3c0.3-0.1-0.8,3.8,0.3,4M90.3,60.9c-0.2,0.9-1.1,2.6-1.9,2.8c-0.8,0.3-3.1-1.1-3.1-1.1l-1-0.3c0,0-1.7-0.7-1.8-1.2c-0.1-0.7,1.3-2.3,1.3-2.3l1-1.8l1.9-1l1.9,0.1c0,0,1.5,0.9,1.8,1.4C90.7,58.2,90.5,60.1,90.3,60.9z"/>
-            </svg>
-            Islamorada, FL
-          </span>
+          <FloridaChip label="Islamorada, FL" />
           <span class="ch-chip">
             <svg width="13" height="13" viewBox="-5 -10 110 112" fill="currentColor" aria-hidden="true">
               <path d="m62.82 27.531-0.87891-2.1016c-0.69141-1.6289-2.2812-2.6797-4.0586-2.6797h-27.414c-1.7812 0-3.3789 1.0508-4.0586 2.6797l-0.87891 2.1016c5.7812-0.92188 12.129-1.4102 18.648-1.4102 6.5195 0 12.859 0.48828 18.641 1.4102z"/>
@@ -167,28 +192,7 @@ const tickJSON = JSON.stringify(ticks).replace(/<\/script>/gi, '<\\/script>');
         </div>
       </div>
       <div class="ch-right">
-        <div class="keys-carousel" id="keys-carousel">
-          <div class="kc-slides">
-            <div class="kc-slide" data-kc="0">
-              <img src="/keys-lighthouse.jpg" alt="Alligator Reef Lighthouse, Islamorada, Florida Keys" loading="lazy">
-              <span class="kc-tag">24.85&deg; N &middot; 80.62&deg; W &middot; Alligator Reef</span>
-            </div>
-            <div class="kc-slide" data-kc="1">
-              <img src="/keys-islamorada.jpg" alt="Aerial view of Overseas Highway, Florida Keys" loading="lazy">
-              <span class="kc-tag">MM 81 &middot; Islamorada, FL &middot; Overseas Hwy</span>
-            </div>
-          </div>
-          <button class="kc-arrow kc-prev" id="kc-prev" aria-label="Previous photo" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-          <button class="kc-arrow kc-next" id="kc-next" aria-label="Next photo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-          </button>
-          <div class="kc-dots">
-            <span class="kc-dot is-active" data-kc-dot="0"></span>
-            <span class="kc-dot" data-kc-dot="1"></span>
-          </div>
-        </div>
+        <PhotoCarousel slides={keysSlides} />
       </div>
     </div>
 
@@ -216,15 +220,7 @@ const tickJSON = JSON.stringify(ticks).replace(/<\/script>/gi, '<\\/script>');
           </p>
         </div>
         <div class="ch-chips">
-          <span class="ch-chip">
-            <svg width="13" height="13" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
-              <path d="M76.9,92c0.1,0.3,0,0.6,0.2,0.8c0.5,0.4,1.3-0.1,1.9-0.3c0.4-0.1,0.8-0.1,1-0.4c0.2-0.3,0.3-1.3,0-1.5C79.2,89.9,78,91.6,76.9,92z"/>
-              <path d="M82.4,89.9c-0.4,0.1-0.9,0-1.2,0.3c-0.2,0.3-0.3,1.2,0,1.4c0.5,0.4,1.2-0.5,1.8-0.8c0.4-0.2,0.8-0.3,1.3-0.5c0,0,0.2-0.7,0-0.9C83.8,89.1,83,89.8,82.4,89.9z"/>
-              <path d="M89.2,86.5c-0.7,0-2.2,1-2.8,2.1c-0.1,0.2-0.2,0.8,0,0.9c1,0.6,3.5-1.4,3.2-1.5"/>
-              <path d="M91.7,86.4c1.3-0.1,2.2-3.5,2.2-5.9c-0.5-0.1-0.9-0.2-1.3-0.3c1.6-6.3,2.2-12.6,1.9-19c-0.1-1.3-0.1-2.8-0.6-4c-2.4-5.7-5-11.3-8.7-16.2c-1.1-1.5-1.7-3.6-2.3-5.5c-0.6-1.8-0.7-3.8-1.5-5.4c-3.2-7-7.2-13.5-9-21.1c-0.4-1.9-1.9-3-3.7-3.1c-2.5-0.2-3.6,1.4-2.9,3.9c0.1,0.3,0.2,0.6,0.3,1.3c-0.7-0.6-1.1-1-1.6-1.2C63.8,9.5,63,9,62.3,9C56,8.8,49.7,8.8,43.5,8.7c-2.6,0-5.2,0.1-7.7,0c-0.6,0-1.5-0.5-1.7-1.1c-0.5-1.2-1.2-1.3-2.3-1.3c-7.1,0.1-14.2,0.2-21.3,0.4C8.3,6.7,6.2,6.9,3.8,7C4.1,8.2,4,9.6,4.6,10.1c1.4,1.3,1.5,2.8,1.3,4.4c-0.1,1.3,0.6,2.3,1.6,2.5c0.4,0.1,1.2-1.2,1.5-2c0.3-1,0.7-1.6,1.7-1.4c0.7,2.3,2.2,3,4,1.6c2.3-1.7,4.5-1.4,6.6,0.6c0.7,0.6,1.6,1.3,2.5,1.3c2,0.1,3.1,1.5,4.4,2.6c0.8,0.6,1.4,1.5,0.7,2.8c-0.3,0.6-0.3,1.3-0.5,2c0.7,0.1,1.4,0.4,2,0.4c0.6,0,1.2-0.4,1.8-0.7c1.1-0.7,2.2-1.9,3.4-2.1c2.4-0.5,4.2-2,6-3.6c1-0.9,2-0.8,3.1-0.1c1.5,1,3,2,4.3,3.2c0.8,0.7,1.2,1.8,1.7,2.7c0.4,0.7,0.7,1.5,1.3,2c1.3,1.2,2.7,2.3,4,3.4c0.2,0.1,0.4,0.3,0.5,0.3c1.7,0,2.1,0.5,3,2.5c0,0.1,0.4,0.5,0.4,0.5c1.9,2.1,1.2,4.3,0.8,6.7c-0.3,1.8-0.7,3.7-0.8,5.5c-0.1,1.4,0,2.8,1.6,3.6c0.1-0.6,0.1-1.2,0.3-1.4c0.4-0.3,1.2-0.7,1.5-0.4c0.6,0.4,1.3,1.6,1.2,1.7c-0.8,1-1.7,1.9-2.6,2.8c-0.3,0.3-0.7,0.6-1,1c0.4,0.4,0.7,0.8,1.1,1c1.9,1.1,3.6,2.3,4,4.9c0.1,0.6,0.5,1.3,0.9,1.7c0.3,0.3,0.9,0.5,1.4,0.5c0.1,0,0.2-0.8,0.4-1.1c0.2-0.4,0.6-0.7,0.9-1c0.2,0.1,0.3,0.2,0.5,0.3c-1.2,2.7-0.6,5.4,1.5,6.7c1.8,1.2,1.7,2.6,2,4.3c0.4,1.8,1.4,3,3.2,3.6c1.9,0.6,3.6,1.6,5.4,2.5c0.2,0.1,0.4,0.4,0.4,0.6c-0.2,2,0.4,3.6,2.6,4.6c-0.8,0-1.1,0-1.3,0.1c-0.5,0.4-0.9,1-1.4,1.5c0.5,0.3,1.1,0.9,1.6,0.8c2.2-0.3,4.4-0.9,6.6-1.3c0.3-0.1-0.8,3.8,0.3,4M90.3,60.9c-0.2,0.9-1.1,2.6-1.9,2.8c-0.8,0.3-3.1-1.1-3.1-1.1l-1-0.3c0,0-1.7-0.7-1.8-1.2c-0.1-0.7,1.3-2.3,1.3-2.3l1-1.8l1.9-1l1.9,0.1c0,0,1.5,0.9,1.8,1.4C90.7,58.2,90.5,60.1,90.3,60.9z"/>
-            </svg>
-            Tallahassee, FL
-          </span>
+          <FloridaChip label="Tallahassee, FL" />
           <span class="ch-chip">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
@@ -534,28 +530,7 @@ const tickJSON = JSON.stringify(ticks).replace(/<\/script>/gi, '<\\/script>');
         </div>
       </div>
       <div class="ch-right">
-        <div class="climb-carousel" id="climb-carousel">
-          <div class="cc-slides">
-            <div class="cc-slide" data-cc="0">
-              <img src="/climb-redrock-1.jpg" alt="Looking down a crack system in Red Rock Canyon, Nevada" loading="lazy" style="object-position:center 60%">
-              <span class="cc-tag">Whiskey Peak > Frogland &middot; 5.8</span>
-            </div>
-            <div class="cc-slide" data-cc="1">
-              <img src="/climb-redrock-2.jpg" alt="Climber ascending dark sandstone face, Red Rock Canyon, Nevada" loading="lazy" style="object-position:center 75%">
-              <span class="cc-tag">Brownstone Wall > Armatron &middot; 5.9-</span>
-            </div>
-          </div>
-          <button class="kc-arrow kc-prev" id="cc-prev" aria-label="Previous photo" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-          <button class="kc-arrow kc-next" id="cc-next" aria-label="Next photo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-          </button>
-          <div class="kc-dots">
-            <span class="kc-dot is-active" data-cc-dot="0"></span>
-            <span class="kc-dot" data-cc-dot="1"></span>
-          </div>
-        </div>
+        <PhotoCarousel slides={climbSlides} />
         <div class="tick-list">
           <div class="tick-list-head">
             Recent sends
@@ -1032,51 +1007,6 @@ html, body { height: 100%; overflow: hidden; }
    SIGNATURE DEVICES
    ========================================================= */
 
-/* Keys — photo carousel */
-.keys-carousel {
-  position: relative; height: 300px; border-radius: 14px;
-  overflow: hidden; border: 1px solid var(--line);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.22);
-}
-.kc-slides { position: absolute; inset: 0; }
-.kc-slide {
-  position: absolute; inset: 0;
-  opacity: 0; transition: opacity 480ms cubic-bezier(0.2,0.7,0.1,1);
-}
-.kc-slide.is-active { opacity: 1; }
-.kc-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.kc-tag {
-  position: absolute; left: 14px; bottom: 14px;
-  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
-  color: #EAF6F7; padding: 5px 10px; border-radius: 4px;
-  background: rgba(10,30,34,0.62); backdrop-filter: blur(4px);
-}
-.kc-arrow {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  width: 34px; height: 34px; border-radius: 999px;
-  border: 1.5px solid rgba(255,255,255,0.35);
-  background: rgba(10,30,34,0.48); backdrop-filter: blur(4px);
-  color: #EAF6F7; cursor: pointer;
-  display: grid; place-items: center;
-  transition: background 200ms, border-color 200ms, opacity 200ms;
-  z-index: 4;
-}
-.kc-arrow:hover { background: rgba(10,30,34,0.72); border-color: rgba(255,255,255,0.62); }
-.kc-arrow:disabled { opacity: 0.28; cursor: default; }
-.kc-arrow svg { width: 16px; height: 16px; }
-.kc-prev { left: 10px; }
-.kc-next { right: 10px; }
-.kc-dots {
-  position: absolute; bottom: 14px; right: 14px;
-  display: flex; gap: 6px; z-index: 4;
-}
-.kc-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: rgba(255,255,255,0.38);
-  transition: background 300ms, transform 300ms;
-}
-.kc-dot.is-active { background: #fff; transform: scale(1.3); }
-
 /* FSU — degree card */
 .degree-card {
   display: flex; align-items: center; gap: 18px;
@@ -1155,26 +1085,6 @@ html, body { height: 100%; overflow: hidden; }
 .term-body .dim { color:rgba(234,217,190,0.5); }
 .term-body .acc { color: var(--accent2); }
 .term-body .ok { color:#6FCB7F; }
-
-/* Climb — carousel */
-.climb-carousel {
-  position:relative; height:300px; border-radius:14px;
-  overflow:hidden; border:1px solid var(--line);
-  box-shadow:0 16px 40px rgba(34,20,9,0.32);
-}
-.cc-slides { position:absolute; inset:0; }
-.cc-slide {
-  position:absolute; inset:0;
-  opacity:0; transition:opacity 480ms cubic-bezier(0.2,0.7,0.1,1);
-}
-.cc-slide.is-active { opacity:1; }
-.cc-slide img { width:100%; height:100%; object-fit:cover; object-position:center 30%; display:block; }
-.cc-tag {
-  position:absolute; left:14px; bottom:14px;
-  font-family: var(--font-mono); font-size:11px; letter-spacing:0.04em;
-  color:#F0E4D1; padding:5px 10px; border-radius:4px;
-  background:rgba(20,14,9,0.55); backdrop-filter:blur(3px);
-}
 
 /* Climb — tick list */
 .tick-list {
@@ -1457,62 +1367,6 @@ html, body { height: 100%; overflow: hidden; }
   window.addEventListener('keydown', function(e) {
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); go(i + 1); }
     if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); go(i - 1); }
-  });
-})();
-
-// Keys photo carousel
-(function() {
-  var slides = document.querySelectorAll('.kc-slide');
-  var dots   = document.querySelectorAll('.kc-dot[data-kc-dot]');
-  var prev   = document.getElementById('kc-prev');
-  var next   = document.getElementById('kc-next');
-  if (!prev || !next || slides.length === 0) return;
-
-  var current = 0;
-
-  function show(n) {
-    slides[current].classList.remove('is-active');
-    dots[current].classList.remove('is-active');
-    current = n;
-    slides[current].classList.add('is-active');
-    dots[current].classList.add('is-active');
-    prev.disabled = current === 0;
-    next.disabled = current === slides.length - 1;
-  }
-
-  show(0);
-  prev.addEventListener('click', function() { if (current > 0) show(current - 1); });
-  next.addEventListener('click', function() { if (current < slides.length - 1) show(current + 1); });
-  dots.forEach(function(dot) {
-    dot.addEventListener('click', function() { show(Number(dot.dataset.kcDot)); });
-  });
-})();
-
-// Climb photo carousel
-(function() {
-  var slides = document.querySelectorAll('.cc-slide');
-  var dots   = document.querySelectorAll('.kc-dot[data-cc-dot]');
-  var prev   = document.getElementById('cc-prev');
-  var next   = document.getElementById('cc-next');
-  if (!prev || !next || slides.length === 0) return;
-
-  var current = 0;
-
-  function show(n) {
-    slides[current].classList.remove('is-active');
-    dots[current].classList.remove('is-active');
-    current = n;
-    slides[current].classList.add('is-active');
-    dots[current].classList.add('is-active');
-    prev.disabled = current === 0;
-    next.disabled = current === slides.length - 1;
-  }
-
-  show(0);
-  prev.addEventListener('click', function() { if (current > 0) show(current - 1); });
-  next.addEventListener('click', function() { if (current < slides.length - 1) show(current + 1); });
-  dots.forEach(function(dot) {
-    dot.addEventListener('click', function() { show(Number(dot.dataset.ccDot)); });
   });
 })();
 

@@ -1,0 +1,116 @@
+---
+interface Slide {
+  src: string;
+  alt: string;
+  tag: string;
+  objectPosition?: string;
+}
+
+interface Props {
+  slides: Slide[];
+}
+
+const { slides } = Astro.props;
+---
+<div class="photo-carousel">
+  <div class="pc-slides">
+    {slides.map((s, i) => (
+      <div class:list={['pc-slide', { 'is-active': i === 0 }]}>
+        <img
+          src={s.src}
+          alt={s.alt}
+          loading="lazy"
+          style={s.objectPosition ? `object-position:${s.objectPosition}` : undefined}
+        >
+        <span class="pc-tag">{s.tag}</span>
+      </div>
+    ))}
+  </div>
+  <button class="pc-arrow pc-prev" aria-label="Previous photo" disabled>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <button class="pc-arrow pc-next" aria-label="Next photo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+  <div class="pc-dots">
+    {slides.map((_, i) => (
+      <span class:list={['pc-dot', { 'is-active': i === 0 }]}></span>
+    ))}
+  </div>
+</div>
+
+<style>
+  .photo-carousel {
+    position: relative; height: 300px; border-radius: 14px;
+    overflow: hidden; border: 1px solid var(--line);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+  }
+  .pc-slides { position: absolute; inset: 0; }
+  .pc-slide {
+    position: absolute; inset: 0;
+    opacity: 0; transition: opacity 480ms cubic-bezier(0.2,0.7,0.1,1);
+  }
+  .pc-slide.is-active { opacity: 1; }
+  .pc-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pc-tag {
+    position: absolute; left: 14px; bottom: 14px;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
+    color: #F0EDE4; padding: 5px 10px; border-radius: 4px;
+    background: rgba(15,15,12,0.58); backdrop-filter: blur(4px);
+  }
+  .pc-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 34px; height: 34px; border-radius: 999px;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    background: rgba(15,15,12,0.48); backdrop-filter: blur(4px);
+    color: #F0EDE4; cursor: pointer;
+    display: grid; place-items: center;
+    transition: background 200ms, border-color 200ms, opacity 200ms;
+    z-index: 4;
+  }
+  .pc-arrow:hover { background: rgba(15,15,12,0.72); border-color: rgba(255,255,255,0.62); }
+  .pc-arrow:disabled { opacity: 0.28; cursor: default; }
+  .pc-arrow svg { width: 16px; height: 16px; }
+  .pc-prev { left: 10px; }
+  .pc-next { right: 10px; }
+  .pc-dots {
+    position: absolute; bottom: 14px; right: 14px;
+    display: flex; gap: 6px; z-index: 4;
+  }
+  .pc-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.38);
+    transition: background 300ms, transform 300ms;
+  }
+  .pc-dot.is-active { background: #fff; transform: scale(1.3); }
+</style>
+
+<script>
+  function initCarousel(root: HTMLElement) {
+    const slides = root.querySelectorAll<HTMLElement>('.pc-slide');
+    const dots = root.querySelectorAll<HTMLElement>('.pc-dot');
+    const prev = root.querySelector<HTMLButtonElement>('.pc-prev');
+    const next = root.querySelector<HTMLButtonElement>('.pc-next');
+    if (!prev || !next || slides.length === 0) return;
+
+    let current = 0;
+
+    function show(n: number) {
+      slides[current].classList.remove('is-active');
+      dots[current].classList.remove('is-active');
+      current = n;
+      slides[current].classList.add('is-active');
+      dots[current].classList.add('is-active');
+      prev!.disabled = current === 0;
+      next!.disabled = current === slides.length - 1;
+    }
+
+    prev.addEventListener('click', () => { if (current > 0) show(current - 1); });
+    next.addEventListener('click', () => { if (current < slides.length - 1) show(current + 1); });
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => show(i));
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('.photo-carousel').forEach(initCarousel);
+</script>
