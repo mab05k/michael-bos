@@ -995,20 +995,28 @@ html, body { height: 100%; overflow: hidden; }
    ========================================================= */
 
 @media (prefers-reduced-motion: no-preference) {
+  /* Hidden start state lives in the keyframes (with `backwards` fill covering
+     the stagger delays), not in the base rule — if the animation ever fails
+     to start, the content stays visible instead of stuck at opacity 0. */
+  .stage[data-anim="out"] .ch-left > *,
+  .stage[data-anim="out"] .ch-right { opacity: 0; }
   .stage[data-anim="in"] .ch-left > * {
-    opacity: 0; transform: translateY(14px);
-    animation: rise 560ms cubic-bezier(0.2,0.7,0.1,1) forwards;
+    --rise-y: 14px;
+    animation: rise 560ms cubic-bezier(0.2,0.7,0.1,1) backwards;
   }
   .stage[data-anim="in"] .ch-right {
-    opacity: 0; transform: translateY(18px);
-    animation: rise 620ms cubic-bezier(0.2,0.7,0.1,1) 80ms forwards;
+    --rise-y: 18px;
+    animation: rise 620ms cubic-bezier(0.2,0.7,0.1,1) 80ms backwards;
   }
   .stage[data-anim="in"] .ch-left > *:nth-child(1) { animation-delay: 40ms; }
   .stage[data-anim="in"] .ch-left > *:nth-child(2) { animation-delay: 110ms; }
   .stage[data-anim="in"] .ch-left > *:nth-child(3) { animation-delay: 180ms; }
   .stage[data-anim="in"] .ch-left > *:nth-child(4) { animation-delay: 250ms; }
 }
-@keyframes rise { to { opacity: 1; transform: none; } }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(var(--rise-y, 16px)); }
+  to { opacity: 1; transform: none; }
+}
 
 /* =========================================================
    SIGNATURE DEVICES
@@ -1319,17 +1327,21 @@ html, body { height: 100%; overflow: hidden; }
     // Theme
     stage.setAttribute('data-theme', CHAPTERS[i].theme);
 
-    // Entrance animation re-trigger
+    // Slides — must be visible before the animation re-triggers below:
+    // WebKit won't reliably restart a same-name animation applied to an
+    // element that is still display:none.
+    slides.forEach(function(slide, idx) {
+      slide.style.display = idx === i ? '' : 'none';
+    });
+
+    // Entrance animation re-trigger. The forced style flush between "out"
+    // and "in" makes the browser drop and re-apply the animation without
+    // ever painting the unanimated "out" frame.
     if (animate) {
       stage.setAttribute('data-anim', 'out');
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          stage.setAttribute('data-anim', 'in');
-        });
-      });
-    } else {
-      stage.setAttribute('data-anim', 'in');
+      void stage.offsetWidth;
     }
+    stage.setAttribute('data-anim', 'in');
 
     // Chapter count
     chapCurrent.textContent = String(i + 1).padStart(2, '0');
@@ -1345,11 +1357,6 @@ html, body { height: 100%; overflow: hidden; }
       node.classList.toggle('is-done', idx < i);
       if (idx === i) { node.setAttribute('aria-current', 'step'); }
       else { node.removeAttribute('aria-current'); }
-    });
-
-    // Slides
-    slides.forEach(function(slide, idx) {
-      slide.style.display = idx === i ? '' : 'none';
     });
 
     // Arrows
