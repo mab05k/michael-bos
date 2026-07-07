@@ -593,20 +593,21 @@ const tickJSON = JSON.stringify(ticks).replace(/<\/script>/gi, '<\\/script>');
         <span class="node-year">&#x221E;</span>
         <span class="node-label">Red Rock</span>
       </button>
-
-      <div class="rail-nav">
-        <button class="arrow" id="prev-btn" disabled aria-label="Previous chapter">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M15 18l-6-6 6-6"/>
-          </svg>
-        </button>
-        <button class="arrow" id="next-btn" aria-label="Next chapter">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M9 18l6-6-6-6"/>
-          </svg>
-        </button>
-      </div>
     </div>
+
+    <div class="rail-nav">
+      <button class="arrow" id="prev-btn" disabled aria-label="Previous chapter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <button class="arrow" id="next-btn" aria-label="Next chapter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </button>
+    </div>
+
     <p class="icon-credits" id="icon-credits"></p>
   </nav>
 
@@ -827,6 +828,10 @@ html, body { height: 100%; overflow: hidden; }
 .rail {
   position: relative; z-index: 5;
   padding: 0 40px 22px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 28px;
+  align-items: start;
 }
 .rail-track {
   position: relative;
@@ -886,8 +891,9 @@ html, body { height: 100%; overflow: hidden; }
 .node.is-active .node-label { color: var(--ink); font-weight: 600; }
 
 .rail-nav {
-  position: absolute; right: 40px; top: -2px;
   display: flex; gap: 8px;
+  /* center the 38px arrows on the rail line (line center = 33px) */
+  margin-top: 14px;
 }
 .arrow {
   width: 38px; height: 38px; border-radius: 999px;
@@ -963,6 +969,7 @@ html, body { height: 100%; overflow: hidden; }
 .ch-chip svg { flex-shrink: 0; }
 
 .icon-credits {
+  grid-column: 1 / -1;
   font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.04em;
   color: var(--fade); opacity: 0.55; margin: 6px 0 0; text-align: center;
   transition: color 460ms cubic-bezier(0.2,0.7,0.1,1);
@@ -1115,18 +1122,27 @@ html, body { height: 100%; overflow: hidden; }
 
 @media (max-width: 860px) {
   .topbar-right { display: none; }
-  .stage-body { padding: 12px 20px; }
-  .rail { padding: 0 20px 12px; }
-  .rail-nav { right: 0; }
-  .chapter { grid-template-columns: 1fr; gap: 28px; }
-  .ch-right { display: none; }
+  .stage-body { padding: 16px 20px 20px; }
+  .rail { padding: 0 20px 12px; column-gap: 16px; }
+  .chapter { grid-template-columns: 1fr; gap: 24px; }
+  /* Visuals lead on mobile — photos/devices render above the chapter text */
+  .ch-right { order: -1; }
   .ch-title { font-size: clamp(32px, 8vw, 48px); }
   .node-label { display: none; }
   .node-dot { margin-bottom: 4px; }
+
+  /* Tick list: no room for route + area side by side — stack the
+     area as sub-text under the route; grade stays pinned right. */
+  .tick-name { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .tick-route, .tick-area { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .tick-area { font-size: 10px; }
 }
 
 @media (max-width: 480px) {
   .rail-track { padding-top: 16px; }
+  /* dot centers sit at 23px on small screens — keep line + arrows on them */
+  .rail-line, .rail-progress { top: 22px; }
+  .rail-nav { margin-top: 7px; }
   .arrow { width: 32px; height: 32px; }
   .arrow svg { width: 15px; height: 15px; }
   .node-year { font-size: 10px; }

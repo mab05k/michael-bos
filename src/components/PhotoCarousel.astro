@@ -45,6 +45,9 @@ const { slides } = Astro.props;
     overflow: hidden; border: 1px solid var(--line);
     box-shadow: 0 12px 32px rgba(0,0,0,0.22);
   }
+  @media (max-width: 860px) {
+    .photo-carousel { height: 220px; }
+  }
   .pc-slides { position: absolute; inset: 0; }
   .pc-slide {
     position: absolute; inset: 0;
