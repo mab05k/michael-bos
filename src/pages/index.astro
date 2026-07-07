@@ -136,34 +136,16 @@ import { User, FileText, Briefcase } from '@lucide/astro';
       position: absolute;
       left: 16px;
       bottom: 20px;
+      max-width: calc(100% - 32px);
       z-index: 2;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
       font-family: var(--font-mono);
       font-size: var(--fs-11);
+      line-height: 1.6;
       letter-spacing: 0.06em;
       color: rgba(240,228,210,0.92);
       padding: 5px 12px;
       background: rgba(14,17,21,0.52);
-      border-radius: var(--r-pill);
-      backdrop-filter: blur(4px);
-    }
-    .hero-img-tag-top-right {
-      position: absolute;
-      right: 16px;
-      top: 40px;
-      z-index: 2;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: 0.06em;
-      color: rgba(240,228,210,0.92);
-      padding: 5px 12px;
-      background: rgba(14,17,21,0.52);
-      border-radius: var(--r-pill);
+      border-radius: 12px;
       backdrop-filter: blur(4px);
     }
 
@@ -216,8 +198,7 @@ import { User, FileText, Briefcase } from '@lucide/astro';
           src="/michael-bos-action.jpg"
           alt="Michael Bos climbing red sandstone in Red Rock Canyon, Nevada"
         >
-        <div class="hero-img-tag">36°08′N · 115°27′W · Red Rock, NV</div>
-        <div class="hero-img-tag-top-right">Black Velvet Canyon > Dream of Wild Turkeys · 5.10a</div>
+        <div class="hero-img-tag">Black Velvet Canyon &gt; Dream of Wild Turkeys · 5.10a</div>
       </div>
     </section>
   </main>

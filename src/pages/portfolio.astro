@@ -1,5 +1,88 @@
 ---
 import InnerLayout from '../layouts/InnerLayout.astro';
+
+// ── Forex chart — rendered to static SVG at build time ─────────
+// The previous version drew this at runtime with lightweight-charts
+// from a CDN, which silently failed under client-side navigation.
+// Same seeded data, now baked into the HTML so it always renders.
+function lcg(seed: number) {
+  let s = seed >>> 0;
+  return () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+const rand = lcg(2741);
+const PERIOD = 20;
+const BARS = 90;
+
+interface Bar { o: number; h: number; l: number; c: number; }
+const bars: Bar[] = [];
+const closes: number[] = [];
+let close = 0.9215;
+
+for (let k = 0; k < BARS; k++) {
+  const t = (k + 1) / BARS;
+  const drift = 0.0002 * Math.sin(t * Math.PI * 2.8 + 0.5) - 0.00008;
+  const noise = (rand() - 0.5) * 0.0042;
+  const o = close;
+  close = Math.max(0.888, Math.min(0.958, o + drift + noise));
+  const body = Math.abs(close - o);
+  const h = Math.max(o, close) + rand() * (body * 0.6 + 0.0009);
+  const l = Math.min(o, close) - rand() * (body * 0.6 + 0.0009);
+  bars.push({ o, h, l, c: close });
+  closes.push(close);
+}
+
+const ma: (number | null)[] = closes.map((_, n) =>
+  n + 1 >= PERIOD
+    ? closes.slice(n + 1 - PERIOD, n + 1).reduce((a, b) => a + b, 0) / PERIOD
+    : null
+);
+
+const CW = 600, CH = 440, PX = 10, PT = 30, PB = 20;
+const hiAll = Math.max(...bars.map(b => b.h));
+const loAll = Math.min(...bars.map(b => b.l));
+const py = (p: number) => +(PT + ((hiAll - p) / (hiAll - loAll)) * (CH - PT - PB)).toFixed(1);
+const step = (CW - 2 * PX) / BARS;
+const bodyW = +(step * 0.62).toFixed(1);
+
+const candles = bars.map((b, k) => {
+  const cx = +(PX + step * (k + 0.5)).toFixed(1);
+  return {
+    cx,
+    x: +(cx - bodyW / 2).toFixed(1),
+    yBody: py(Math.max(b.o, b.c)),
+    hBody: Math.max(1.5, +Math.abs(py(b.o) - py(b.c)).toFixed(1)),
+    yHi: py(b.h),
+    yLo: py(b.l),
+    up: b.c >= b.o,
+  };
+});
+
+const maPoints = ma
+  .map((v, k) => (v == null ? null : `${(PX + step * (k + 0.5)).toFixed(1)},${py(v)}`))
+  .filter(Boolean)
+  .join(' ');
+
+// Trend-crossing markers, same rule the live system used
+const markers: { points: string; color: string }[] = [];
+for (let k = PERIOD; k < BARS; k++) {
+  const prevMa = ma[k - 1], curMa = ma[k];
+  if (prevMa == null || curMa == null) continue;
+  const c = candles[k];
+  if (closes[k - 1] < prevMa && closes[k] > curMa) {
+    const yy = c.yLo + 5;
+    markers.push({ points: `${c.cx},${yy} ${+(c.cx - 4).toFixed(1)},${+(yy + 8).toFixed(1)} ${+(c.cx + 4).toFixed(1)},${+(yy + 8).toFixed(1)}`, color: '#2DD4BF' });
+  } else if (closes[k - 1] > prevMa && closes[k] < curMa) {
+    const yy = c.yHi - 5;
+    markers.push({ points: `${c.cx},${yy} ${+(c.cx - 4).toFixed(1)},${+(yy - 8).toFixed(1)} ${+(c.cx + 4).toFixed(1)},${+(yy - 8).toFixed(1)}`, color: '#F87171' });
+  }
+}
+
+const gridY = [0, 1, 2, 3, 4].map(i => +(PT + (i * (CH - PT - PB)) / 4).toFixed(1));
+const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
 ---
 <InnerLayout
   title="Portfolio"
@@ -329,7 +412,24 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       background: #0B1426;
       border-left: 1px solid rgba(20, 184, 166, 0.18);
     }
-    #forex-chart { position: absolute; inset: 0; }
+    .forex-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .forex-watermark {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.22);
+      pointer-events: none;
+    }
 
     @media (max-width: 900px) {
       .forex-card { grid-template-columns: 1fr; }
@@ -422,7 +522,36 @@ import InnerLayout from '../layouts/InnerLayout.astro';
         </div>
       </div>
       <div class="forex-chart-panel">
-        <div id="forex-chart"></div>
+        <svg
+          class="forex-svg"
+          viewBox={`0 0 ${CW} ${CH}`}
+          preserveAspectRatio="none"
+          role="img"
+          aria-label="Simulated USD/EUR daily candlestick chart with a 20-period moving average and trend-crossing entry markers"
+        >
+          {gridY.map(gy => (
+            <line x1={PX} x2={CW - PX} y1={gy} y2={gy} stroke="rgba(255,255,255,0.05)" vector-effect="non-scaling-stroke" />
+          ))}
+          {gridX.map(gx => (
+            <line x1={gx} x2={gx} y1={PT} y2={CH - PB} stroke="rgba(255,255,255,0.04)" vector-effect="non-scaling-stroke" />
+          ))}
+          {candles.map(c => (
+            <>
+              <line
+                x1={c.cx} x2={c.cx} y1={c.yHi} y2={c.yLo}
+                stroke={c.up ? '#2DD4BF' : '#F87171'}
+                stroke-width="1"
+                vector-effect="non-scaling-stroke"
+              />
+              <rect x={c.x} y={c.yBody} width={bodyW} height={c.hBody} fill={c.up ? '#2DD4BF' : '#F87171'} />
+            </>
+          ))}
+          <polyline points={maPoints} fill="none" stroke="#FBBF24" stroke-width="1.2" vector-effect="non-scaling-stroke" />
+          {markers.map(m => (
+            <polygon points={m.points} fill={m.color} />
+          ))}
+        </svg>
+        <div class="forex-watermark">USD/EUR · Daily · 20-MA</div>
       </div>
     </div>
   </section>
@@ -494,137 +623,4 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
   <!--</section>-->
 
-  <script is:inline>
-  (function () {
-    function boot() {
-      var el = document.getElementById('forex-chart');
-      if (!el) return;
-      var s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js';
-      s.onload = function () { init(el); };
-      document.head.appendChild(s);
-    }
-
-    function lcg(seed) {
-      var s = seed >>> 0;
-      return function () {
-        s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
-        return s / 4294967296;
-      };
-    }
-
-    function init(el) {
-      var chart = LightweightCharts.createChart(el, {
-        width: el.clientWidth || 500,
-        height: el.clientHeight || 440,
-        layout: { background: { type: 'solid', color: '#0B1426' }, textColor: '#475569' },
-        grid: {
-          vertLines: { color: 'rgba(255,255,255,0.04)' },
-          horzLines: { color: 'rgba(255,255,255,0.04)' },
-        },
-        crosshair: {
-          vertLine: { color: 'rgba(20,184,166,0.6)', labelBackgroundColor: '#0D9488' },
-          horzLine: { color: 'rgba(20,184,166,0.6)', labelBackgroundColor: '#0D9488' },
-        },
-        rightPriceScale: { borderColor: 'rgba(255,255,255,0.06)' },
-        timeScale: { borderColor: 'rgba(255,255,255,0.06)', timeVisible: true, secondsVisible: false },
-        watermark: {
-          visible: true,
-          fontSize: 11,
-          horzAlign: 'left',
-          vertAlign: 'top',
-          color: 'rgba(255,255,255,0.10)',
-          text: 'USD/EUR · Daily · 20-MA',
-          fontFamily: 'monospace',
-        },
-        handleScroll: false,
-        handleScale: false,
-      });
-
-      var series = chart.addCandlestickSeries({
-        upColor: '#2DD4BF',
-        downColor: '#F87171',
-        borderVisible: false,
-        wickUpColor: '#2DD4BF',
-        wickDownColor: '#F87171',
-      });
-      var maLine = chart.addLineSeries({
-        color: '#FBBF24',
-        lineWidth: 1,
-        priceLineVisible: false,
-        lastValueVisible: false,
-        crosshairMarkerVisible: false,
-      });
-
-      var rand = lcg(2741);
-      var PERIOD = 20;
-      var ohlc = [], closes = [], maData = [], markers = [];
-      var close = 0.9215;
-      var DAY = 86400;
-      var calStart = Math.floor(Date.now() / 1000) - 128 * DAY;
-      var count = 0;
-
-      for (var d = 0; count < 90; d++) {
-        var ts = calStart + d * DAY;
-        var dow = new Date(ts * 1000).getUTCDay();
-        if (dow === 0 || dow === 6) continue;
-        count++;
-
-        var t = count / 90;
-        var drift = 0.00020 * Math.sin(t * Math.PI * 2.8 + 0.5) - 0.00008;
-        var noise = (rand() - 0.5) * 0.0042;
-        var open = close;
-        close = Math.max(0.888, Math.min(0.958, open + drift + noise));
-        var body = Math.abs(close - open);
-        var hi = Math.max(open, close) + rand() * (body * 0.6 + 0.0009);
-        var lo = Math.min(open, close) - rand() * (body * 0.6 + 0.0009);
-        var snap = ts - (ts % DAY);
-
-        ohlc.push({
-          time: snap,
-          open: +open.toFixed(4),
-          high: +hi.toFixed(4),
-          low: +lo.toFixed(4),
-          close: +close.toFixed(4),
-        });
-        closes.push(close);
-
-        var n = closes.length;
-        if (n >= PERIOD) {
-          var sum = 0;
-          for (var i = n - PERIOD; i < n; i++) sum += closes[i];
-          var ma = sum / PERIOD;
-          maData.push({ time: snap, value: +ma.toFixed(4) });
-
-          if (n > PERIOD) {
-            var prevSum = 0;
-            for (var j = n - PERIOD - 1; j < n - 1; j++) prevSum += closes[j];
-            var prevMa = prevSum / PERIOD;
-            var prevClose = closes[n - 2];
-            if (prevClose < prevMa && close > ma) {
-              markers.push({ time: snap, position: 'belowBar', color: '#2DD4BF', shape: 'arrowUp', size: 1 });
-            } else if (prevClose > prevMa && close < ma) {
-              markers.push({ time: snap, position: 'aboveBar', color: '#F87171', shape: 'arrowDown', size: 1 });
-            }
-          }
-        }
-      }
-
-      series.setData(ohlc);
-      maLine.setData(maData);
-      series.setMarkers(markers);
-      chart.timeScale().fitContent();
-
-      new ResizeObserver(function () {
-        chart.applyOptions({ width: el.clientWidth, height: el.clientHeight });
-      }).observe(el);
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', boot);
-    } else {
-      boot();
-    }
-  })();
-  </script>
 </InnerLayout>

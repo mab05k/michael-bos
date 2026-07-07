@@ -58,69 +58,69 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     }
     .page-intro .actions .primary:hover { background: var(--moss-600); }
 
-    .id-card {
+    .identity {
       max-width: 1280px;
       margin: 40px auto 0;
       padding: 0 24px;
     }
-    .id-card-inner {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--r-lg);
-      overflow: hidden;
-      box-shadow: var(--shadow-sm);
-    }
-    .id-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 0; }
-    .id-cell {
-      padding: 28px 32px;
-      border-right: 1px solid var(--card-border);
-    }
-    .id-cell:last-child { border-right: none; }
-    .id-cell .key {
-      font-family: var(--font-mono);
-      font-size: var(--fs-11);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--ink-500);
-      margin-bottom: 10px;
-    }
-    .id-cell .name {
-      font-family: var(--font-sans);
-      font-weight: var(--fw-medium);
-      font-size: 30px;
-      letter-spacing: -0.02em;
-      color: var(--ink-900);
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-    .id-cell .sub {
-      font-family: var(--font-mono);
-      font-size: var(--fs-12);
-      color: var(--ink-700);
-      letter-spacing: 0.01em;
-    }
-    .id-cell .multi {
+    .identity-inner {
       display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 8px 14px;
-      font-family: var(--font-mono);
-      font-size: var(--fs-12);
+      grid-template-columns: auto 1fr auto;
+      gap: 20px 28px;
+      align-items: center;
+      padding: 26px 0;
+      border-top: 1px solid var(--rule-strong);
+      border-bottom: 1px solid var(--rule-strong);
     }
-    .id-cell .multi .k { color: var(--ink-500); text-transform: uppercase; letter-spacing: var(--tr-caps); font-size: var(--fs-11); }
-    .id-cell .multi .v { color: var(--ink-900); }
-    .id-cell .multi .v a { color: var(--ink-900); border-bottom: 1px solid var(--ink-300); }
-    .id-cell .multi .v a:hover { color: var(--moss-700); border-bottom-color: var(--moss-500); }
-    .id-cell .multi .v.accent { color: var(--clay-600); }
-    .operator-cell { display: flex; align-items: top; gap: 20px; }
-    .operator-portrait {
-      width: 80px;
-      height: 80px;
-      border-radius: var(--r-sm);
+    .identity-portrait {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
       object-fit: cover;
       object-position: center top;
       flex-shrink: 0;
       border: 1px solid var(--card-border);
     }
+    .identity-name {
+      font-family: var(--font-sans);
+      font-weight: var(--fw-semibold);
+      font-size: 32px;
+      letter-spacing: -0.02em;
+      color: var(--ink-900);
+      line-height: 1.05;
+    }
+    .identity-title {
+      margin-top: 6px;
+      font-size: var(--fs-16);
+      color: var(--ink-700);
+    }
+    .identity-meta {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-500);
+    }
+    .identity-meta .sep { color: var(--clay-600); }
+    .identity-contact {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 9px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+    }
+    .identity-contact a {
+      color: var(--ink-800);
+      text-decoration: none;
+      border-bottom: 1px solid var(--ink-300);
+      padding-bottom: 1px;
+    }
+    .identity-contact a:hover { color: var(--moss-700); border-bottom-color: var(--moss-500); }
 
     .summary {
       max-width: 1280px;
@@ -238,13 +238,23 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       color: var(--ink-700);
       line-height: 1.5;
     }
-    .role .role-meta .label {
-      color: var(--ink-500);
-      margin-bottom: 4px;
+    .role .role-meta .dates {
       display: block;
-      text-transform: uppercase;
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      font-weight: var(--fw-semibold);
       letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--clay-600);
+      margin-bottom: 8px;
+    }
+    .role .role-meta .fact {
+      display: block;
       font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: var(--ink-500);
+      margin-bottom: 5px;
     }
     .role .role-meta .pill-row { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
 
@@ -255,14 +265,6 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       font-size: 18px;
       color: var(--ink-900);
       letter-spacing: -0.01em;
-      margin-bottom: 4px;
-    }
-    .role .role-body .dates {
-      font-family: var(--font-mono);
-      font-size: var(--fs-12);
-      letter-spacing: var(--tr-caps);
-      text-transform: uppercase;
-      color: var(--clay-600);
       margin-bottom: 10px;
     }
     .role .role-body .desc {
@@ -407,22 +409,31 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     @media print {
       body { background: white; background-image: none; }
       .site-header, .classmark, .site-footer, .page-intro .actions, .notes { display: none !important; }
-      .id-card-inner, .role, .tour-band { box-shadow: none !important; page-break-inside: avoid; }
+      .identity-inner, .role, .tour-band { box-shadow: none !important; page-break-inside: avoid; }
       .record, .lower, .summary { page-break-inside: auto; }
       .page-intro h1 { font-size: 36px; }
     }
 
     @media (max-width: 900px) {
-      .id-grid { grid-template-columns: 1fr; }
-      .id-cell { border-right: none; border-bottom: 1px solid var(--border-subtle); }
-      .id-cell:last-child { border-bottom: none; }
-      .operator-portrait { width: 64px; height: 64px; }
+      .identity-inner { grid-template-columns: auto 1fr; }
+      .identity-portrait { width: 68px; height: 68px; }
+      .identity-name { font-size: 26px; }
+      .identity-contact {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 8px 20px;
+      }
       .page-intro { grid-template-columns: 1fr; }
       .page-intro h1 { font-size: 40px; }
       .lower { grid-template-columns: 1fr; gap: 40px; }
       .tour-band { grid-template-columns: 1fr; gap: 6px; }
       .role { grid-template-columns: 1fr; gap: 12px; }
-      .role .role-meta { display: flex; flex-wrap: wrap; gap: 12px; }
+      .role .role-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+      .role .role-meta .dates,
+      .role .role-meta .fact { margin-bottom: 0; }
+      .role .role-meta .pill-row { margin-top: 0; flex-direction: row; }
     }
   </style>
 
@@ -445,36 +456,24 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     </div>
   </header>
 
-  <!-- Identity card -->
-  <section class="id-card">
-    <div class="id-card-inner">
-      <div class="id-grid">
-        <div class="id-cell operator-cell">
-          <img src="/michael-bos-portrait.JPEG" alt="Michael A. Bos" class="operator-portrait" />
-          <div>
-            <div class="key"><strong>Profile</strong></div>
-            <div class="name">Michael A. Bos</div>
-            <div class="sub">Senior Software Engineering Manager · Guidepoint Global</div>
-          </div>
+  <!-- Identity band -->
+  <section class="identity">
+    <div class="identity-inner">
+      <img src="/michael-bos-portrait.JPEG" alt="Michael A. Bos" class="identity-portrait" />
+      <div class="identity-main">
+        <div class="identity-name">Michael A. Bos</div>
+        <div class="identity-title">Senior Software Engineering Manager · Guidepoint Global</div>
+        <div class="identity-meta">
+          <span>Las Vegas, NV · Remote</span>
+          <span class="sep">/</span>
+          <span>Distributed teams · US &amp; India</span>
         </div>
-        <div class="id-cell">
-          <div class="key"><strong>Location</strong></div>
-          <div class="multi">
-            <div class="k">City</div>   <div class="v">Las Vegas, NV <span style="color: var(--ink-500);">·</span> remote</div>
-            <!--<div class="k">Coords</div> <div class="v">36.17° N · 115.14° W</div>-->
-            <div class="k">Teams</div>  <div class="v">Distributed US &amp; India</div>
-            <div class="k">Status</div> <div class="v accent">Active · Remote</div>
-          </div>
-        </div>
-        <div class="id-cell">
-          <div class="key"><strong>Contact</strong></div>
-          <div class="multi">
-            <div class="k">Mail</div>     <div class="v"><a href="mailto:mab05k@gmail.com">mab05k@gmail.com</a></div>
-            <div class="k">Phone</div>    <div class="v">(305) 304-8599</div>
-            <div class="k">LinkedIn</div> <div class="v"><a href="https://www.linkedin.com/in/michael-a-bos/" target="_blank" rel="noopener">michael-a-bos</a></div>
-            <div class="k">GitHub</div>   <div class="v"><a href="https://github.com/mab05k" target="_blank" rel="noopener">mab05k</a></div>
-          </div>
-        </div>
+      </div>
+      <div class="identity-contact">
+        <a href="mailto:mab05k@gmail.com">mab05k@gmail.com</a>
+        <a href="tel:+13053048599">(305) 304-8599</a>
+        <a href="https://www.linkedin.com/in/michael-a-bos/" target="_blank" rel="noopener">linkedin/michael-a-bos</a>
+        <a href="https://github.com/mab05k" target="_blank" rel="noopener">github/mab05k</a>
       </div>
     </div>
   </section>
@@ -518,16 +517,15 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
       <article class="role">
         <div class="role-meta">
-          <span class="label">Title</span>
-          Sr. Software Engineering Manager
+          <span class="dates">Jan 2026 — Present</span>
+          <span class="fact">Agentic platform · MCP</span>
+          <span class="fact">Architecture &amp; delivery</span>
           <div class="pill-row">
-            <span class="pill"><span class="dot"></span>Active</span>
-            <span class="pill"><span class="dot"></span>AI · Agentic platform</span>
+            <span class="pill active"><span class="dot"></span>Current role</span>
           </div>
         </div>
         <div class="role-body">
           <div class="title">Senior Software Engineering Manager</div>
-          <div class="dates">Jan 2026 — Present</div>
           <p class="desc">
             Leading architecture and engineering delivery for Guidepoint&rsquo;s
             next-generation agentic platform as part of the company&rsquo;s AI
@@ -546,15 +544,12 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
       <article class="role">
         <div class="role-meta">
-          <span class="label">Title</span>
-          Software Engineering Manager
-          <div class="pill-row">
-            <span class="pill"><span class="dot"></span>11 direct reports</span>
-          </div>
+          <span class="dates">Jan 2025 — Dec 2025</span>
+          <span class="fact">11 direct reports</span>
+          <span class="fact">2 teams · US &amp; India</span>
         </div>
         <div class="role-body">
           <div class="title">Software Engineering Manager</div>
-          <div class="dates">Jan 2025 — Dec 2025</div>
           <p class="desc">
             Led two engineering teams (<strong>11 direct reports</strong>) delivering
             AI-powered features and platform modernization initiatives as part of a
@@ -572,15 +567,12 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
       <article class="role">
         <div class="role-meta">
-          <span class="label">Title</span>
-          Lead Software Engineer
-          <div class="pill-row">
-            <span class="pill"><span class="dot"></span>6 direct reports</span>
-          </div>
+          <span class="dates">Apr 2023 — Dec 2024</span>
+          <span class="fact">6 direct reports</span>
+          <span class="fact">Cloud-native migration</span>
         </div>
         <div class="role-body">
           <div class="title">Lead Software Engineer</div>
-          <div class="dates">Apr 2023 — Dec 2024</div>
           <p class="desc">
             Led six direct reports in delivering microservice architecture and
             cloud-native deployment practices across Guidepoint&rsquo;s engineering
@@ -609,12 +601,12 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
       <article class="role">
         <div class="role-meta">
-          <span class="label">Title</span>
-          Technical Project Manager
+          <span class="dates">Jul 2021 — Apr 2023</span>
+          <span class="fact">Reported to CTO &amp; EVP</span>
+          <span class="fact">Strategic programs</span>
         </div>
         <div class="role-body">
           <div class="title">Technical Project Manager</div>
-          <div class="dates">Jul 2021 — Apr 2023</div>
           <p class="desc">
             Applied technical expertise to strategic company initiatives under the
             direction of the CTO and EVP of Strategy.
@@ -631,12 +623,12 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
       <article class="role">
         <div class="role-meta">
-          <span class="label">Title</span>
-          Software Engineer III
+          <span class="dates">Feb 2020 — Jul 2021</span>
+          <span class="fact">Senior IC · back-end</span>
+          <span class="fact">Observability &amp; auth</span>
         </div>
         <div class="role-body">
           <div class="title">Software Engineer III</div>
-          <div class="dates">Feb 2020 — Jul 2021</div>
           <p class="desc">
             Technical leader and hands-on contributor building back-end systems and
             APIs across Switch&rsquo;s application suite.
@@ -652,15 +644,12 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
       <article class="role">
         <div class="role-meta">
-          <span class="label">Title</span>
-          Manager of Software Engineering
-          <div class="pill-row">
-            <span class="pill"><span class="dot"></span>8 direct reports</span>
-          </div>
+          <span class="dates">Jan 2019 — Feb 2020</span>
+          <span class="fact">8 direct reports</span>
+          <span class="fact">CI/CD standardization</span>
         </div>
         <div class="role-body">
           <div class="title">Manager of Software Engineering</div>
-          <div class="dates">Jan 2019 — Feb 2020</div>
           <p class="desc">
             Led a team of eight senior Software Engineers building APIs and back-end
             systems supporting Switch&rsquo;s core business operations and customer
@@ -677,12 +666,12 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
       <article class="role">
         <div class="role-meta">
-          <span class="label">Title</span>
-          Software Engineer I
+          <span class="dates">Jun 2017 — Jan 2019</span>
+          <span class="fact">IC · Symfony APIs</span>
+          <span class="fact">DevOps tooling</span>
         </div>
         <div class="role-body">
           <div class="title">Software Engineer I</div>
-          <div class="dates">Jun 2017 — Jan 2019</div>
           <p class="desc">
             Individual contributor building APIs and internal tooling across
             Switch&rsquo;s application suite.
@@ -709,12 +698,12 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
       <article class="role">
         <div class="role-meta">
-          <span class="label">Title</span>
-          PHP Developer
+          <span class="dates">Dec 2015 — Jun 2017</span>
+          <span class="fact">Full-stack · LAMP</span>
+          <span class="fact">First engineering role</span>
         </div>
         <div class="role-body">
           <div class="title">PHP Developer</div>
-          <div class="dates">Dec 2015 — Jun 2017</div>
           <p class="desc">
             Full-stack development on a high-traffic affiliate marketing platform
             built on a LAMP stack.
@@ -742,16 +731,15 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
       <article class="role">
         <div class="role-meta">
-          <span class="label">Rate / Rank</span>
-          IS2 — Petty Officer 2nd Class
+          <span class="dates">Apr 2011 — Jan 2016</span>
+          <span class="fact">IS2 · Petty Officer 2nd Class</span>
           <div class="pill-row">
-            <span class="pill"><span class="dot"></span>Honorable discharge</span>
-            <span class="pill"><span class="dot"></span>4 combat deployments</span>
+            <span class="pill veteran"><span class="dot"></span>Honorable discharge</span>
+            <span class="pill veteran"><span class="dot"></span>4 combat deployments</span>
           </div>
         </div>
         <div class="role-body">
           <div class="title">Intelligence Specialist · NSWDG</div>
-          <div class="dates">Apr 2011 — Jan 2016 (active duty Apr 2010 — Jan 2016)</div>
           <p class="desc">
             Served in four overseas combat deployments in roles not typically
             assigned to enlisted Intelligence Specialists. Graduated top of class at the Navy
