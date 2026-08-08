@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
   schedule:
-    # Daily rebuild so build-time data (Mountain Project ticks) stays fresh
-    - cron: '0 14 * * *'
+    # Weekly rebuild so build-time data (Mountain Project ticks) stays fresh
+    - cron: '0 0 * * 1'
   workflow_dispatch:
 
 permissions:
