@@ -76,7 +76,7 @@ src/
     biography.astro  # Chapter-based life story; themed stages, timeline rail,
                      # Mountain Project ticks + grade chart fetched at build time (10s timeout)
     resume.astro     # Service-record format — identity card, experience tours, skills;
-                     # CSS scroll-driven timeline behind @supports
+                     # scroll timeline (rail, dots, role fade) driven by a small script
     portfolio.astro  # Projects — Daybourne (feature tour), Forex Algo Trader (replay + simulator)
     portfolio/daybourne.astro  # Daybourne case study: architecture, decisions, Claude workflow
     colophon.astro   # How the site is built; live contour generator

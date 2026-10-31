@@ -2,6 +2,7 @@
 import InnerLayout from '../layouts/InnerLayout.astro';
 
 const islands = [
+  { name: 'Resume timeline', where: '/resume', what: 'Fills the rail beside the experience section as you scroll, lights each employer, and fades roles in once.' },
   { name: 'Command menu', where: 'Every page', what: 'Opens with ⌘K or Ctrl+K and searches pages, sections, and contact links with a small subsequence matcher.' },
   { name: 'Biography stage', where: '/biography', what: 'Shows one chapter at a time with a timeline rail, remembers the last chapter, and grows the climbing grade chart into view.' },
   { name: 'Daybourne tour', where: '/portfolio', what: 'Auto-advances through features, plays each clip only while it is on screen, and stops when you pick a tab.' },
@@ -156,9 +157,10 @@ const buildTime = [
       <h2>Motion</h2>
       <div>
         <p>
-          The resume timeline and the case study sections use CSS scroll-driven animations,
-          so the browser ties them to the scroll position without any JavaScript. Browsers
-          that do not support them show the finished page. With reduced motion turned on, the
+          The case study sections use CSS scroll-driven animations, so the browser ties them
+          to the scroll position without any JavaScript, and browsers that do not support them
+          show the finished page. The resume timeline uses a short script instead, because it
+          needs to behave the same in every browser. With reduced motion turned on, the
           tour stops auto-advancing and shows video controls, the charts render in their final
           state, and the background contours stay still.
         </p>
