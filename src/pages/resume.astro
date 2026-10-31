@@ -240,29 +240,6 @@ import InnerLayout from '../layouts/InnerLayout.astro';
         box-shadow: 0 0 0 5px rgba(184, 74, 38, 0.14);
       }
     }
-    .tour-band { position: relative; }
-        .tour-band::before {
-          content: "";
-          position: absolute;
-          left: -23px;
-          top: 50%;
-          width: 10px;
-          height: 10px;
-          margin-top: -5px;
-          border-radius: 50%;
-          background: var(--bg-bone);
-          border: 2px solid var(--hairline-strong);
-          z-index: 1;
-          animation: dot-on linear both;
-          animation-timeline: view();
-          animation-range: cover 28% cover 40%;
-        }
-        @keyframes dot-on {
-          from { transform: scale(0.6); }
-          to   { transform: scale(1.15); background: var(--rust); border-color: var(--rust); box-shadow: 0 0 0 5px rgba(184, 74, 38, 0.14); }
-        }
-      }
-    }
     .tour-band {
       display: grid;
       grid-template-columns: 200px 1fr auto;
