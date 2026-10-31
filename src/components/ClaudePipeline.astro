@@ -1,0 +1,180 @@
+---
+// The fsm feature pipeline as a stepper. All stages render as a readable
+// ordered list without JS; the script adds the auto-advancing highlight.
+interface Stage { cmd: string; who: 'me' | 'agent' | 'gate'; title: string; text: string; out: string }
+const stages: Stage[] = [
+  { cmd: '/product-owner', who: 'agent', title: 'Requirements interview',
+    text: 'Claude interviews me about the feature across every significant design path, reads the standing product decisions so it does not ask about settled questions, and writes the product requirements document.',
+    out: 'docs/product/prd-<slug>.md' },
+  { cmd: '/approve', who: 'me', title: 'I approve the PRD',
+    text: 'I read the PRD and approve it. This skill is set so that only I can run it, and the later stages refuse to start on a document that is still a draft.',
+    out: 'status: approved' },
+  { cmd: '/architect', who: 'agent', title: 'Architecture, when needed',
+    text: 'For changes that cross components, a second interview produces an architecture document. Other skills treat these documents as the reference and never edit them.',
+    out: 'docs/architecture/<area>/<slug>.md' },
+  { cmd: '/tech-lead', who: 'agent', title: 'Implementation plan',
+    text: 'The tech lead turns the approved PRD into a plan with API contracts, data model changes, and the responsibilities of each component. I review the plan before it is approved.',
+    out: 'docs/engineering/plan-<slug>.md' },
+  { cmd: '/project-manager', who: 'agent', title: 'Tasks and issues',
+    text: 'The project manager breaks the plan into ordered tasks with acceptance criteria and the tests each one needs, then opens a GitHub issue for every task in the Ready column.',
+    out: 'GitHub issues · Ready' },
+  { cmd: '/dev-team', who: 'agent', title: 'Parallel developer agents',
+    text: 'The dev team lead groups independent tasks into waves and starts one developer agent per task, each in its own git worktree. When a wave finishes, it assembles the branches and opens one pull request.',
+    out: 'feature branch · pull request' },
+  { cmd: '/code-review', who: 'gate', title: 'Review gate',
+    text: 'A code review runs before any testing. It gets two passes at most: an audit of the whole diff, then a check of only the fixes. Confirmed correctness problems block the branch, and everything else becomes an issue.',
+    out: 'findings fixed or filed' },
+  { cmd: 'uat agent', who: 'gate', title: 'User acceptance testing',
+    text: 'A separate agent runs the committed API, CLI, and Playwright suites against the live local stack and checks each acceptance criterion. A failure goes back to the developer agents, for up to three cycles.',
+    out: 'pass · fail · not applicable' },
+  { cmd: 'merge', who: 'me', title: 'I decide what ships',
+    text: 'I review the pull request in the browser and decide whether to merge it. No agent merges a pull request or pushes to main.',
+    out: 'main' },
+];
+---
+<div class="pipe" data-pipe>
+  <ol class="pipe-rail" aria-label="Feature pipeline">
+    {stages.map((s, i) => (
+      <li class={`pipe-stage who-${s.who}${i === 0 ? ' is-on' : ''}`} data-i={i}>
+        <button type="button" class="ps-btn" aria-expanded={i === 0 ? 'true' : 'false'} aria-controls={`ps-detail-${i}`}>
+          <span class="ps-dot" aria-hidden="true"></span>
+          <span class="ps-cmd">{s.cmd}</span>
+          <span class="ps-title">{s.title}</span>
+        </button>
+      </li>
+    ))}
+  </ol>
+  <div class="pipe-detail">
+    {stages.map((s, i) => (
+      <div class={`pd${i === 0 ? ' is-on' : ''}`} id={`ps-detail-${i}`} data-d={i}>
+        <div class="pd-head">
+          <span class="pd-step">Stage {i + 1} of {stages.length}</span>
+          <span class={`pd-who who-${s.who}`}>{s.who === 'me' ? 'Me' : s.who === 'gate' ? 'Quality gate' : 'Claude agent'}</span>
+        </div>
+        <p class="pd-text">{s.text}</p>
+        <div class="pd-out"><span>Output</span><code>{s.out}</code></div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style is:global>
+  .pipe {
+    --me: #B84A26; --agent: #5C6B3E; --gate: #C8881A;
+    display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 28px; align-items: start;
+  }
+  .pipe-rail { list-style: none; margin: 0; padding: 0; position: relative; }
+  .pipe-rail::before {
+    content: ""; position: absolute; left: 15px; top: 18px; bottom: 18px; width: 2px;
+    background: var(--hairline-strong);
+  }
+  .pipe-rail::after {
+    content: ""; position: absolute; left: 15px; top: 18px; width: 2px;
+    height: calc((100% - 36px) * var(--prog, 0));
+    background: linear-gradient(var(--agent), var(--me));
+    transition: height 500ms var(--ease-out);
+  }
+  .ps-btn {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: 32px 1fr; column-gap: 10px; row-gap: 1px;
+    width: 100%; padding: 8px 10px 8px 0; text-align: left;
+    background: none; border: 0; cursor: pointer; font: inherit; color: inherit; border-radius: var(--r-md);
+  }
+  .ps-btn:focus-visible { outline: 2px solid var(--rust); outline-offset: 2px; }
+  .ps-dot {
+    grid-row: span 2; justify-self: center; align-self: center;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--bg-bone); border: 2px solid var(--hairline-strong);
+    transition: transform 260ms var(--ease-out), background 260ms, border-color 260ms;
+  }
+  .who-me .ps-dot { border-color: var(--me); }
+  .who-agent .ps-dot { border-color: var(--agent); }
+  .who-gate .ps-dot { border-color: var(--gate); }
+  .pipe-stage.is-done .ps-dot { background: currentColor; }
+  .who-me.is-done .ps-dot, .who-me.is-on .ps-dot { background: var(--me); }
+  .who-agent.is-done .ps-dot, .who-agent.is-on .ps-dot { background: var(--agent); }
+  .who-gate.is-done .ps-dot, .who-gate.is-on .ps-dot { background: var(--gate); }
+  .pipe-stage.is-on .ps-dot { transform: scale(1.35); box-shadow: 0 0 0 5px rgba(184, 74, 38, 0.12); }
+  .ps-cmd { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; color: var(--canyon-fade); }
+  .ps-title { font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--canyon-shadow); }
+  .pipe-stage.is-on .ps-title { color: var(--canyon-ink); }
+  .pipe-stage.is-on .ps-cmd { color: var(--rust); }
+
+  .pipe-detail { position: sticky; top: 96px; min-height: 220px; }
+  .pd {
+    background: var(--card-bg); border: 1px solid var(--hairline); border-radius: var(--r-lg);
+    padding: 24px 26px; display: none;
+  }
+  .pd.is-on { display: block; animation: pd-in 320ms var(--ease-out); }
+  @keyframes pd-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .pd-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .pd-step { font-family: var(--font-mono); font-size: 11px; letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--canyon-fade); }
+  .pd-who {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: var(--tr-caps); text-transform: uppercase;
+    padding: 3px 8px; border-radius: var(--r-pill); color: #fff;
+  }
+  .pd-who.who-me { background: var(--me); }
+  .pd-who.who-agent { background: var(--agent); }
+  .pd-who.who-gate { background: var(--gate); }
+  .pd-text { margin: 0 0 18px; font-size: 16px; line-height: 1.6; color: var(--canyon-shadow); text-wrap: pretty; }
+  .pd-out { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .pd-out span { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--canyon-fade); }
+  .pd-out code {
+    font-variant-ligatures: none;
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--canyon-ink);
+    background: var(--bg-bone); border: 1px solid var(--hairline); border-radius: var(--r-sm); padding: 3px 8px;
+  }
+  @media (max-width: 860px) {
+    .pipe { grid-template-columns: 1fr; gap: 16px; }
+    .pipe-detail { position: relative; top: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pd.is-on { animation: none; }
+    .pipe-rail::after, .ps-dot { transition: none; }
+  }
+</style>
+
+<script>
+  const STEP_MS = 4200;
+  function initPipe(root: HTMLElement) {
+    if (root.dataset.ready) return;
+    root.dataset.ready = '1';
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const stages = [...root.querySelectorAll<HTMLLIElement>('.pipe-stage')];
+    const details = [...root.querySelectorAll<HTMLElement>('.pd')];
+    const rail = root.querySelector<HTMLElement>('.pipe-rail')!;
+    let i = 0;
+    let timer = 0;
+    let auto = !reduce;
+
+    function show(n: number) {
+      i = n;
+      stages.forEach((s, k) => {
+        s.classList.toggle('is-on', k === i);
+        s.classList.toggle('is-done', k < i);
+        s.querySelector('button')!.setAttribute('aria-expanded', String(k === i));
+      });
+      details.forEach((d, k) => d.classList.toggle('is-on', k === i));
+      rail.style.setProperty('--prog', String(i / (stages.length - 1)));
+    }
+    function loop() {
+      clearTimeout(timer);
+      if (!auto) return;
+      timer = window.setTimeout(() => { show((i + 1) % stages.length); loop(); }, STEP_MS);
+    }
+
+    stages.forEach((s, k) => s.querySelector('button')!.addEventListener('click', () => {
+      auto = false; clearTimeout(timer); show(k);
+    }));
+    show(0);
+
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) loop(); else clearTimeout(timer);
+    }, { threshold: 0.4 });
+    io.observe(root);
+    document.addEventListener('astro:before-swap', () => { io.disconnect(); clearTimeout(timer); }, { once: true });
+  }
+  document.addEventListener('astro:page-load', () => {
+    document.querySelectorAll<HTMLElement>('[data-pipe]').forEach(initPipe);
+  });
+</script>

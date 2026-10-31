@@ -12,11 +12,16 @@ Personal biography/resume/portfolio static site for michael-bos.com, built with 
 pnpm dev          # Dev server at localhost:4321 (hot reload)
 pnpm build        # Production build to ./dist/
 pnpm preview      # Preview the production build locally
-pnpm astro check  # Type-check .astro files
+pnpm check        # Type-check (astro check: .astro + TS, 0 errors required; CI runs it before build)
+pnpm verify       # check + build — run before every commit/PR
 pnpm astro add    # Add official integrations (e.g. tailwind, mdx, react)
 ```
 
 Package manager: **pnpm** (not npm or yarn).
+
+TypeScript is pinned to 6.x on purpose: `@astrojs/check` needs the programmatic compiler API that TypeScript 7 (native) does not ship yet.
+
+**Verification**: before committing, run `pnpm verify`, then look at changed pages in a browser (`pnpm dev`, or `pnpm preview` after a build) at desktop and ~390px widths, and once with reduced motion on.
 
 ## Astro Fundamentals
 
@@ -53,18 +58,31 @@ src/
   styles/
     tokens.css       # Design tokens (desert/Red Rock palette, type, spacing, shadows)
     shared.css       # Imports fonts + tokens; global utilities, nav, footer, pills
+  lib/
+    topo.ts          # Seeded noise + marching squares → contour paths (build time and /colophon)
   components/
-    SiteHeader.astro    # Shared top nav
-    PhotoCarousel.astro # Reusable photo carousel (used twice on /biography)
-    FloridaChip.astro   # Florida-map chip icon (used twice on /biography)
+    SiteHeader.astro         # Shared top nav; mounts the command palette
+    CommandPalette.astro     # ⌘K / Ctrl+K menu (native <dialog>), works with and without ClientRouter
+    PhotoCarousel.astro      # Reusable photo carousel (used twice on /biography)
+    FloridaChip.astro        # Florida-map chip icon (used twice on /biography)
+    FeatureTour.astro        # Daybourne feature tour (tabs + clips) on /portfolio
+    ZoneRecovery.astro       # Interactive Zone Recovery simulator on /portfolio
+    ArchitectureDiagram.astro# Daybourne architecture SVG with request walkthroughs
+    ClaudePipeline.astro     # Daybourne Claude Code pipeline stepper
   layouts/
-    InnerLayout.astro  # Shared shell for inner pages (sitenav + footer)
+    InnerLayout.astro  # Shared shell for inner pages (sitenav + footer + ClientRouter)
   pages/
-    index.astro      # Homepage — hero with photo + CTAs
+    index.astro      # Homepage — hero with photo + CTAs over /topo.svg contours
     biography.astro  # Chapter-based life story; themed stages, timeline rail,
-                     # Mountain Project ticks fetched at build time (10s timeout)
-    resume.astro     # Service-record format — identity card, experience tours, skills
-    portfolio.astro  # Projects — Daybook (active), Forex Algo Trader (archived)
+                     # Mountain Project ticks + grade chart fetched at build time (10s timeout)
+    resume.astro     # Service-record format — identity card, experience tours, skills;
+                     # CSS scroll-driven timeline behind @supports
+    portfolio.astro  # Projects — Daybourne (feature tour), Forex Algo Trader (replay + simulator)
+    portfolio/daybourne.astro  # Daybourne case study: architecture, decisions, Claude workflow
+    colophon.astro   # How the site is built; live contour generator
+    topo.svg.ts      # Static endpoint → /topo.svg, generated each build
+public/portfolio/daybourne/  # App screenshots/clips from the fsm Playwright help-media suite,
+                             # cropped so the old "Daybook" wordmark never shows
 ```
 
 **Design system**: Desert/Red Rock palette — Rust (`--rust`) primary, Ochre accent, Canyon ink on bone/sand surfaces; a navy+brass set for the USN section. Fonts: Inter Variable (display/body) and JetBrains Mono Variable (labels/dates/coords), self-hosted via `@fontsource-variable/*` packages imported at the top of `shared.css`. Old Moss/Clay/Ink token names still resolve through backward-compat aliases in `tokens.css`.
@@ -73,7 +91,9 @@ src/
 
 **Copy voice**: All site prose is first-person Michael. Plain, chronological, complete declarative sentences; facts carry the weight. No sentence fragments for effect, no staccato parallelism, no aphorisms ("X is the point"-style lines). Reference: his UNLV letter of intent. When adding or editing copy, match that register.
 
-**Routing**: `/` → index.astro, `/biography` → biography.astro, `/resume` → resume.astro, `/portfolio` → portfolio.astro.
+**Routing**: `/` → index.astro, `/biography` → biography.astro, `/resume` → resume.astro, `/portfolio` → portfolio.astro, `/portfolio/daybourne` → portfolio/daybourne.astro, `/colophon` → colophon.astro.
+
+**Scripts and motion**: Interactive pieces are plain TypeScript `<script>` modules (no UI framework). On ClientRouter pages they start on `astro:page-load`, guard against double init with a `data-ready` flag, and tear down observers/timers on `astro:before-swap`. Every piece starts from markup that works without JS, and checks `prefers-reduced-motion` (tokens.css also zeroes animation durations globally under reduced motion). `[hidden]` is forced to `display:none` in shared.css.
 
 **Biography page structure**: `/biography` is a JS-driven chapter stage (one chapter visible at a time, timeline rail at the bottom). Chapter 1 renders visible by default so the page works without JS; the inline script manages visibility from there. The Mountain Project tick fetch is wrapped in try/catch with a timeout — the build must never fail because the RSS feed is down.
 

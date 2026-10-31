@@ -94,7 +94,32 @@ try {
   console.warn('[mp-ticks] fetch failed:', e instanceof Error ? e.message : String(e));
 }
 
-const preview = ticks.slice(0, 5);
+const preview = ticks.slice(0, 3);
+
+// Grade spread for the climbing chapter. YDS grades from 5.10 up are grouped
+// into a/b and c/d halves; "-" counts as a/b and "+" as c/d.
+const GRADE_ORDER = ['5.6', '5.7', '5.8', '5.9', '5.10a/b', '5.10c/d', '5.11a/b', '5.11c/d', '5.12a/b', '5.12c/d', '5.13'];
+function gradeBucket(g: string): string | null {
+  const m = g.match(/^5\.(\d+)\s*([a-d])?(?:\/[a-d])?\s*([+-])?/);
+  if (!m) return null;
+  const n = Number(m[1]);
+  if (n <= 6) return '5.6';
+  if (n < 10) return `5.${n}`;
+  if (n >= 13) return '5.13';
+  const half = m[2] ? (m[2] <= 'b' ? 'a/b' : 'c/d') : m[3] === '+' ? 'c/d' : 'a/b';
+  return `5.${n}${half}`;
+}
+const gradeCounts = new Map<string, number>();
+for (const t of ticks) {
+  const b = gradeBucket(t.grade);
+  if (b) gradeCounts.set(b, (gradeCounts.get(b) ?? 0) + 1);
+}
+const usedIdx = GRADE_ORDER.map((g, i) => (gradeCounts.has(g) ? i : -1)).filter(i => i >= 0);
+const gradeBars = usedIdx.length
+  ? GRADE_ORDER.slice(usedIdx[0], usedIdx[usedIdx.length - 1] + 1).map(g => ({ grade: g, n: gradeCounts.get(g) ?? 0 }))
+  : [];
+const gradeMax = Math.max(1, ...gradeBars.map(b => b.n));
+const gradeTotal = gradeBars.reduce((a, b) => a + b.n, 0);
 const tickJSON = JSON.stringify(ticks).replace(/<\/script>/gi, '<\\/script>');
 ---
 <!doctype html>
@@ -536,6 +561,20 @@ const tickJSON = JSON.stringify(ticks).replace(/<\/script>/gi, '<\\/script>');
             Recent sends
             {ticks.length > 0 && <span class="tick-list-count">&middot; {ticks.length} logged</span>}
           </div>
+          {gradeBars.length > 1 && (
+            <figure class="grade-chart" data-grade-chart aria-label={`Grade spread of ${gradeTotal} logged routes`}>
+              <div class="gc-cols">
+                {gradeBars.map((b, i) => (
+                  <div class={`gc-col${b.grade === gradeBars[gradeBars.length - 1].grade ? ' is-top' : ''}`} style={`--i:${i}; --h:${(b.n / gradeMax).toFixed(3)}`}>
+                    <span class="gc-n">{b.n || ''}</span>
+                    <span class="gc-bar"></span>
+                    <span class="gc-g">{b.grade.replace('5.', '.')}</span>
+                  </div>
+                ))}
+              </div>
+              <figcaption class="gc-cap">Grade spread &middot; {gradeTotal} routes</figcaption>
+            </figure>
+          )}
           {preview.map(t => (
             <div class="tick-row">
               <span class="tick-name">
@@ -545,7 +584,7 @@ const tickJSON = JSON.stringify(ticks).replace(/<\/script>/gi, '<\\/script>');
               <span class="tick-grade">{t.grade}</span>
             </div>
           ))}
-          {ticks.length > 5 && (
+          {ticks.length > preview.length && (
             <button class="tick-cta" id="tick-cta">
               <span>View all {ticks.length} sends</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -1124,6 +1163,28 @@ html, body { height: 100%; overflow: hidden; }
 .tick-area { font-family: var(--font-mono); font-size:11px; color: var(--fade); letter-spacing:0.02em; transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); white-space:nowrap; }
 .tick-grade { font-family: var(--font-mono); font-size:12px; font-weight:700; color: var(--accent); transition: color 460ms cubic-bezier(0.2,0.7,0.1,1); }
 
+/* Climb — grade spread (counts computed at build time) */
+.grade-chart { margin:0; padding:10px 16px 8px; border-bottom:1px solid var(--line); }
+.gc-cols { display:flex; align-items:flex-end; gap:6px; height:64px; }
+.gc-col { flex:1; min-width:0; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:3px; }
+.gc-n { font-family: var(--font-mono); font-size:10px; color: var(--fade); line-height:1; }
+.gc-bar {
+  width:100%; max-width:26px; border-radius:3px 3px 1px 1px;
+  height: calc(var(--h) * 34px + 2px);
+  background: color-mix(in oklab, var(--accent) 45%, transparent);
+  transform-origin: bottom;
+  transition: background 460ms cubic-bezier(0.2,0.7,0.1,1);
+}
+.gc-col.is-top .gc-bar { background: var(--accent); }
+.gc-g { font-family: var(--font-mono); font-size:9.5px; color: var(--fade); letter-spacing:0.02em; white-space:nowrap; line-height:1.2; }
+.gc-cap { margin-top:4px; font-family: var(--font-mono); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color: var(--fade); }
+.grade-chart.armed .gc-bar { transform: scaleY(0); }
+.grade-chart.armed .gc-n { opacity:0; }
+.grade-chart.armed.is-in .gc-bar { animation: gc-grow 620ms cubic-bezier(0.2,0.8,0.2,1) both; animation-delay: calc(var(--i) * 55ms); }
+.grade-chart.armed.is-in .gc-n { animation: gc-fade 300ms ease-out both; animation-delay: calc(var(--i) * 55ms + 420ms); }
+@keyframes gc-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes gc-fade { from { opacity:0; transform: translateY(3px); } to { opacity:1; transform:none; } }
+
 /* =========================================================
    RESPONSIVE
    ========================================================= */
@@ -1485,5 +1546,17 @@ html, body { height: 100%; overflow: hidden; }
 })();
 </script>
 
+<script is:inline>
+(function () {
+  // Grow the grade bars each time the climbing chapter comes into view.
+  var chart = document.querySelector('[data-grade-chart]');
+  if (!chart || !('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  chart.classList.add('armed');
+  new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { chart.classList.toggle('is-in', e.isIntersecting); });
+  }, { threshold: 0.5 }).observe(chart);
+})();
+</script>
 </body>
 </html>

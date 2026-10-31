@@ -1,5 +1,58 @@
 ---
 import InnerLayout from '../layouts/InnerLayout.astro';
+import FeatureTour, { type Feature } from '../components/FeatureTour.astro';
+import ZoneRecovery from '../components/ZoneRecovery.astro';
+
+const features: Feature[] = [
+  {
+    id: 'today', title: 'Today', line: 'The day at a glance', path: '/today',
+    video: 'today.mp4', image: 'today-poster.webp', phone: 'today-phone.webp',
+    alt: 'The Today page: confirming a finished visit as done from the timeline',
+    body: 'Today is the first page an owner sees after signing in. It shows the day\'s visits, what each person is working on, and a list of loose ends that need someone to act. A finished visit is confirmed as done, skipped, or no-show with one tap, from a desktop or a phone.',
+  },
+  {
+    id: 'recurring', title: 'Recurring work', line: 'Define a schedule once', path: '/jobs/new',
+    video: 'recurrence.mp4', image: 'recurrence-poster.webp',
+    alt: 'Building a weekly Monday, Wednesday and Friday schedule on a new job',
+    body: 'A repeating job is stored once as a series with a recurrence rule. Each date the rule produces shows up on the calendar and on Today without being saved as its own record until someone changes, confirms, or invoices it.',
+  },
+  {
+    id: 'calendar', title: 'Calendar', line: 'Five views, one schedule', path: '/calendar',
+    video: 'calendar.mp4', image: 'calendar-poster.webp',
+    alt: 'Dragging a recurring series to a new time on the week view',
+    body: 'Day, week, month, resource, and list views all read from the same schedule. Dragging a visit can move just that date or the whole series, including moving it to a different day of the week.',
+  },
+  {
+    id: 'invoicing', title: 'Monthly invoicing', line: 'A month of work, one invoice', path: '/invoices',
+    video: 'invoice.mp4', image: 'invoice-poster.webp',
+    alt: 'Reviewing drafted monthly invoices and issuing them in one batch',
+    body: 'On the billing day, Daybourne drafts one invoice per client from the month\'s confirmed visits. The owner reviews the drafts, issues them in a batch, and records payments as they arrive, so client balances stay current.',
+  },
+  {
+    id: 'expenses', title: 'Expenses & mileage', line: 'The cost side of the books', path: '/expenses',
+    image: 'expenses.webp', phone: 'expense-capture.webp',
+    alt: 'The expenses list by month, with the quick-capture receipt form on a phone',
+    body: 'Expenses are recorded against Schedule C categories, so the Profit & Loss report lines up with the owner\'s tax return. Quick capture on a phone saves the receipt photo right away and leaves the amount and category for later.',
+  },
+  {
+    id: 'import', title: 'Client import', line: 'Bring the client list along', path: '/settings/import-clients',
+    image: 'import.webp',
+    alt: 'Matching spreadsheet columns to client fields during an import',
+    body: 'Owners can bring their client list over from a spreadsheet or a QuickBooks Online export. The importer recognizes common column names, flags phone numbers it cannot read, and catches duplicates before anything is saved.',
+  },
+  {
+    id: 'messaging', title: 'Client messaging', line: 'Reminders without the 6 a.m. text', path: '/settings/notifications',
+    image: 'messaging.webp',
+    alt: 'Notification delivery rules: sender identity, send window and protected contact hours',
+    body: 'Reminders and schedule changes go out to clients automatically. Quiet hours, a daily cap per client, and fixed contact hours in each client\'s own timezone keep a business from messaging people at night.',
+  },
+  {
+    id: 'help', title: 'In-app help', line: 'Documentation that ships with the code', path: '/settings/invoicing',
+    image: 'help.webp',
+    alt: 'The help panel open beside the invoicing settings, explaining the billing day',
+    body: 'Every screen has a help guide that opens beside the work. The screenshots and clips in those guides, including every one on this page, are captured automatically by Playwright against a seeded demo business.',
+  },
+];
 
 // ── Forex chart — rendered to static SVG at build time ─────────
 // The previous version drew this at runtime with lightweight-charts
@@ -67,17 +120,17 @@ const maPoints = ma
   .join(' ');
 
 // Trend-crossing markers, same rule the live system used
-const markers: { points: string; color: string }[] = [];
+const markers: { points: string; color: string; k: number }[] = [];
 for (let k = PERIOD; k < BARS; k++) {
   const prevMa = ma[k - 1], curMa = ma[k];
   if (prevMa == null || curMa == null) continue;
   const c = candles[k];
   if (closes[k - 1] < prevMa && closes[k] > curMa) {
     const yy = c.yLo + 5;
-    markers.push({ points: `${c.cx},${yy} ${+(c.cx - 4).toFixed(1)},${+(yy + 8).toFixed(1)} ${+(c.cx + 4).toFixed(1)},${+(yy + 8).toFixed(1)}`, color: '#2DD4BF' });
+    markers.push({ points: `${c.cx},${yy} ${+(c.cx - 4).toFixed(1)},${+(yy + 8).toFixed(1)} ${+(c.cx + 4).toFixed(1)},${+(yy + 8).toFixed(1)}`, color: '#2DD4BF', k });
   } else if (closes[k - 1] > prevMa && closes[k] < curMa) {
     const yy = c.yHi - 5;
-    markers.push({ points: `${c.cx},${yy} ${+(c.cx - 4).toFixed(1)},${+(yy - 8).toFixed(1)} ${+(c.cx + 4).toFixed(1)},${+(yy - 8).toFixed(1)}`, color: '#F87171' });
+    markers.push({ points: `${c.cx},${yy} ${+(c.cx - 4).toFixed(1)},${+(yy - 8).toFixed(1)} ${+(c.cx + 4).toFixed(1)},${+(yy - 8).toFixed(1)}`, color: '#F87171', k });
   }
 }
 
@@ -87,7 +140,7 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
 <InnerLayout
   title="Portfolio"
   activePage="portfolio"
-  description="Selected projects by Michael A. Bos — including Daybook, a field service management platform for small businesses, and an autonomous forex algorithmic trading system."
+  description="Selected projects by Michael A. Bos — including Daybourne, a recurring-service management platform for small businesses, and an autonomous forex algorithmic trading system."
 >
   <style is:global>
     .port-intro {
@@ -176,7 +229,7 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
     .port-card-footer .status.wip { color: var(--rust); }
     .port-card-footer .status.planned { color: var(--ink-500); }
 
-    /* ── Daybook featured project ────────────────────────────── */
+    /* ── Daybourne featured project ──────────────────────────── */
     .featured-wrap {
       max-width: 1280px;
       margin: 56px auto 0;
@@ -197,15 +250,13 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
       border-radius: var(--r-lg);
       box-shadow: var(--shadow-sm);
       overflow: hidden;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      min-height: 440px;
     }
     .featured-content {
-      padding: 40px 44px;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
+      padding: 40px 44px 28px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      column-gap: 48px;
+      row-gap: 0;
     }
     .featured-identity {
       display: flex;
@@ -214,9 +265,8 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
       margin-bottom: 6px;
     }
     .featured-icon {
-      width: 36px;
+      width: 32px;
       height: 36px;
-      border-radius: 8px;
       flex-shrink: 0;
     }
     .featured-appname {
@@ -240,13 +290,18 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
       line-height: 1.6;
       color: var(--canyon-shadow);
       text-wrap: pretty;
-      margin-bottom: 28px;
+      margin: 0 0 16px;
+    }
+    .featured-side {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 20px;
     }
     .featured-stack {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 28px;
     }
     .stack-chip {
       display: inline-flex;
@@ -269,9 +324,7 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-top: auto;
-      padding-top: 24px;
-      border-top: 1px solid rgba(92, 107, 62, 0.15);
+      flex-wrap: wrap;
     }
     .featured-footer .pill.active {
       color: #5A7A3E;
@@ -286,37 +339,45 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
       text-transform: uppercase;
       color: #6E7E4D;
     }
-    .featured-screenshot {
-      position: relative;
-      overflow: hidden;
-      background: #F4F5EC;
-      border-left: 1px solid rgba(92, 107, 62, 0.18);
+    .case-link {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 16px;
+      border-radius: var(--r-pill);
+      background: #5C6B3E;
+      color: #F4F5EC;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: var(--fw-semibold);
+      text-decoration: none;
+      transition: background 200ms var(--ease-out);
     }
-    .featured-screenshot img {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: auto;
-      display: block;
+    .case-link svg { transition: transform 200ms var(--ease-out); }
+    .case-link:hover { background: #4C5933; }
+    .case-link:hover svg { transform: translateX(3px); }
+    .case-link:focus-visible { outline: 2px solid #5C6B3E; outline-offset: 3px; }
+    .featured-tour {
+      padding: 28px 44px 36px;
+      border-top: 1px solid rgba(92, 107, 62, 0.15);
+      background: linear-gradient(180deg, rgba(244, 245, 236, 0.55), rgba(244, 245, 236, 0) 240px);
+    }
+    .featured-tour-head {
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: var(--tr-caps);
+      text-transform: uppercase;
+      color: #6E7E4D;
+      margin-bottom: 18px;
     }
 
     @media (max-width: 900px) {
-      .featured-card {
-        grid-template-columns: 1fr;
-      }
-      .featured-screenshot {
-        height: 240px;
-        border-left: none;
-        border-top: 1px solid rgba(92, 107, 62, 0.18);
-        order: -1;
-      }
-      .featured-screenshot img {
-        object-position: top center;
-      }
-      .featured-content {
-        padding: 28px 24px;
-      }
+      .featured-content { grid-template-columns: 1fr; padding: 28px 24px 20px; }
+      .featured-side { margin-top: 8px; }
+      .featured-tour { padding: 22px 24px 28px; }
+      .case-link { margin-left: 0; }
     }
 
     /* ── Forex Algo Trader featured project ──────────────────────── */
@@ -419,6 +480,52 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
       height: 100%;
       display: block;
     }
+    /* Replay: candles grow in left to right, the MA draws behind them.
+       Only armed by JS (and never under reduced motion), so the chart is
+       fully visible without scripts. */
+    .forex-chart-panel.armed .cdl,
+    .forex-chart-panel.armed .mk { opacity: 0; }
+    .forex-chart-panel.armed .ma { stroke-dasharray: 1; stroke-dashoffset: 1; }
+    .forex-chart-panel.play .cdl {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: cdl-in 320ms cubic-bezier(0.2, 0.7, 0.1, 1) both;
+      animation-delay: calc(var(--i) * 30ms);
+    }
+    .forex-chart-panel.play .mk {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: mk-in 420ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+      animation-delay: calc(var(--i) * 30ms + 220ms);
+    }
+    .forex-chart-panel.play .ma {
+      animation: ma-draw var(--ma-dur) linear both;
+      animation-delay: var(--ma-delay);
+    }
+    @keyframes cdl-in { from { opacity: 0; transform: scaleY(0.15); } to { opacity: 1; transform: none; } }
+    @keyframes mk-in { from { opacity: 0; transform: scale(0.2); } to { opacity: 1; transform: none; } }
+    @keyframes ma-draw { to { stroke-dashoffset: 0; } }
+    .forex-replay {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 11px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-11);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #99F6E4;
+      background: rgba(11, 20, 38, 0.8);
+      border: 1px solid rgba(45, 212, 191, 0.3);
+      border-radius: var(--r-sm);
+      cursor: pointer;
+    }
+    .forex-replay:hover { background: rgba(45, 212, 191, 0.14); }
+    .forex-replay:focus-visible { outline: 2px solid #2DD4BF; outline-offset: 2px; }
     .forex-watermark {
       position: absolute;
       top: 12px;
@@ -456,45 +563,61 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
     </p>
   </header>
 
-  <section class="featured-wrap" aria-label="Featured project">
-    <div class="featured-label">Side hustle</div>
+  <section class="featured-wrap" id="daybourne" aria-label="Featured project">
+    <div class="featured-label">Side project · In progress</div>
     <div class="featured-card">
       <div class="featured-content">
-        <div class="featured-identity">
-          <img src="/daybook-icon.svg" alt="Daybook icon" class="featured-icon" />
-          <span class="featured-appname">Daybook</span>
+        <div>
+          <div class="featured-identity">
+            <img src="/daybourne-mark.svg" alt="" class="featured-icon" />
+            <span class="featured-appname">Daybourne</span>
+          </div>
+          <div class="featured-tagline">Recurring service management · Private beta in preparation</div>
+          <p class="featured-desc">
+            Daybourne runs the business side of recurring service work for owner-operators
+            with one to three people, such as pool service companies and music teachers.
+            It keeps the schedule, the client list, client messages, invoices, and expenses
+            in one place, and it is designed for the owner who does the work during the day
+            and the paperwork at night.
+          </p>
+          <p class="featured-desc">
+            I am building it by myself. Claude Code agents write much of the code, and
+            they work inside a product, design, and review process that I set up for the
+            project. The case study covers how that process works.
+          </p>
         </div>
-        <div class="featured-tagline">Field service management · Side project · In progress</div>
-        <p class="featured-desc">
-          An operations platform for small service businesses — plumbers, HVAC
-          techs, landscapers — that typically run their schedules out of
-          whiteboards and text messages. Daybook combines job scheduling, client
-          management, invoicing, and team dispatch in one tool that scales from a
-          one-person shop to a team of twenty.
-        </p>
-        <div class="featured-stack">
-          <span class="stack-chip">Keycloak SSO</span>
-          <span class="stack-chip">PHP / Symfony</span>
-          <span class="stack-chip">API Platform</span>
-          <span class="stack-chip">Go CLI</span>
-          <span class="stack-chip">React SPA</span>
-          <span class="stack-chip">React Native</span>
-          <span class="stack-chip">Mercure</span>
-          <span class="stack-chip">RabbitMQ</span>
-          <span class="stack-chip">Turborepo</span>
-        </div>
-        <div class="featured-footer">
-          <span class="pill active"><span class="dot"></span>Active</span>
-          <span class="featured-status">In progress</span>
+        <div class="featured-side">
+          <div class="featured-stack">
+            <span class="stack-chip">PHP 8.4 / Symfony</span>
+            <span class="stack-chip">API Platform</span>
+            <span class="stack-chip">PostgreSQL</span>
+            <span class="stack-chip">RabbitMQ</span>
+            <span class="stack-chip">Keycloak SSO</span>
+            <span class="stack-chip">React 19 SPA</span>
+            <span class="stack-chip">Expo / React Native</span>
+            <span class="stack-chip">Go CLI</span>
+            <span class="stack-chip">Playwright</span>
+            <span class="stack-chip">OpenTelemetry</span>
+            <span class="stack-chip">Claude Code</span>
+          </div>
+          <div class="featured-footer">
+            <span class="pill active"><span class="dot"></span>Active</span>
+            <span class="featured-status">In progress</span>
+            <a class="case-link" href="/portfolio/daybourne">
+              Read the case study
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
         </div>
       </div>
-      <div class="featured-screenshot">
-        <img src="/daybook-screenshot.png" alt="Daybook — day view showing scheduled visits, route preview, and earnings summary" />
+      <div class="featured-tour">
+        <div class="featured-tour-head">A tour of the app · Demo data</div>
+        <FeatureTour features={features} />
       </div>
     </div>
   </section>
 
-  <section class="featured-wrap forex-wrap" aria-label="Forex Algo Trader project">
+  <section class="featured-wrap forex-wrap" id="forex" aria-label="Forex Algo Trader project">
     <div class="forex-label">Algorithmic trading · Archived</div>
     <div class="forex-card">
       <div class="forex-content">
@@ -521,7 +644,7 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
           <span class="forex-status">No longer maintained</span>
         </div>
       </div>
-      <div class="forex-chart-panel">
+      <div class="forex-chart-panel" data-forex style={`--ma-delay:${PERIOD * 30}ms; --ma-dur:${(BARS - PERIOD) * 30 + 320}ms`}>
         <svg
           class="forex-svg"
           viewBox={`0 0 ${CW} ${CH}`}
@@ -535,8 +658,8 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
           {gridX.map(gx => (
             <line x1={gx} x2={gx} y1={PT} y2={CH - PB} stroke="rgba(255,255,255,0.04)" vector-effect="non-scaling-stroke" />
           ))}
-          {candles.map(c => (
-            <>
+          {candles.map((c, k) => (
+            <g class="cdl" style={`--i:${k}`}>
               <line
                 x1={c.cx} x2={c.cx} y1={c.yHi} y2={c.yLo}
                 stroke={c.up ? '#2DD4BF' : '#F87171'}
@@ -544,17 +667,46 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
                 vector-effect="non-scaling-stroke"
               />
               <rect x={c.x} y={c.yBody} width={bodyW} height={c.hBody} fill={c.up ? '#2DD4BF' : '#F87171'} />
-            </>
+            </g>
           ))}
-          <polyline points={maPoints} fill="none" stroke="#FBBF24" stroke-width="1.2" vector-effect="non-scaling-stroke" />
+          <polyline class="ma" pathLength="1" points={maPoints} fill="none" stroke="#FBBF24" stroke-width="1.2" vector-effect="non-scaling-stroke" />
           {markers.map(m => (
-            <polygon points={m.points} fill={m.color} />
+            <polygon class="mk" style={`--i:${m.k}`} points={m.points} fill={m.color} />
           ))}
         </svg>
         <div class="forex-watermark">USD/EUR · Daily · 20-MA</div>
+        <button type="button" class="forex-replay" data-forex-replay hidden>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+          Replay
+        </button>
       </div>
     </div>
+    <ZoneRecovery />
   </section>
+
+  <script>
+    function initForex() {
+      const panel = document.querySelector<HTMLElement>('[data-forex]');
+      if (!panel || panel.dataset.ready) return;
+      panel.dataset.ready = '1';
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const btn = panel.querySelector<HTMLButtonElement>('[data-forex-replay]')!;
+      const play = () => {
+        panel.classList.remove('play');
+        void panel.offsetWidth; // restart the CSS animations
+        panel.classList.add('play');
+      };
+      panel.classList.add('armed');
+      btn.hidden = false;
+      btn.addEventListener('click', play);
+      const io = new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) { play(); io.disconnect(); }
+      }, { threshold: 0.45 });
+      io.observe(panel);
+      document.addEventListener('astro:before-swap', () => io.disconnect(), { once: true });
+    }
+    document.addEventListener('astro:page-load', initForex);
+  </script>
 
   <!--<section class="port-grid" aria-label="Portfolio items">-->
 

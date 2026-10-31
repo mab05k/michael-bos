@@ -185,6 +185,67 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     }
 
     .tour { margin-bottom: 8px; }
+
+    /* ── Scroll-driven timeline ──────────────────────────────
+       A rail beside the experience section fills as you read, each
+       employer's dot lights as it passes, and roles rise into place.
+       Pure CSS; browsers without scroll timelines get the static page. */
+    @supports (animation-timeline: view()) {
+      @media screen and (prefers-reduced-motion: no-preference) {
+        .role {
+          animation: role-rise linear both;
+          animation-timeline: view();
+          animation-range: entry 0% entry 55%;
+        }
+        @keyframes role-rise {
+          from { opacity: 0; transform: translateY(22px); }
+          to   { opacity: 1; transform: none; }
+        }
+      }
+      @media screen and (prefers-reduced-motion: no-preference) and (min-width: 1100px) {
+        .record { position: relative; view-timeline: --exp block; }
+        .record::before,
+        .record::after {
+          content: "";
+          position: absolute;
+          left: 6px;
+          top: 64px;
+          bottom: 24px;
+          width: 2px;
+          border-radius: 2px;
+        }
+        .record::before { background: var(--hairline); }
+        .record::after {
+          background: linear-gradient(var(--rust), var(--ochre));
+          transform-origin: top;
+          animation: rail-fill linear both;
+          animation-timeline: --exp;
+          animation-range: cover 12% cover 88%;
+        }
+        @keyframes rail-fill { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+        .tour-band { position: relative; }
+        .tour-band::before {
+          content: "";
+          position: absolute;
+          left: -23px;
+          top: 50%;
+          width: 10px;
+          height: 10px;
+          margin-top: -5px;
+          border-radius: 50%;
+          background: var(--bg-bone);
+          border: 2px solid var(--hairline-strong);
+          z-index: 1;
+          animation: dot-on linear both;
+          animation-timeline: view();
+          animation-range: cover 28% cover 40%;
+        }
+        @keyframes dot-on {
+          from { transform: scale(0.6); }
+          to   { transform: scale(1.15); background: var(--rust); border-color: var(--rust); box-shadow: 0 0 0 5px rgba(184, 74, 38, 0.14); }
+        }
+      }
+    }
     .tour-band {
       display: grid;
       grid-template-columns: 200px 1fr auto;
@@ -498,7 +559,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
   </section>
 
   <!-- Professional experience -->
-  <section class="record" aria-label="Experience">
+  <section class="record" id="experience" aria-label="Experience">
     <div class="record-head">
       <h2>Experience</h2>
       <span class="meta">2010 — present</span>
@@ -761,7 +822,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
   <!-- Lower: skills + education -->
   <section class="lower">
-    <section>
+    <section id="skills">
       <div class="head">
         <h2>Skills</h2>
         <!--<span class="meta">03 / 06</span>-->
@@ -855,7 +916,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       </div>
     </section>
 
-    <section>
+    <section id="education">
       <div class="head">
         <h2>Education &amp; Service</h2>
         <!--<span class="meta">04 / 06</span>-->

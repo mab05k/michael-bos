@@ -1,0 +1,301 @@
+---
+// Daybourne architecture with request "walkthroughs". Every edge and node is
+// static SVG; the script only animates a packet along the selected scenario's
+// edges and highlights the matching caption.
+interface Node { id: string; x: number; y: number; w: number; h: number; title: string; sub: string; kind?: 'ext' | 'core' }
+const nodes: Node[] = [
+  { id: 'web',   x: 20,  y: 40,  w: 168, h: 62, title: 'Web app', sub: 'React 19 · Mantine' },
+  { id: 'phone', x: 20,  y: 176, w: 168, h: 62, title: 'Phone', sub: 'Expo · mobile web' },
+  { id: 'cli',   x: 20,  y: 312, w: 168, h: 62, title: 'CLI', sub: 'Go · Cobra' },
+  { id: 'kc',    x: 286, y: 22,  w: 184, h: 62, title: 'Keycloak', sub: 'OIDC · passkeys · SSO' },
+  { id: 'api',   x: 286, y: 160, w: 184, h: 96, title: 'API', sub: 'Symfony · API Platform', kind: 'core' },
+  { id: 'pg',    x: 570, y: 40,  w: 168, h: 62, title: 'PostgreSQL 18', sub: 'tenant-scoped data' },
+  { id: 'mq',    x: 570, y: 176, w: 168, h: 62, title: 'RabbitMQ', sub: 'Symfony Messenger' },
+  { id: 's3',    x: 570, y: 312, w: 168, h: 62, title: 'Object storage', sub: 'S3-compatible' },
+  { id: 'sch',   x: 794, y: 40,  w: 164, h: 62, title: 'Schedulers', sub: 'recurrence · billing' },
+  { id: 'wk',    x: 794, y: 176, w: 164, h: 62, title: 'Workers', sub: 'notify · identity · media' },
+  { id: 'mail',  x: 794, y: 312, w: 164, h: 62, title: 'Email & SMS', sub: 'delivery providers', kind: 'ext' },
+];
+const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
+const R = (id: string) => { const n = byId[id]; return { l: n.x, r: n.x + n.w, t: n.y, b: n.y + n.h, cx: n.x + n.w / 2, cy: n.y + n.h / 2 }; };
+
+// Edge paths: horizontal-ish beziers from a source side to a target side.
+function h(a: string, b: string, ay = 0, by = 0) {
+  const A = R(a), B = R(b);
+  const x1 = A.r, y1 = A.cy + ay, x2 = B.l, y2 = B.cy + by;
+  const mx = (x1 + x2) / 2;
+  return `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+}
+function v(a: string, b: string, ax = 0) {
+  const A = R(a), B = R(b);
+  const x = A.cx + ax;
+  return `M${x},${A.b} L${x},${B.t}`;
+}
+function hr(a: string, b: string, ay = 0, by = 0) {
+  // right side of a → left side of b, where b is to the LEFT (curve back)
+  const A = R(a), B = R(b);
+  const x1 = A.l, y1 = A.cy + ay, x2 = B.r, y2 = B.cy + by;
+  const mx = (x1 + x2) / 2;
+  return `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+}
+const edges: Record<string, string> = {
+  'web-kc':   h('web', 'kc', -8, 0),
+  'web-api':  h('web', 'api', 10, -26),
+  'phone-api':h('phone', 'api', 0, 0),
+  'cli-api':  h('cli', 'api', 0, 26),
+  'kc-api':   v('kc', 'api'),
+  'api-pg':   h('api', 'pg', -30, 0),
+  'api-mq':   h('api', 'mq', 0, 0),
+  'api-s3':   h('api', 's3', 30, 0),
+  'mq-wk':    h('mq', 'wk'),
+  'wk-mail':  v('wk', 'mail'),
+  'wk-s3':    hr('wk', 's3', 18, -8),
+  'sch-pg':   hr('sch', 'pg'),
+};
+
+interface Step { e: string; rev?: boolean; text: string }
+interface Scenario { id: string; label: string; steps: Step[] }
+const scenarios: Scenario[] = [
+  { id: 'confirm', label: 'Confirm a visit', steps: [
+    { e: 'phone-api', text: 'A technician marks a visit done on their phone.' },
+    { e: 'api-pg', text: 'The API saves that date of the series as its own record, because it now has an outcome.' },
+    { e: 'api-mq', text: 'It queues a client notification instead of sending it during the request.' },
+    { e: 'mq-wk', text: 'A worker picks up the message and checks the delivery rules: quiet hours, the daily cap, and contact hours.' },
+    { e: 'wk-mail', text: 'If the rules allow it, the message goes out by email or text. If not, it waits for the send window.' },
+  ]},
+  { id: 'signin', label: 'Sign in', steps: [
+    { e: 'web-kc', text: 'The web app sends the user to Keycloak, which handles passwords, passkeys, and social sign-in.' },
+    { e: 'web-kc', rev: true, text: 'Keycloak sends back a signed access token.' },
+    { e: 'web-api', text: 'Every API request carries the token. The API checks the signature and scopes the request to the user’s organization.' },
+    { e: 'kc-api', text: 'Keycloak also reports account changes to the API through a webhook.' },
+    { e: 'api-mq', text: 'The API queues each event so the webhook can answer right away.' },
+    { e: 'mq-wk', text: 'A worker applies the change to the API’s record of staff members.' },
+  ]},
+  { id: 'billing', label: 'Monthly billing', steps: [
+    { e: 'sch-pg', text: 'On each organization’s billing day, the billing scheduler starts a run.' },
+    { e: 'sch-pg', text: 'The run drafts one invoice per client from the month’s confirmed visits. No month is billed twice.' },
+    { e: 'web-api', text: 'The owner reviews the drafts in the web app and issues them in a batch.' },
+    { e: 'api-pg', text: 'Issuing gives each invoice a number and a due date and locks its total.' },
+  ]},
+  { id: 'receipt', label: 'Receipt photo', steps: [
+    { e: 'phone-api', text: 'The owner snaps a receipt with quick capture. The expense is saved first.' },
+    { e: 'api-s3', text: 'The original photo goes to S3-compatible object storage.' },
+    { e: 'api-mq', text: 'The API queues a media job.' },
+    { e: 'mq-wk', text: 'A worker builds a smaller display copy of the image.' },
+    { e: 'wk-s3', text: 'The display copy is stored next to the original. The app reads both through short-lived presigned links.' },
+  ]},
+];
+const json = JSON.stringify(scenarios);
+---
+<div class="arch" data-arch>
+  <div class="arch-tabs" role="tablist" aria-label="Request walkthroughs">
+    {scenarios.map((s, i) => (
+      <button type="button" role="tab" class="arch-tab" aria-selected={i === 0 ? 'true' : 'false'} data-scn={s.id}>{s.label}</button>
+    ))}
+  </div>
+
+  <div class="arch-body">
+    <div class="arch-canvas">
+      <svg viewBox="0 0 970 470" role="img" aria-labelledby="arch-title arch-desc" data-arch-svg>
+        <title id="arch-title">Daybourne system architecture</title>
+        <desc id="arch-desc">The web app, phone, and CLI authenticate with Keycloak and call the Symfony API. The API stores data in PostgreSQL and files in object storage, and queues background work on RabbitMQ for workers that send email and text messages. Schedulers run recurring and billing jobs. Every service reports telemetry through OpenTelemetry.</desc>
+        <defs>
+          <marker id="arch-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L8,4 L0,8 z" fill="currentColor" />
+          </marker>
+        </defs>
+
+        <g class="arch-edges">
+          {Object.entries(edges).map(([id, d]) => (
+            <path class="arch-edge" data-edge={id} d={d} marker-end="url(#arch-arrow)" />
+          ))}
+        </g>
+
+        <g class="arch-nodes">
+          {nodes.map(n => (
+            <g class={`arch-node${n.kind ? ' is-' + n.kind : ''}`} data-node={n.id}>
+              <rect x={n.x} y={n.y} width={n.w} height={n.h} rx="10" />
+              <text x={n.x + 14} y={n.y + (n.h > 70 ? 40 : 27)} class="an-title">{n.title}</text>
+              <text x={n.x + 14} y={n.y + (n.h > 70 ? 60 : 46)} class="an-sub">{n.sub}</text>
+              {n.id === 'api' && <text x={n.x + 14} y={n.y + 80} class="an-sub">FrankenPHP · JSON-LD</text>}
+            </g>
+          ))}
+        </g>
+
+        <g class="arch-obs">
+          <rect x="20" y="408" width="930" height="44" rx="10" />
+          <text x="40" y="435" class="an-sub obs-k">OBSERVABILITY</text>
+          <text x="170" y="435" class="an-sub">OpenTelemetry from every service → Grafana Alloy → Loki · Tempo · Mimir · Grafana</text>
+        </g>
+
+        <circle class="arch-packet" r="6" cx="-20" cy="-20" data-packet />
+      </svg>
+    </div>
+
+    <ol class="arch-steps" data-steps aria-live="polite">
+      {scenarios[0].steps.map((s, i) => (
+        <li class={i === 0 ? 'is-on' : ''}><span class="as-n">{i + 1}</span><span>{s.text}</span></li>
+      ))}
+    </ol>
+  </div>
+  <script type="application/json" data-arch-json set:html={json} />
+</div>
+
+<style is:global>
+  .arch { --arch-ink: #3D2418; --arch-accent: #5C6B3E; --arch-hot: #B84A26; }
+  .arch-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .arch-tab {
+    height: 32px; padding: 0 14px; border-radius: var(--r-pill);
+    border: 1px solid var(--hairline-strong); background: transparent;
+    font-family: var(--font-display); font-size: 13px; font-weight: 600; color: var(--canyon-fade);
+    cursor: pointer; transition: all 180ms var(--ease-out);
+  }
+  .arch-tab:hover { color: var(--canyon-ink); border-color: var(--canyon-fade); }
+  .arch-tab[aria-selected="true"] { background: var(--canyon-ink); border-color: var(--canyon-ink); color: var(--bg-bone); }
+  .arch-tab:focus-visible { outline: 2px solid var(--rust); outline-offset: 2px; }
+  .arch-body { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+  .arch-canvas {
+    background: #FBF7EE; border: 1px solid var(--hairline); border-radius: var(--r-lg);
+    padding: 12px; overflow-x: auto;
+  }
+  .arch-canvas svg { display: block; width: 100%; min-width: 640px; height: auto; }
+  .arch-edge {
+    fill: none; stroke: rgba(61, 36, 24, 0.22); stroke-width: 1.5;
+    color: rgba(61, 36, 24, 0.3);
+    transition: stroke 260ms, color 260ms, opacity 260ms;
+  }
+  .arch-edge.is-on {
+    stroke: var(--arch-hot); color: var(--arch-hot); stroke-width: 2;
+    stroke-dasharray: 6 5; animation: arch-flow 900ms linear infinite;
+  }
+  .arch-edge.is-rev { animation-direction: reverse; }
+  .arch-edge.is-dim { opacity: 0.35; }
+  @keyframes arch-flow { to { stroke-dashoffset: -22; } }
+  .arch-node rect { fill: #FFFDF8; stroke: rgba(61, 36, 24, 0.22); stroke-width: 1.2; transition: stroke 260ms, fill 260ms; }
+  .arch-node.is-core rect { fill: #F4F5EC; stroke: rgba(92, 107, 62, 0.5); }
+  .arch-node.is-ext rect { stroke-dasharray: 4 3; }
+  .arch-node.is-on rect { stroke: var(--arch-hot); stroke-width: 2; fill: #FFF6EE; }
+  .arch-node.is-dim { opacity: 0.55; }
+  .arch-node { transition: opacity 260ms; }
+  .an-title { font-family: var(--font-display); font-size: 15px; font-weight: 600; fill: var(--canyon-ink); }
+  .an-sub { font-variant-ligatures: none; font-family: var(--font-mono); font-size: 10.5px; fill: var(--canyon-fade); letter-spacing: 0.02em; }
+  .arch-obs rect { fill: rgba(92, 107, 62, 0.08); stroke: rgba(92, 107, 62, 0.3); stroke-dasharray: 4 3; }
+  .obs-k { fill: var(--arch-accent); font-weight: 700; letter-spacing: 0.08em; }
+  .arch-packet { fill: var(--arch-hot); stroke: #FFF6EE; stroke-width: 2.5; filter: drop-shadow(0 1px 3px rgba(184, 74, 38, 0.5)); }
+  .arch-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; counter-reset: s; }
+  .arch-steps li {
+    display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: baseline;
+    padding: 10px 12px; border-radius: var(--r-md);
+    font-size: 14px; line-height: 1.5; color: var(--canyon-fade);
+    border: 1px solid transparent;
+    transition: background 260ms, color 260ms, border-color 260ms;
+  }
+  .arch-steps li.is-on { background: #FFF6EE; color: var(--canyon-ink); border-color: rgba(184, 74, 38, 0.25); }
+  .as-n { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--rust); }
+  @media (max-width: 960px) {
+    .arch-body { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .arch-edge.is-on { animation: none; stroke-dasharray: none; }
+  }
+</style>
+
+<script>
+  interface Step { e: string; rev?: boolean; text: string }
+  interface Scenario { id: string; label: string; steps: Step[] }
+  const STEP_MS = 2400;
+
+  function initArch(root: HTMLElement) {
+    if (root.dataset.ready) return;
+    root.dataset.ready = '1';
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const scenarios: Scenario[] = JSON.parse(root.querySelector('[data-arch-json]')!.textContent || '[]');
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('.arch-tab')];
+    const list = root.querySelector<HTMLOListElement>('[data-steps]')!;
+    const packet = root.querySelector<SVGCircleElement>('[data-packet]')!;
+    const edgeEl = (id: string) => root.querySelector<SVGPathElement>(`[data-edge="${id}"]`)!;
+
+    let scn = scenarios[0];
+    let step = 0;
+    let t0 = 0;
+    let raf = 0;
+    let visible = false;
+
+    function renderList() {
+      list.innerHTML = '';
+      scn.steps.forEach((s, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="as-n">${i + 1}</span><span></span>`;
+        li.lastElementChild!.textContent = s.text;
+        li.addEventListener('click', () => { step = i; t0 = performance.now(); paint(); });
+        list.appendChild(li);
+      });
+    }
+
+    function paint() {
+      const s = scn.steps[step];
+      const used = new Set(scn.steps.map(x => x.e));
+      root.querySelectorAll<SVGPathElement>('.arch-edge').forEach(p => {
+        const id = p.dataset.edge!;
+        p.classList.toggle('is-on', reduce ? used.has(id) : id === s.e);
+        p.classList.toggle('is-rev', !reduce && id === s.e && !!s.rev);
+        p.classList.toggle('is-dim', !used.has(id));
+      });
+      const active = new Set<string>();
+      (reduce ? scn.steps : [s]).forEach(x => x.e.split('-').forEach(n => active.add(n)));
+      const involved = new Set<string>();
+      scn.steps.forEach(x => x.e.split('-').forEach(n => involved.add(n)));
+      root.querySelectorAll<SVGGElement>('.arch-node').forEach(g => {
+        const id = g.dataset.node!;
+        g.classList.toggle('is-on', active.has(id));
+        g.classList.toggle('is-dim', !involved.has(id));
+      });
+      [...list.children].forEach((li, i) => li.classList.toggle('is-on', reduce || i === step));
+    }
+
+    function frame(now: number) {
+      raf = 0;
+      if (!visible) return;
+      const s = scn.steps[step];
+      const path = edgeEl(s.e);
+      const p = Math.min(1, (now - t0) / (STEP_MS * 0.6));
+      const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      const len = path.getTotalLength();
+      const pt = path.getPointAtLength((s.rev ? 1 - ease : ease) * len);
+      packet.setAttribute('cx', String(pt.x));
+      packet.setAttribute('cy', String(pt.y));
+      if (now - t0 >= STEP_MS) {
+        step = (step + 1) % scn.steps.length;
+        t0 = now;
+        paint();
+      }
+      raf = requestAnimationFrame(frame);
+    }
+
+    function choose(i: number) {
+      tabs.forEach((t, k) => t.setAttribute('aria-selected', String(k === i)));
+      scn = scenarios[i];
+      step = 0;
+      t0 = performance.now();
+      renderList();
+      paint();
+      if (!reduce && visible && !raf) raf = requestAnimationFrame(frame);
+    }
+
+    tabs.forEach((t, i) => t.addEventListener('click', () => choose(i)));
+    renderList();
+    paint();
+
+    if (reduce) { packet.style.display = 'none'; return; }
+    const io = new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      if (visible && !raf) { t0 = performance.now(); raf = requestAnimationFrame(frame); }
+    }, { threshold: 0.3 });
+    io.observe(root);
+    document.addEventListener('astro:before-swap', () => { io.disconnect(); cancelAnimationFrame(raf); }, { once: true });
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    document.querySelectorAll<HTMLElement>('[data-arch]').forEach(initArch);
+  });
+</script>

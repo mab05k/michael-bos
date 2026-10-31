@@ -1,0 +1,309 @@
+---
+import InnerLayout from '../../layouts/InnerLayout.astro';
+import ArchitectureDiagram from '../../components/ArchitectureDiagram.astro';
+import ClaudePipeline from '../../components/ClaudePipeline.astro';
+
+const stats = [
+  { n: '3', label: 'client apps on one API', sub: 'web, phone, and a Go CLI' },
+  { n: '81', label: 'in-app help articles', sub: 'written alongside the features' },
+  { n: '9', label: 'Claude Code skills', sub: 'plus developer and UAT agents' },
+  { n: '4', label: 'test layers', sub: 'PHPUnit, Vitest, Go, Playwright' },
+];
+
+const decisions = [
+  {
+    k: 'Scheduling',
+    title: 'A series is stored once, and its dates are computed',
+    body: 'A recurring job is one record with a recurrence rule. The dates it produces are calculated when someone looks at the calendar, and a date becomes its own record only when someone changes, confirms, or invoices it. This keeps a weekly client from turning into hundreds of rows, and editing the series reaches every date that has not been changed on its own. Most of the test effort goes here, along with timezones and daylight saving time, because that is where the bugs have been.',
+  },
+  {
+    k: 'Identity',
+    title: 'Keycloak handles sign-in, so the API only checks tokens',
+    body: 'I did not want to build password storage, passkeys, social sign-in, and session handling myself. Keycloak provides all of them, and the web app, phone, and CLI share one OpenID Connect flow. The API validates the token on every request and scopes the data to the user’s organization, and the role model decides what an owner, a dispatcher, and a technician can each see.',
+  },
+  {
+    k: 'Data',
+    title: 'Nothing disappears',
+    body: 'Records are soft-deleted, settings changes are written to an audit log, and an issued invoice has a locked total. When a client says that is not what we agreed, the owner can see what changed, when, and who changed it. Every resource also uses a typed, prefixed identifier, so an ID in a log or a support message says what kind of record it is.',
+  },
+  {
+    k: 'Messaging',
+    title: 'Client messages go through a queue and a set of rules',
+    body: 'The API never sends a message during a request. It queues the message on RabbitMQ, and a worker checks the delivery rules before sending: quiet hours, a daily cap per client, the owner’s send window, and fixed contact hours in the client’s own timezone. A message that is not allowed yet is held, not dropped.',
+  },
+  {
+    k: 'Money',
+    title: 'Daybourne drafts, and the owner issues',
+    body: 'Invoices are drafted automatically on the billing day, but a person always issues them. The first beta tester keeps their books in QuickBooks Online, so the planned QuickBooks sync follows the same rule: Daybourne drafts the invoice, QuickBooks issues it, and the same invoice or payment is never entered twice.',
+  },
+  {
+    k: 'Testing',
+    title: 'Functional tests against a real database',
+    body: 'I prefer functional tests that run against a real container and database over unit tests with mocks. Each layer tests only what it can see: PHPUnit covers the HTTP contract and permissions, Vitest covers component logic, Playwright covers user flows across pages, and the Go suite runs the CLI against the live API.',
+  },
+];
+
+const guardrails = [
+  { t: 'Shared context', d: 'Each component has its own CLAUDE.md, and the product context and standing decisions live in two short documents that every planning skill reads first. Agents do not re-ask questions I have already answered.' },
+  { t: 'Path-scoped rules', d: 'Rules for the schema, recurrence, notifications, observability, and help docs load automatically when an agent touches files in those areas.' },
+  { t: 'Hooks', d: 'A hook type-checks client files after every edit. At the end of each turn, a second hook runs the compile and style checks (PHPStan and the TypeScript compiler) on whatever changed.' },
+  { t: 'Specialist skills', d: '/api-endpoint scaffolds or reviews an API Platform endpoint against the repository’s patterns, /verify drives the live stack with curl and Playwright, and /daybourne-design applies the design system.' },
+  { t: 'Bounded loops', d: 'The review gate gets two passes and UAT gets three cycles. If problems keep coming back, the branch comes to me instead of looping.' },
+  { t: 'Documentation as done', d: 'A user-facing change is not finished until the in-app help describes it. A check script fails the branch when a screen changed but its guide did not.' },
+];
+---
+<InnerLayout
+  title="Daybourne case study"
+  activePage="portfolio"
+  description="How Michael Bos is building Daybourne, a recurring-service management platform, with Symfony, React, Keycloak, and a pipeline of Claude Code agents."
+>
+  <style is:global>
+    .cs { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .cs-crumb {
+      margin-top: 32px;
+      font-family: var(--font-mono); font-size: var(--fs-11); letter-spacing: var(--tr-caps); text-transform: uppercase;
+      color: var(--canyon-fade);
+    }
+    .cs-crumb a { color: var(--rust); text-decoration: none; }
+    .cs-crumb a:hover { text-decoration: underline; }
+    .cs-hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 48px; align-items: center; margin-top: 18px; }
+    .cs-id { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .cs-id img { width: 40px; height: 44px; }
+    .cs-id .tag {
+      font-family: var(--font-mono); font-size: var(--fs-11); letter-spacing: var(--tr-caps); text-transform: uppercase; color: #6E7E4D;
+    }
+    .cs-hero h1 {
+      margin: 0 0 18px; font-family: var(--font-display); font-size: 56px; font-weight: 500;
+      letter-spacing: -0.03em; line-height: 1; color: var(--canyon-ink);
+    }
+    .cs-lede { margin: 0 0 14px; font-size: 18px; line-height: 1.6; color: var(--canyon-shadow); text-wrap: pretty; max-width: 60ch; }
+    .cs-shot {
+      position: relative; border-radius: 12px; overflow: hidden;
+      border: 1px solid rgba(92, 107, 62, 0.25);
+      box-shadow: 0 30px 60px -30px rgba(31, 20, 12, 0.45);
+      transform: perspective(1400px) rotateY(-8deg) rotateX(3deg);
+      transition: transform 600ms var(--ease-out);
+    }
+    .cs-shot:hover { transform: none; }
+    .cs-shot img { display: block; width: 100%; height: auto; }
+
+    .cs-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 56px; }
+    .cs-stat { padding: 18px 20px; border-radius: var(--r-lg); background: var(--card-bg); border: 1px solid var(--hairline); }
+    .cs-stat .n { font-family: var(--font-display); font-size: 40px; font-weight: 600; letter-spacing: -0.03em; color: var(--rust); line-height: 1; font-variant-numeric: tabular-nums; }
+    .cs-stat .l { margin-top: 8px; font-weight: 600; font-size: 14px; color: var(--canyon-ink); }
+    .cs-stat .s { margin-top: 2px; font-size: 13px; color: var(--canyon-fade); }
+
+    .cs-sec { margin-top: 88px; }
+    .cs-sec-head { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; margin-bottom: 28px; }
+    .cs-sec-head .num {
+      font-family: var(--font-mono); font-size: var(--fs-12); letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--rust);
+      padding-top: 10px;
+    }
+    .cs-sec-head h2 { margin: 0 0 12px; font-family: var(--font-display); font-size: 34px; font-weight: 500; letter-spacing: -0.025em; color: var(--canyon-ink); line-height: 1.1; }
+    .cs-sec-head p { margin: 0 0 10px; font-size: 16px; line-height: 1.65; color: var(--canyon-shadow); max-width: 70ch; text-wrap: pretty; }
+
+    .cs-decisions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .cs-dec {
+      padding: 22px 24px; border-radius: var(--r-lg); background: var(--card-bg); border: 1px solid var(--hairline);
+      transition: border-color 200ms, transform 200ms var(--ease-out), box-shadow 200ms;
+    }
+    .cs-dec:hover { border-color: rgba(184, 74, 38, 0.35); transform: translateY(-2px); box-shadow: var(--shadow-2); }
+    .cs-dec .k { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--rust); }
+    .cs-dec h3 { margin: 6px 0 10px; font-family: var(--font-display); font-size: 18px; font-weight: 600; letter-spacing: -0.01em; color: var(--canyon-ink); }
+    .cs-dec p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--canyon-shadow); text-wrap: pretty; }
+
+    .cs-guard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); border-radius: var(--r-lg); overflow: hidden; margin-top: 32px; }
+    .cs-guard > div { background: var(--bg-bone); padding: 20px 22px; }
+    .cs-guard h3 { margin: 0 0 8px; font-family: var(--font-display); font-size: 15px; font-weight: 600; color: var(--canyon-ink); }
+    .cs-guard p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--canyon-shadow); text-wrap: pretty; }
+
+    .cs-media { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center; margin-top: 40px; }
+    .cs-media p { margin: 0 0 12px; font-size: 16px; line-height: 1.65; color: var(--canyon-shadow); text-wrap: pretty; }
+    .cs-media .frame { border-radius: 10px; overflow: hidden; border: 1px solid var(--hairline-strong); box-shadow: var(--shadow-2); }
+    .cs-media .frame img { display: block; width: 100%; height: auto; }
+
+    .cs-next {
+      margin-top: 88px; padding: 32px 36px; border-radius: var(--r-lg);
+      background: #F4F5EC; border: 1px solid rgba(92, 107, 62, 0.25);
+      display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center;
+    }
+    .cs-next h2 { margin: 0 0 8px; font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--canyon-ink); }
+    .cs-next p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--canyon-shadow); max-width: 70ch; }
+    .cs-back {
+      display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: var(--r-pill);
+      background: #5C6B3E; color: #F4F5EC; text-decoration: none; font-weight: 600; font-size: 14px; white-space: nowrap;
+    }
+    .cs-back:hover { background: #4C5933; }
+
+    /* Sections rise in as they scroll into view, where the browser supports it */
+    @supports (animation-timeline: view()) {
+      @media (prefers-reduced-motion: no-preference) {
+        .cs-rise {
+          animation: cs-rise linear both;
+          animation-timeline: view();
+          animation-range: entry 0% entry 40%;
+        }
+        @keyframes cs-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+      }
+    }
+
+    @media (max-width: 960px) {
+      .cs-hero { grid-template-columns: 1fr; gap: 28px; }
+      .cs-hero h1 { font-size: 42px; }
+      .cs-shot { transform: none; }
+      .cs-stats { grid-template-columns: repeat(2, 1fr); }
+      .cs-sec-head { grid-template-columns: 1fr; gap: 4px; }
+      .cs-sec-head .num { padding-top: 0; }
+      .cs-decisions, .cs-media { grid-template-columns: 1fr; }
+      .cs-guard { grid-template-columns: 1fr; }
+      .cs-next { grid-template-columns: 1fr; padding: 24px; }
+    }
+  </style>
+
+  <article class="cs">
+    <div class="cs-crumb"><a href="/portfolio">Portfolio</a> / Case study</div>
+
+    <header class="cs-hero">
+      <div>
+        <div class="cs-id">
+          <img src="/daybourne-mark.svg" alt="" />
+          <span class="tag">Side project · In progress</span>
+        </div>
+        <h1>Daybourne</h1>
+        <p class="cs-lede">
+          Daybourne is a recurring-service management platform for owner-operators with
+          one to three people whose revenue comes mostly from repeat clients on a schedule.
+          The first beta tester runs a solo pool service with a weekly route, sends one
+          invoice per client each month, and keeps the books in QuickBooks Online.
+        </p>
+        <p class="cs-lede">
+          Most owners in this group run their business from a calendar app, text
+          messages, and a spreadsheet. The field service tools on the market are built for
+          dispatch offices and one-off jobs, so they ask a solo owner to do a lot of setup
+          for features they will not use. I set out to build something smaller that
+          handles the whole weekly loop of visits, messages, invoices, and expenses.
+        </p>
+      </div>
+      <div class="cs-shot">
+        <img src="/portfolio/daybourne/today.webp" alt="The Today page in Daybourne, showing the day's progress, the next visits, and the timeline" />
+      </div>
+    </header>
+
+    <div class="cs-stats cs-rise">
+      {stats.map(s => (
+        <div class="cs-stat">
+          <div class="n">{s.n}</div>
+          <div class="l">{s.label}</div>
+          <div class="s">{s.sub}</div>
+        </div>
+      ))}
+    </div>
+
+    <section class="cs-sec" id="architecture" aria-labelledby="arch-h">
+      <div class="cs-sec-head cs-rise">
+        <div class="num">01 · Architecture</div>
+        <div>
+          <h2 id="arch-h">How the pieces fit together</h2>
+          <p>
+            The backend is a Symfony and API Platform application running on FrankenPHP,
+            with PostgreSQL for data, RabbitMQ for background work, and S3-compatible
+            storage for receipt photos. Keycloak handles identity for every client. The web
+            app is a React single-page app in a Turborepo monorepo that also holds the
+            mobile app and the shared API client and types. The whole stack runs locally
+            under Docker Compose, including Grafana for logs, traces, and metrics.
+          </p>
+          <p>Pick a walkthrough to follow one request through the system.</p>
+        </div>
+      </div>
+      <ArchitectureDiagram />
+    </section>
+
+    <section class="cs-sec" id="decisions" aria-labelledby="dec-h">
+      <div class="cs-sec-head cs-rise">
+        <div class="num">02 · Decisions</div>
+        <div>
+          <h2 id="dec-h">Decisions that shaped it</h2>
+          <p>
+            Each of these is written down in the repository as an architecture document or a
+            standing product decision, so the agents that build features follow them too.
+          </p>
+        </div>
+      </div>
+      <div class="cs-decisions">
+        {decisions.map(d => (
+          <div class="cs-dec cs-rise">
+            <span class="k">{d.k}</span>
+            <h3>{d.title}</h3>
+            <p>{d.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="cs-sec" id="process" aria-labelledby="ai-h">
+      <div class="cs-sec-head cs-rise">
+        <div class="num">03 · Process</div>
+        <div>
+          <h2 id="ai-h">How I build it with Claude Code</h2>
+          <p>
+            I build Daybourne by myself, so I set it up the way I would set up a team. Each
+            role in a feature's life is a Claude Code skill with a written procedure: a
+            product owner, an architect, a tech lead, a project manager, and a dev team lead
+            who runs developer agents in parallel. Every stage produces a document that the
+            next stage reads, and the stages that decide what gets built can only be started
+            by me.
+          </p>
+          <p>
+            My part is close to my role at work. I make the product decisions, approve the
+            requirements and the plan, and review what comes back before it merges.
+          </p>
+        </div>
+      </div>
+
+      <ClaudePipeline />
+
+      <div class="cs-guard cs-rise">
+        {guardrails.map(g => (
+          <div>
+            <h3>{g.t}</h3>
+            <p>{g.d}</p>
+          </div>
+        ))}
+      </div>
+
+      <div class="cs-media cs-rise">
+        <div>
+          <p>
+            The help center is part of that definition of done. Every screen has a guide that
+            opens beside the work, and there are 81 articles today. The screenshots and short
+            clips in those guides are captured by a Playwright suite that signs in to a seeded
+            demo business at a fixed date and time, so a recapture produces the same picture
+            every time.
+          </p>
+          <p>
+            Every image and clip of the app on this site came from that suite. I cropped them
+            and did not stage anything by hand.
+          </p>
+        </div>
+        <div class="frame">
+          <img src="/portfolio/daybourne/help.webp" alt="The help panel open beside the invoicing settings, explaining the billing day" loading="lazy" />
+        </div>
+      </div>
+    </section>
+
+    <section class="cs-next cs-rise">
+      <div>
+        <h2>What comes next</h2>
+        <p>
+          The next milestone is a small, free beta for pool service owners and music
+          teachers, who will request access to join. Before that, I need to finish the QuickBooks Online sync, form
+          the business, publish the terms and privacy pages, and put the app online.
+        </p>
+      </div>
+      <a class="cs-back" href="/portfolio">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to the feature tour
+      </a>
+    </section>
+  </article>
+</InnerLayout>
