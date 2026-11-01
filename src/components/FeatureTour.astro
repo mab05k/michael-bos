@@ -1,0 +1,433 @@
+---
+// Daybourne feature tour — a tab list beside a browser-framed media stage.
+// Media is captured by the app's own Playwright help-media pipeline (cropped
+// so the pre-rename wordmark in the sidebar never shows). Without JS the first
+// feature renders with its poster and every tab still links to its panel.
+export interface Feature {
+  id: string;
+  title: string;
+  line: string;
+  body: string;
+  path: string;
+  video?: string;
+  image: string;
+  phone?: string;
+  alt: string;
+}
+
+interface Props { features: Feature[] }
+const { features } = Astro.props;
+const base = '/portfolio/daybourne/';
+---
+<div class="tour" data-tour>
+  <div class="tour-tabs" role="tablist" aria-label="Daybourne features" aria-orientation="vertical">
+    {features.map((f, i) => (
+      <button
+        class="tour-tab"
+        role="tab"
+        id={`tab-${f.id}`}
+        aria-selected={i === 0 ? 'true' : 'false'}
+        aria-controls={`panel-${f.id}`}
+        tabindex={i === 0 ? 0 : -1}
+        data-idx={i}
+      >
+        <span class="tt-num">{String(i + 1).padStart(2, '0')}</span>
+        <span class="tt-text">
+          <span class="tt-title">{f.title}</span>
+          <span class="tt-line">{f.line}</span>
+        </span>
+        <span class="tt-progress" aria-hidden="true"><span></span></span>
+      </button>
+    ))}
+  </div>
+
+  <div class="tour-stage">
+    <div class="tour-window">
+      <div class="tw-bar" aria-hidden="true">
+        <span class="tw-dots"><i></i><i></i><i></i></span>
+        <span class="tw-url"><span class="tw-host">app.daybourne.com</span><span class="tw-path" data-path>{features[0].path}</span></span>
+        <button class="tw-toggle" type="button" data-toggle aria-label="Pause the tour" hidden>
+          <svg class="i-pause" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+          <svg class="i-play" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5Z"/></svg>
+        </button>
+      </div>
+      <div class="tw-viewport">
+        {features.map((f, i) => (
+          <figure
+            class={`tour-panel${i === 0 ? ' is-active' : ''}`}
+            role="tabpanel"
+            id={`panel-${f.id}`}
+            aria-labelledby={`tab-${f.id}`}
+            data-path={f.path}
+          >
+            {f.video ? (
+              <video
+                muted
+                playsinline
+                preload={i === 0 ? 'metadata' : 'none'}
+                poster={base + f.image}
+                aria-label={f.alt}
+                data-src={base + f.video}
+              />
+            ) : (
+              <img src={base + f.image} alt={f.alt} loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+            )}
+            {f.phone && (
+              <img class="tour-phone" src={base + f.phone} alt="" loading="lazy" decoding="async" />
+            )}
+          </figure>
+        ))}
+      </div>
+    </div>
+    <div class="tour-copy" aria-live="polite">
+      {features.map((f, i) => (
+        <p class={`tour-body${i === 0 ? ' is-active' : ''}`} data-body={i}>{f.body}</p>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  .tour {
+    display: grid;
+    grid-template-columns: minmax(240px, 300px) 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  .tour-tabs { display: flex; flex-direction: column; gap: 4px; }
+  .tour-tab {
+    position: relative;
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 10px;
+    align-items: baseline;
+    text-align: left;
+    padding: 12px 14px 14px;
+    border: 1px solid transparent;
+    border-radius: var(--r-md);
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    overflow: hidden;
+    transition: background 220ms var(--ease-out), border-color 220ms var(--ease-out);
+  }
+  .tour-tab:hover { background: rgba(92, 107, 62, 0.06); }
+  .tour-tab:focus-visible { outline: 2px solid #5C6B3E; outline-offset: 2px; }
+  .tour-tab[aria-selected="true"] {
+    background: #F4F5EC;
+    border-color: rgba(92, 107, 62, 0.22);
+  }
+  .tt-num {
+    font-family: var(--font-mono);
+    font-size: var(--fs-11);
+    letter-spacing: var(--tr-caps);
+    color: #8A9670;
+  }
+  .tour-tab[aria-selected="true"] .tt-num { color: #5C6B3E; font-weight: 600; }
+  .tt-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .tt-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: var(--fw-semibold);
+    color: var(--canyon-ink);
+    letter-spacing: -0.01em;
+  }
+  .tt-line {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--canyon-fade);
+  }
+  .tt-progress {
+    position: absolute;
+    left: 14px; right: 14px; bottom: 6px;
+    height: 2px;
+    border-radius: 2px;
+    background: rgba(92, 107, 62, 0.12);
+    opacity: 0;
+    transition: opacity 200ms;
+  }
+  .tt-progress span {
+    display: block;
+    height: 100%;
+    width: 100%;
+    border-radius: inherit;
+    background: #5C6B3E;
+    transform-origin: left center;
+    transform: scaleX(var(--p, 0));
+  }
+  .tour[data-auto="on"] .tour-tab[aria-selected="true"] .tt-progress { opacity: 1; }
+
+  .tour-stage { min-width: 0; }
+  .tour-window {
+    border-radius: 10px;
+    border: 1px solid rgba(92, 107, 62, 0.25);
+    background: #FBFAF5;
+    box-shadow: 0 1px 2px rgba(31,20,12,0.06), 0 18px 40px -18px rgba(31,20,12,0.28);
+    overflow: hidden;
+  }
+  .tw-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 34px;
+    padding: 0 12px;
+    background: #EFEEE4;
+    border-bottom: 1px solid rgba(92, 107, 62, 0.18);
+  }
+  .tw-dots { display: inline-flex; gap: 6px; }
+  .tw-dots i { width: 9px; height: 9px; border-radius: 50%; background: #D6D3C2; display: block; }
+  .tw-url {
+    flex: 1;
+    min-width: 0;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #FBFAF5;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #8A8B7A;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tw-host { color: #6E7E4D; }
+  .tw-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    border: 1px solid rgba(92, 107, 62, 0.25);
+    background: #FBFAF5;
+    color: #5C6B3E;
+    cursor: pointer;
+  }
+  .tw-toggle .i-play { display: none; }
+  .tour[data-auto="off"] .tw-toggle .i-play { display: block; }
+  .tour[data-auto="off"] .tw-toggle .i-pause { display: none; }
+
+  .tw-viewport {
+    position: relative;
+    aspect-ratio: 1038 / 800;
+    background: #FBFAF5;
+  }
+  .tour-panel {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 360ms var(--ease-out), visibility 0s linear 360ms;
+  }
+  .tour-panel.is-active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 360ms var(--ease-out), visibility 0s;
+  }
+  .tour-panel > video,
+  .tour-panel > img:not(.tour-phone) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top left;
+    display: block;
+  }
+  .tour-phone {
+    position: absolute;
+    right: 4%;
+    bottom: -6%;
+    width: 24%;
+    border-radius: 18px;
+    border: 6px solid #2A2A24;
+    box-shadow: 0 20px 40px -12px rgba(31,20,12,0.45);
+    background: #FBFAF5;
+    transform: translateY(16px);
+    opacity: 0;
+    transition: transform 520ms var(--ease-out) 120ms, opacity 520ms var(--ease-out) 120ms;
+  }
+  .tour-panel.is-active .tour-phone { transform: none; opacity: 1; }
+
+  .tour-copy { position: relative; margin-top: 18px; min-height: 4.8em; }
+  .tour-body {
+    margin: 0;
+    max-width: 70ch;
+    font-size: var(--fs-16);
+    line-height: 1.6;
+    color: var(--canyon-shadow);
+    text-wrap: pretty;
+    display: none;
+  }
+  .tour-body.is-active { display: block; animation: tour-fade 360ms var(--ease-out); }
+  @keyframes tour-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  @media (max-width: 900px) {
+    .tour { grid-template-columns: 1fr; gap: 16px; }
+    .tour-tabs {
+      flex-direction: row;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 4px;
+      margin: 0 -24px;
+      padding-left: 24px;
+      padding-right: 24px;
+      scrollbar-width: none;
+    }
+    .tour-tabs::-webkit-scrollbar { display: none; }
+    .tour-tab {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      grid-template-columns: auto auto;
+      padding: 8px 12px 12px;
+      border-color: rgba(92, 107, 62, 0.18);
+    }
+    .tt-line { display: none; }
+    .tt-title { font-size: 14px; white-space: nowrap; }
+    .tour-phone { width: 30%; border-width: 4px; border-radius: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tour-panel, .tour-panel.is-active, .tour-phone { transition: none; }
+    .tour-body.is-active { animation: none; }
+  }
+</style>
+
+<script>
+  const STILL_MS = 7000;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function initTour(root: HTMLElement) {
+    if (root.dataset.ready) return;
+    root.dataset.ready = '1';
+
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('.tour-tab')];
+    const panels = [...root.querySelectorAll<HTMLElement>('.tour-panel')];
+    const bodies = [...root.querySelectorAll<HTMLElement>('.tour-body')];
+    const pathEl = root.querySelector<HTMLElement>('[data-path]')!;
+    const toggle = root.querySelector<HTMLButtonElement>('[data-toggle]')!;
+
+    let idx = 0;
+    let auto = !reduce.matches;
+    let inView = false;
+    let stillStart = 0;
+    let raf = 0;
+
+    root.dataset.auto = auto ? 'on' : 'off';
+    toggle.hidden = false;
+
+    const videoOf = (i: number) => panels[i].querySelector('video');
+
+    function load(v: HTMLVideoElement) {
+      if (!v.src && v.dataset.src) { v.src = v.dataset.src; v.preload = 'auto'; }
+      // Nothing autoplays under reduced motion, so hand the viewer the controls
+      if (reduce.matches) v.controls = true;
+    }
+
+    function setProgress(p: number) {
+      tabs[idx].querySelector<HTMLElement>('.tt-progress span')!.style.setProperty('--p', String(Math.min(1, p)));
+    }
+
+    function tick(now: number) {
+      raf = 0;
+      if (!auto || !inView) return;
+      const v = videoOf(idx);
+      if (v) {
+        if (v.duration) setProgress(v.currentTime / v.duration);
+      } else {
+        const p = (now - stillStart) / STILL_MS;
+        setProgress(p);
+        if (p >= 1) { select((idx + 1) % tabs.length, false); return; }
+      }
+      raf = requestAnimationFrame(tick);
+    }
+
+    function startMedia() {
+      const v = videoOf(idx);
+      if (v) {
+        load(v);
+        v.loop = !auto;
+        if (inView && !reduce.matches) v.play().catch(() => {});
+      } else {
+        stillStart = performance.now();
+      }
+      if (!raf && auto && inView) raf = requestAnimationFrame(tick);
+    }
+
+    function select(i: number, focus: boolean) {
+      const prev = videoOf(idx);
+      if (prev) { prev.pause(); prev.currentTime = 0; }
+      setProgress(0);
+      tabs[idx].setAttribute('aria-selected', 'false');
+      tabs[idx].tabIndex = -1;
+      panels[idx].classList.remove('is-active');
+      bodies[idx].classList.remove('is-active');
+
+      idx = i;
+      tabs[idx].setAttribute('aria-selected', 'true');
+      tabs[idx].tabIndex = 0;
+      panels[idx].classList.add('is-active');
+      bodies[idx].classList.add('is-active');
+      pathEl.textContent = panels[idx].dataset.path || '';
+      if (focus) tabs[idx].focus();
+      // keep the active chip visible in the horizontal mobile strip
+      tabs[idx].scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' });
+      startMedia();
+    }
+
+    function setAuto(on: boolean) {
+      auto = on;
+      root.dataset.auto = on ? 'on' : 'off';
+      toggle.setAttribute('aria-label', on ? 'Pause the tour' : 'Play the tour');
+      const v = videoOf(idx);
+      if (v) v.loop = !on;
+      if (on) startMedia(); else setProgress(0);
+    }
+
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => { setAuto(false); select(i, false); });
+      t.addEventListener('keydown', (e) => {
+        const k = e.key;
+        let n = -1;
+        if (k === 'ArrowDown' || k === 'ArrowRight') n = (idx + 1) % tabs.length;
+        else if (k === 'ArrowUp' || k === 'ArrowLeft') n = (idx - 1 + tabs.length) % tabs.length;
+        else if (k === 'Home') n = 0;
+        else if (k === 'End') n = tabs.length - 1;
+        if (n >= 0) { e.preventDefault(); setAuto(false); select(n, true); }
+      });
+    });
+
+    panels.forEach((p, i) => {
+      const v = p.querySelector('video');
+      if (!v) return;
+      v.addEventListener('ended', () => { if (auto && i === idx) select((idx + 1) % tabs.length, false); });
+    });
+
+    toggle.addEventListener('click', () => setAuto(!auto));
+
+    const io = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      const v = videoOf(idx);
+      if (inView) {
+        if (v) { load(v); if (!reduce.matches) v.play().catch(() => {}); }
+        else stillStart = performance.now();
+        if (!raf && auto) raf = requestAnimationFrame(tick);
+      } else if (v) {
+        v.pause();
+      }
+    }, { threshold: 0.35 });
+    io.observe(root);
+
+    // Preload the next clip while the current one plays
+    root.addEventListener('play', () => {
+      const n = videoOf((idx + 1) % tabs.length);
+      if (n && !n.src && n.dataset.src) { n.preload = 'metadata'; n.src = n.dataset.src; }
+    }, true);
+
+    document.addEventListener('astro:before-swap', () => { io.disconnect(); cancelAnimationFrame(raf); }, { once: true });
+  }
+
+  function boot() {
+    document.querySelectorAll<HTMLElement>('[data-tour]').forEach(initTour);
+  }
+  document.addEventListener('astro:page-load', boot);
+</script>

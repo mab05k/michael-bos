@@ -1,0 +1,411 @@
+---
+// Interactive Zone Recovery simulator. The static markup is a labelled shell;
+// the script draws the simulation into the SVG, so without JS the explanation
+// still reads on its own.
+---
+<div class="zr" id="zone-recovery" data-zr>
+  <div class="zr-head">
+    <div>
+      <div class="zr-kicker">Interactive · Simulated price</div>
+      <h3 class="zr-title">How Zone Recovery works</h3>
+    </div>
+    <div class="zr-actions">
+      <button type="button" class="zr-btn" data-zr-replay>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        Replay
+      </button>
+      <button type="button" class="zr-btn" data-zr-new>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>
+        New price path
+      </button>
+    </div>
+  </div>
+
+  <p class="zr-desc">
+    The system opens a trade in the direction of the trend. If price moves against it
+    and crosses the recovery line, the system opens a larger trade in the opposite
+    direction. Each new trade is sized so that reaching either take-profit line closes
+    every open position for a net gain. Move the sliders to see how the zone width and
+    the take-profit distance change the size of each recovery order.
+  </p>
+
+  <div class="zr-body">
+    <div class="zr-chart">
+      <svg viewBox="0 0 600 320" preserveAspectRatio="none" role="img" aria-label="Simulated price path with the recovery zone, take-profit lines, and each order the system opened" data-zr-svg>
+        <g data-zr-grid></g>
+        <rect data-zr-zone x="0" width="600" fill="rgba(251,191,36,0.10)" />
+        <line data-zr-upper x1="0" x2="600" stroke="rgba(251,191,36,0.55)" stroke-dasharray="4 4" vector-effect="non-scaling-stroke" />
+        <line data-zr-lower x1="0" x2="600" stroke="rgba(251,191,36,0.55)" stroke-dasharray="4 4" vector-effect="non-scaling-stroke" />
+        <line data-zr-tpu x1="0" x2="600" stroke="rgba(45,212,191,0.6)" stroke-dasharray="2 5" vector-effect="non-scaling-stroke" />
+        <line data-zr-tpl x1="0" x2="600" stroke="rgba(248,113,113,0.6)" stroke-dasharray="2 5" vector-effect="non-scaling-stroke" />
+        <polyline data-zr-path fill="none" stroke="#E2E8F0" stroke-width="1.4" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+        <g data-zr-marks></g>
+      </svg>
+      <div class="zr-legend" aria-hidden="true">
+        <span><i class="lg-tp"></i>Take profit (long)</span>
+        <span><i class="lg-zone"></i>Recovery zone</span>
+        <span><i class="lg-tpl"></i>Take profit (short)</span>
+      </div>
+    </div>
+
+    <div class="zr-side">
+      <label class="zr-field">
+        <span class="zr-label">Zone width <output data-zr-zout>15</output> pips</span>
+        <input type="range" min="6" max="40" step="1" value="15" data-zr-zone-in />
+      </label>
+      <label class="zr-field">
+        <span class="zr-label">Take profit <output data-zr-tout>30</output> pips</span>
+        <input type="range" min="10" max="60" step="1" value="30" data-zr-tp-in />
+      </label>
+
+      <table class="zr-ladder">
+        <thead><tr><th>#</th><th>Side</th><th>Lots</th><th>Entry</th></tr></thead>
+        <tbody data-zr-rows></tbody>
+      </table>
+
+      <div class="zr-result" data-zr-result>
+        <div><span class="zr-k">Net at close</span><span class="zr-v" data-zr-net>—</span></div>
+        <div><span class="zr-k">Largest exposure</span><span class="zr-v" data-zr-exp>—</span></div>
+        <div><span class="zr-k">Worst drawdown</span><span class="zr-v" data-zr-dd>—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="zr-note">
+    The recovery orders grow with every reversal, so a market that ranges inside the
+    zone for a long time builds a very large position. That growth is the main risk of
+    the strategy. This simulation stops opening new orders after eight, and dollar
+    figures assume $10 per pip on a standard lot.
+  </p>
+</div>
+
+<style is:global>
+  .zr {
+    margin-top: 20px;
+    background: #0B1426;
+    color: #CBD5E1;
+    border: 1px solid rgba(20, 184, 166, 0.22);
+    border-radius: var(--r-lg);
+    padding: 28px 32px 24px;
+  }
+  .zr-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .zr-kicker {
+    font-family: var(--font-mono); font-size: var(--fs-11); letter-spacing: var(--tr-caps);
+    text-transform: uppercase; color: #2DD4BF; margin-bottom: 6px;
+  }
+  .zr-title { margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 600; color: #F1F5F9; letter-spacing: -0.015em; }
+  .zr-actions { display: flex; gap: 8px; }
+  .zr-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    height: 30px; padding: 0 12px;
+    font-family: var(--font-mono); font-size: var(--fs-11); letter-spacing: 0.04em; text-transform: uppercase;
+    color: #99F6E4; background: rgba(45, 212, 191, 0.08);
+    border: 1px solid rgba(45, 212, 191, 0.3); border-radius: var(--r-sm); cursor: pointer;
+  }
+  .zr-btn:hover { background: rgba(45, 212, 191, 0.16); }
+  .zr-btn:focus-visible, .zr input:focus-visible { outline: 2px solid #2DD4BF; outline-offset: 2px; }
+  .zr-desc { margin: 14px 0 20px; max-width: 80ch; font-size: var(--fs-14); line-height: 1.6; color: #94A3B8; text-wrap: pretty; }
+  .zr-body { display: grid; grid-template-columns: 1fr 280px; gap: 24px; }
+  .zr-chart { min-width: 0; }
+  .zr-chart svg {
+    width: 100%; height: 320px; display: block;
+    background: #0E1A30; border: 1px solid rgba(148, 163, 184, 0.12); border-radius: var(--r-md);
+  }
+  .zr-legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font-family: var(--font-mono); font-size: 10.5px; color: #64748B; letter-spacing: 0.04em; }
+  .zr-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .zr-legend i { width: 14px; height: 0; border-top: 1.5px dashed; display: inline-block; }
+  .zr-legend .lg-tp { color: #2DD4BF; }
+  .zr-legend .lg-tpl { color: #F87171; }
+  .zr-legend .lg-zone { height: 8px; border: 0; background: rgba(251,191,36,0.3); }
+  .zr-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .zr-field { display: flex; flex-direction: column; gap: 6px; }
+  .zr-label { font-family: var(--font-mono); font-size: var(--fs-11); letter-spacing: 0.04em; color: #94A3B8; text-transform: uppercase; }
+  .zr-label output { color: #FBBF24; font-weight: 700; }
+  .zr input[type="range"] { width: 100%; accent-color: #2DD4BF; }
+  .zr-ladder { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .zr-ladder th { text-align: left; font-weight: 500; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #64748B; padding: 0 0 6px; border-bottom: 1px solid rgba(148,163,184,0.15); }
+  .zr-ladder td { padding: 5px 0; border-bottom: 1px solid rgba(148,163,184,0.08); color: #CBD5E1; }
+  .zr-ladder tr { animation: zr-row 260ms var(--ease-out) both; }
+  .zr-ladder .buy { color: #2DD4BF; }
+  .zr-ladder .sell { color: #F87171; }
+  .zr-ladder .empty td { color: #475569; }
+  @keyframes zr-row { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+  .zr-result { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
+  .zr-result > div { display: flex; justify-content: space-between; gap: 12px; font-family: var(--font-mono); font-size: 12px; }
+  .zr-k { color: #64748B; text-transform: uppercase; letter-spacing: 0.04em; font-size: 10.5px; }
+  .zr-v { color: #E2E8F0; font-variant-numeric: tabular-nums; }
+  .zr-v.pos { color: #2DD4BF; }
+  .zr-v.neg { color: #F87171; }
+  .zr-note { margin: 18px 0 0; font-size: 13px; line-height: 1.55; color: #64748B; max-width: 80ch; }
+  .zr-mark-label { font-family: var(--font-mono); font-size: 10px; }
+  .zr-pop { animation: zr-pop 300ms var(--ease-out) both; transform-box: fill-box; transform-origin: center; }
+  @keyframes zr-pop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: none; } }
+  .zr-close { animation: zr-flash 900ms ease-out both; }
+  @keyframes zr-flash { 0% { opacity: 0; } 20% { opacity: 1; } 100% { opacity: 0.85; } }
+  @media (max-width: 900px) {
+    .zr { padding: 22px 18px 20px; }
+    .zr-body { grid-template-columns: 1fr; }
+    .zr-chart svg { height: 260px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zr-ladder tr, .zr-pop, .zr-close { animation: none; }
+  }
+</style>
+
+<script>
+  type Side = 'buy' | 'sell';
+  interface Order { side: Side; lots: number; entry: number; step: number }
+  interface Sim { path: number[]; orders: Order[]; closeStep: number; net: number; maxExp: number; worst: number }
+
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const W = 600, H = 320, PAD_T = 18, PAD_B = 18, PAD_X = 10;
+  const BASE_LOTS = 0.1;
+  const MAX_ORDERS = 8;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function lcg(seed: number) {
+    let s = seed >>> 0;
+    return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
+  }
+
+  // A price path that chops around inside the zone, then breaks out.
+  function makePath(seed: number, zone: number, tp: number): number[] {
+    const rand = lcg(seed);
+    const pts = [0];
+    let p = 0, v = 0;
+    const range = 140 + Math.floor(rand() * 180);
+    const mid = -zone / 2;
+    const dir = rand() < 0.5 ? -1 : 1;
+    for (let k = 1; k < 900; k++) {
+      const ranging = k < range;
+      const pull = ranging ? (mid - p) * 0.035 : dir * 0.06;
+      v = v * 0.86 + pull + (rand() - 0.5) * (ranging ? zone * 0.16 : 1.2);
+      p += v;
+      pts.push(p);
+      if (!ranging && Math.abs(p - mid) > zone / 2 + tp + 4) break;
+    }
+    return pts;
+  }
+
+  function simulate(path: number[], zone: number, tp: number): Sim {
+    const upper = 0, lower = -zone;
+    const goal = tp * BASE_LOTS;
+    const orders: Order[] = [{ side: 'buy', lots: BASE_LOTS, entry: upper, step: 0 }];
+    const pnl = (price: number, extra: Order[] = []) =>
+      [...orders, ...extra].reduce((sum, o) => sum + (o.side === 'buy' ? price - o.entry : o.entry - price) * o.lots, 0);
+    let closeStep = -1, net = 0, maxExp = BASE_LOTS, worst = 0;
+    for (let k = 1; k < path.length; k++) {
+      const price = path[k];
+      const last = orders[orders.length - 1].side;
+      if (last === 'buy' && price >= upper + tp) { closeStep = k; net = pnl(upper + tp); break; }
+      if (last === 'sell' && price <= lower - tp) { closeStep = k; net = pnl(lower - tp); break; }
+      if (orders.length < MAX_ORDERS) {
+        if (last === 'buy' && price <= lower) {
+          const lots = (goal - pnl(lower - tp)) / tp;
+          orders.push({ side: 'sell', lots, entry: lower, step: k });
+        } else if (last === 'sell' && price >= upper) {
+          const lots = (goal - pnl(upper + tp)) / tp;
+          orders.push({ side: 'buy', lots, entry: upper, step: k });
+        }
+      }
+      maxExp = Math.max(maxExp, orders.reduce((s, o) => s + o.lots, 0));
+      worst = Math.min(worst, pnl(price));
+    }
+    return { path, orders, closeStep, net, maxExp, worst };
+  }
+
+  // Find a seed whose path shows a few recovery legs and then closes.
+  function pick(seedStart: number, zone: number, tp: number): { seed: number; sim: Sim } {
+    let fallback: { seed: number; sim: Sim } | null = null;
+    for (let s = seedStart; s < seedStart + 400; s++) {
+      const sim = simulate(makePath(s, zone, tp), zone, tp);
+      if (sim.closeStep < 0) continue;
+      if (sim.orders.length >= 3 && sim.orders.length <= 6) return { seed: s, sim };
+      if (!fallback && sim.orders.length >= 2) fallback = { seed: s, sim };
+    }
+    return fallback ?? { seed: seedStart, sim: simulate(makePath(seedStart, zone, tp), zone, tp) };
+  }
+
+  function initZR(root: HTMLElement) {
+    if (root.dataset.ready) return;
+    root.dataset.ready = '1';
+
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
+    const svg = $<SVGSVGElement>('[data-zr-svg]');
+    const pathEl = $<SVGPolylineElement>('[data-zr-path]');
+    const marks = $<SVGGElement>('[data-zr-marks]');
+    const grid = $<SVGGElement>('[data-zr-grid]');
+    const zoneRect = $<SVGRectElement>('[data-zr-zone]');
+    const lines = {
+      upper: $<SVGLineElement>('[data-zr-upper]'), lower: $<SVGLineElement>('[data-zr-lower]'),
+      tpu: $<SVGLineElement>('[data-zr-tpu]'), tpl: $<SVGLineElement>('[data-zr-tpl]'),
+    };
+    const zoneIn = $<HTMLInputElement>('[data-zr-zone-in]');
+    const tpIn = $<HTMLInputElement>('[data-zr-tp-in]');
+    const zOut = $<HTMLOutputElement>('[data-zr-zout]');
+    const tOut = $<HTMLOutputElement>('[data-zr-tout]');
+    const rows = $<HTMLTableSectionElement>('[data-zr-rows]');
+    const netEl = $<HTMLElement>('[data-zr-net]');
+    const expEl = $<HTMLElement>('[data-zr-exp]');
+    const ddEl = $<HTMLElement>('[data-zr-dd]');
+
+    let seedBase = 11;
+    let sim: Sim;
+    let raf = 0;
+    let started = false;
+
+    const zone = () => Number(zoneIn.value);
+    const tp = () => Number(tpIn.value);
+
+    function scale(s: Sim) {
+      const end = s.closeStep > 0 ? s.closeStep : s.path.length - 1;
+      const shown = s.path.slice(0, end + 1);
+      const hi = Math.max(tp(), ...shown) + 6;
+      const lo = Math.min(-zone() - tp(), ...shown) - 6;
+      const x = (k: number) => PAD_X + (k / Math.max(1, end)) * (W - 2 * PAD_X);
+      const y = (p: number) => PAD_T + ((hi - p) / (hi - lo)) * (H - PAD_T - PAD_B);
+      return { x, y, end };
+    }
+
+    function el(name: string, attrs: Record<string, string | number>) {
+      const n = document.createElementNS(SVGNS, name);
+      for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+      return n;
+    }
+
+    const fmtLots = (n: number) => n.toFixed(2);
+    // P&L is accumulated in pip·lots; a standard lot is worth $10 per pip.
+    const fmtMoney = (n: number) => (n >= 0 ? '+' : '−') + '$' + Math.abs(n * 10).toFixed(2);
+
+    function drawFrame(upto: number, sc: ReturnType<typeof scale>) {
+      const pts: string[] = [];
+      const step = Math.max(1, Math.floor(sc.end / 300));
+      for (let k = 0; k <= upto; k += step) pts.push(`${sc.x(k).toFixed(1)},${sc.y(sim.path[k]).toFixed(1)}`);
+      if (upto % step) pts.push(`${sc.x(upto).toFixed(1)},${sc.y(sim.path[upto]).toFixed(1)}`);
+      pathEl.setAttribute('points', pts.join(' '));
+    }
+
+    function addOrder(o: Order, i: number, sc: ReturnType<typeof scale>) {
+      const cx = sc.x(o.step), cy = sc.y(o.entry);
+      const buy = o.side === 'buy';
+      const color = buy ? '#2DD4BF' : '#F87171';
+      const g = el('g', { class: 'zr-pop' });
+      const pts = buy
+        ? `${cx},${cy - 6} ${cx - 5},${cy + 3} ${cx + 5},${cy + 3}`
+        : `${cx},${cy + 6} ${cx - 5},${cy - 3} ${cx + 5},${cy - 3}`;
+      g.appendChild(el('polygon', { points: pts, fill: color }));
+      const label = el('text', {
+        x: cx + 7, y: buy ? cy - 6 : cy + 14, fill: color, class: 'zr-mark-label',
+      });
+      label.textContent = `${buy ? 'B' : 'S'} ${fmtLots(o.lots)}`;
+      g.appendChild(label);
+      marks.appendChild(g);
+
+      const empty = rows.querySelector('.empty');
+      if (empty) empty.remove();
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${i + 1}</td><td class="${o.side}">${buy ? 'Buy' : 'Sell'}</td><td>${fmtLots(o.lots)}</td><td>${o.entry > 0 ? '+' : ''}${o.entry} pips</td>`;
+      rows.appendChild(tr);
+    }
+
+    function finish(sc: ReturnType<typeof scale>) {
+      if (sim.closeStep > 0) {
+        const cx = sc.x(sim.closeStep);
+        const cy = sc.y(sim.path[sim.closeStep]);
+        const g = el('g', { class: 'zr-close' });
+        g.appendChild(el('line', { x1: cx, x2: cx, y1: PAD_T, y2: H - PAD_B, stroke: 'rgba(251,191,36,0.5)', 'vector-effect': 'non-scaling-stroke' }));
+        g.appendChild(el('circle', { cx, cy, r: 4, fill: '#FBBF24' }));
+        marks.appendChild(g);
+        netEl.textContent = fmtMoney(sim.net);
+        netEl.className = 'zr-v ' + (sim.net >= 0 ? 'pos' : 'neg');
+      } else {
+        netEl.textContent = 'Still open';
+        netEl.className = 'zr-v neg';
+      }
+      expEl.textContent = fmtLots(sim.maxExp) + ' lots';
+      ddEl.textContent = fmtMoney(sim.worst);
+      ddEl.className = 'zr-v neg';
+    }
+
+    function reset() {
+      cancelAnimationFrame(raf);
+      marks.replaceChildren();
+      rows.innerHTML = '<tr class="empty"><td colspan="4">Waiting for the first order…</td></tr>';
+      netEl.textContent = expEl.textContent = ddEl.textContent = '—';
+      netEl.className = expEl.className = ddEl.className = 'zr-v';
+    }
+
+    function render(animate: boolean) {
+      reset();
+      const sc = scale(sim);
+
+      grid.replaceChildren();
+      for (let i = 1; i < 5; i++) {
+        const gy = PAD_T + (i * (H - PAD_T - PAD_B)) / 5;
+        grid.appendChild(el('line', { x1: 0, x2: W, y1: gy, y2: gy, stroke: 'rgba(255,255,255,0.04)', 'vector-effect': 'non-scaling-stroke' }));
+      }
+      const yU = sc.y(0), yL = sc.y(-zone());
+      zoneRect.setAttribute('y', String(yU));
+      zoneRect.setAttribute('height', String(Math.max(1, yL - yU)));
+      for (const [k, v] of [['upper', 0], ['lower', -zone()], ['tpu', tp()], ['tpl', -zone() - tp()]] as const) {
+        const yy = String(sc.y(v));
+        lines[k].setAttribute('y1', yy);
+        lines[k].setAttribute('y2', yy);
+      }
+
+      if (!animate) {
+        drawFrame(sc.end, sc);
+        sim.orders.forEach((o, i) => addOrder(o, i, sc));
+        finish(sc);
+        return;
+      }
+
+      const duration = Math.min(7000, 2600 + sc.end * 9);
+      const t0 = performance.now();
+      let next = 0;
+      const frame = (now: number) => {
+        const upto = Math.min(sc.end, Math.floor(((now - t0) / duration) * sc.end));
+        drawFrame(upto, sc);
+        while (next < sim.orders.length && sim.orders[next].step <= upto) { addOrder(sim.orders[next], next, sc); next++; }
+        if (upto < sc.end) raf = requestAnimationFrame(frame);
+        else finish(sc);
+      };
+      raf = requestAnimationFrame(frame);
+    }
+
+    function rebuild(animate: boolean, newPath = false) {
+      if (newPath) seedBase += 37 + Math.floor(Math.random() * 500);
+      zOut.value = zoneIn.value;
+      tOut.value = tpIn.value;
+      sim = pick(seedBase, zone(), tp()).sim;
+      render(animate && !reduce.matches);
+    }
+
+    let debounce = 0;
+    const onSlide = () => {
+      zOut.value = zoneIn.value;
+      tOut.value = tpIn.value;
+      clearTimeout(debounce);
+      // While dragging, show the end state; animate once the slider settles.
+      sim = pick(seedBase, zone(), tp()).sim;
+      render(false);
+      debounce = window.setTimeout(() => render(!reduce.matches), 450);
+    };
+    zoneIn.addEventListener('input', onSlide);
+    tpIn.addEventListener('input', onSlide);
+    $<HTMLButtonElement>('[data-zr-replay]').addEventListener('click', () => render(!reduce.matches));
+    $<HTMLButtonElement>('[data-zr-new]').addEventListener('click', () => rebuild(true, true));
+
+    // Draw the finished state right away, then animate the first time it scrolls into view.
+    rebuild(false);
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !started) { started = true; render(!reduce.matches); io.disconnect(); }
+    }, { threshold: 0.4 });
+    io.observe(svg);
+    document.addEventListener('astro:before-swap', () => { io.disconnect(); cancelAnimationFrame(raf); }, { once: true });
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    document.querySelectorAll<HTMLElement>('[data-zr]').forEach(initZR);
+  });
+</script>

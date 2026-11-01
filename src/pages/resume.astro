@@ -185,6 +185,61 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     }
 
     .tour { margin-bottom: 8px; }
+
+    /* ── Scroll timeline ─────────────────────────────────────
+       A rail beside the experience section fills as you read, each
+       employer's dot lights as it passes, and roles rise into place.
+       The script below adds .tl, so without JS (or with reduced motion)
+       the page stays static. */
+    @media screen and (prefers-reduced-motion: no-preference) {
+      .record.tl .role {
+        opacity: 0;
+        transform: translateY(22px);
+        transition: opacity 650ms cubic-bezier(0.2, 0.7, 0.1, 1), transform 650ms cubic-bezier(0.2, 0.7, 0.1, 1);
+      }
+      .record.tl .role.in { opacity: 1; transform: none; }
+    }
+    @media screen and (prefers-reduced-motion: no-preference) and (min-width: 900px) {
+      .record.tl { position: relative; }
+      .record.tl::before,
+      .record.tl::after {
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: 64px;
+        bottom: 24px;
+        width: 2px;
+        border-radius: 2px;
+      }
+      .record.tl::before { background: var(--hairline-strong); }
+      .record.tl::after {
+        background: linear-gradient(var(--rust), var(--ochre));
+        transform-origin: top;
+        transform: scaleY(var(--fill, 0));
+      }
+      .record.tl .tour-band { position: relative; }
+      .record.tl .tour-band::before {
+        content: "";
+        position: absolute;
+        left: -23px;
+        top: 50%;
+        width: 10px;
+        height: 10px;
+        margin-top: -5px;
+        border-radius: 50%;
+        background: var(--bg-bone);
+        border: 2px solid var(--hairline-strong);
+        z-index: 1;
+        transform: scale(0.7);
+        transition: transform 300ms cubic-bezier(0.3, 1.6, 0.5, 1), background 300ms, border-color 300ms, box-shadow 300ms;
+      }
+      .record.tl .tour-band.lit::before {
+        transform: scale(1.15);
+        background: var(--rust);
+        border-color: var(--rust);
+        box-shadow: 0 0 0 5px rgba(184, 74, 38, 0.14);
+      }
+    }
     .tour-band {
       display: grid;
       grid-template-columns: 200px 1fr auto;
@@ -498,7 +553,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
   </section>
 
   <!-- Professional experience -->
-  <section class="record" aria-label="Experience">
+  <section class="record" id="experience" aria-label="Experience">
     <div class="record-head">
       <h2>Experience</h2>
       <span class="meta">2010 — present</span>
@@ -761,7 +816,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
   <!-- Lower: skills + education -->
   <section class="lower">
-    <section>
+    <section id="skills">
       <div class="head">
         <h2>Skills</h2>
         <!--<span class="meta">03 / 06</span>-->
@@ -855,7 +910,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       </div>
     </section>
 
-    <section>
+    <section id="education">
       <div class="head">
         <h2>Education &amp; Service</h2>
         <!--<span class="meta">04 / 06</span>-->
@@ -897,4 +952,48 @@ import InnerLayout from '../layouts/InnerLayout.astro';
 
   <div class="notes">Last revised May 2026</div>
 
+  <script>
+    // Drives the experience timeline: rail fill follows the reading line
+    // (60% down the viewport), dots light as their employer passes it, and
+    // each role rises in the first time it enters the viewport.
+    function initTimeline() {
+      const record = document.querySelector<HTMLElement>('#experience');
+      if (!record || record.dataset.ready) return;
+      record.dataset.ready = '1';
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      const roles = [...record.querySelectorAll<HTMLElement>('.role')];
+      const bands = [...record.querySelectorAll<HTMLElement>('.tour-band')];
+      record.classList.add('tl');
+
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        }
+      }, { threshold: 0.12 });
+      roles.forEach(r => io.observe(r));
+
+      let raf = 0;
+      const update = () => {
+        raf = 0;
+        const line = window.innerHeight * 0.6;
+        const r = record.getBoundingClientRect();
+        const fill = Math.min(1, Math.max(0, (line - r.top - 64) / (r.height - 88)));
+        record.style.setProperty('--fill', fill.toFixed(4));
+        for (const b of bands) b.classList.toggle('lit', b.getBoundingClientRect().top < line);
+      };
+      const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      update();
+
+      document.addEventListener('astro:before-swap', () => {
+        io.disconnect();
+        cancelAnimationFrame(raf);
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onScroll);
+      }, { once: true });
+    }
+    document.addEventListener('astro:page-load', initTimeline);
+  </script>
 </InnerLayout>

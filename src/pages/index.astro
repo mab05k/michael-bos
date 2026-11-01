@@ -26,6 +26,32 @@ import { User, FileText, Briefcase } from '@lucide/astro';
       z-index: 0;
       background: radial-gradient(90% 80% at 0% 55%, rgba(184,74,38,0.07), transparent 62%);
     }
+    /* Build-time contour map behind the hero copy (see src/lib/topo.ts) */
+    .hero-topo {
+      position: absolute;
+      inset: -4%;
+      z-index: 0;
+      pointer-events: none;
+      transform: translate3d(var(--px, 0px), var(--py, 0px), 0);
+      transition: transform 900ms cubic-bezier(0.2, 0.7, 0.1, 1);
+      -webkit-mask-image: radial-gradient(120% 95% at 22% 50%, #000 40%, transparent 85%);
+              mask-image: radial-gradient(120% 95% at 22% 50%, #000 40%, transparent 85%);
+    }
+    .hero-topo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      animation: topo-drift 48s ease-in-out infinite alternate;
+    }
+    @keyframes topo-drift {
+      from { transform: scale(1.04) translate(0, 0); }
+      to   { transform: scale(1.1) translate(-2.5%, -1.5%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-topo { transition: none; transform: none; }
+      .hero-topo img { animation: none; }
+    }
     .hero-left {
       display: flex;
       flex-direction: column;
@@ -173,7 +199,10 @@ import { User, FileText, Briefcase } from '@lucide/astro';
   </style>
 
   <main>
-    <section class="hero">
+    <section class="hero" data-hero>
+      <div class="hero-topo" aria-hidden="true">
+        <img src="/topo.svg" alt="" decoding="async" fetchpriority="low" />
+      </div>
       <div class="hero-left">
         <div class="hero-kicker">
           Senior Engineering Manager · Las Vegas, NV

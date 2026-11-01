@@ -1,0 +1,290 @@
+---
+// ⌘K / Ctrl+K command palette: jump to any page or section, or reach Michael.
+// A native <dialog> handles focus trapping and Escape; the script only filters
+// and runs commands.
+interface Cmd { id: string; group: 'Pages' | 'Sections' | 'Contact'; label: string; hint?: string; href?: string; action?: 'copy-email'; keywords?: string }
+const cmds: Cmd[] = [
+  { id: 'home', group: 'Pages', label: 'Home', href: '/' },
+  { id: 'bio', group: 'Pages', label: 'Biography', href: '/biography', keywords: 'story navy florida climbing' },
+  { id: 'resume', group: 'Pages', label: 'Resume', href: '/resume', keywords: 'cv experience' },
+  { id: 'portfolio', group: 'Pages', label: 'Portfolio', href: '/portfolio', keywords: 'projects work' },
+  { id: 'case', group: 'Pages', label: 'Daybourne case study', href: '/portfolio/daybourne', keywords: 'architecture claude ai agents' },
+  { id: 'colophon', group: 'Pages', label: 'Colophon', hint: 'How this site is built', href: '/colophon', keywords: 'astro stack build' },
+  { id: 'exp', group: 'Sections', label: 'Experience', hint: 'Resume', href: '/resume#experience', keywords: 'jobs roles guidepoint' },
+  { id: 'skills', group: 'Sections', label: 'Skills', hint: 'Resume', href: '/resume#skills' },
+  { id: 'edu', group: 'Sections', label: 'Education & service', hint: 'Resume', href: '/resume#education', keywords: 'mba unlv fsu navy' },
+  { id: 'tour', group: 'Sections', label: 'Daybourne feature tour', hint: 'Portfolio', href: '/portfolio#daybourne' },
+  { id: 'forex', group: 'Sections', label: 'Forex Algo Trader', hint: 'Portfolio', href: '/portfolio#forex', keywords: 'trading oanda' },
+  { id: 'zr', group: 'Sections', label: 'Zone Recovery simulator', hint: 'Portfolio', href: '/portfolio#zone-recovery', keywords: 'hedging interactive' },
+  { id: 'arch', group: 'Sections', label: 'Daybourne architecture', hint: 'Case study', href: '/portfolio/daybourne#architecture', keywords: 'diagram symfony keycloak rabbitmq' },
+  { id: 'process', group: 'Sections', label: 'Building with Claude Code', hint: 'Case study', href: '/portfolio/daybourne#process', keywords: 'ai agents pipeline skills' },
+  { id: 'copy', group: 'Contact', label: 'Copy email address', hint: 'mab05k@gmail.com', action: 'copy-email' },
+  { id: 'mail', group: 'Contact', label: 'Send an email', href: 'mailto:mab05k@gmail.com' },
+  { id: 'li', group: 'Contact', label: 'LinkedIn', href: 'https://www.linkedin.com/in/michael-a-bos/' },
+  { id: 'gh', group: 'Contact', label: 'GitHub', href: 'https://github.com/mab05k' },
+];
+const groups = ['Pages', 'Sections', 'Contact'] as const;
+---
+<dialog class="cmdk" data-cmdk aria-label="Command menu">
+  <div class="cmdk-box">
+    <div class="cmdk-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input
+        type="text"
+        placeholder="Search pages, sections, and links"
+        autocomplete="off"
+        spellcheck="false"
+        role="combobox"
+        aria-expanded="true"
+        aria-controls="cmdk-list"
+        aria-autocomplete="list"
+        data-cmdk-input
+      />
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmdk-list" id="cmdk-list" role="listbox" aria-label="Commands" data-cmdk-list>
+      {groups.map(g => (
+        <div class="cmdk-group" role="group" aria-label={g} data-group={g}>
+          <div class="cmdk-group-label" aria-hidden="true">{g}</div>
+          {cmds.filter(c => c.group === g).map(c => (
+            <a
+              class="cmdk-item"
+              role="option"
+              id={`cmdk-${c.id}`}
+              href={c.href ?? '#'}
+              data-action={c.action}
+              data-search={`${c.label} ${c.hint ?? ''} ${c.keywords ?? ''} ${g}`.toLowerCase()}
+              {...(c.href?.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}
+              tabindex="-1"
+            >
+              <span class="ci-label">{c.label}</span>
+              {c.hint && <span class="ci-hint">{c.hint}</span>}
+              <span class="ci-enter" aria-hidden="true">↵</span>
+            </a>
+          ))}
+        </div>
+      ))}
+      <div class="cmdk-empty" data-cmdk-empty hidden>No matches.</div>
+    </div>
+    <div class="cmdk-foot" aria-hidden="true">
+      <span><kbd>↑</kbd><kbd>↓</kbd> move</span>
+      <span><kbd>↵</kbd> open</span>
+      <span class="cmdk-toast" data-cmdk-toast></span>
+    </div>
+  </div>
+</dialog>
+
+<style is:global>
+  .cmdk-trigger {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 30px; padding: 0 6px 0 10px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--hairline-strong);
+    background: color-mix(in oklab, var(--bg-bone) 70%, white);
+    color: var(--canyon-fade);
+    font-family: var(--font-display); font-size: 12.5px; font-weight: 500;
+    cursor: pointer;
+    transition: color 160ms, border-color 160ms;
+  }
+  .cmdk-trigger:hover { color: var(--canyon-ink); border-color: var(--canyon-fade); }
+  .cmdk-trigger:focus-visible { outline: 2px solid var(--rust); outline-offset: 2px; }
+  .cmdk-trigger kbd, .cmdk kbd {
+    font-family: var(--font-mono); font-size: 10.5px; line-height: 1;
+    padding: 3px 6px; border-radius: 6px;
+    background: var(--bg-bone); border: 1px solid var(--hairline-strong); color: var(--canyon-shadow);
+  }
+
+  .cmdk {
+    padding: 0; border: 0; background: transparent;
+    width: min(620px, calc(100vw - 32px));
+    max-height: min(560px, calc(100vh - 120px));
+    margin: 12vh auto auto;
+    overflow: visible;
+  }
+  .cmdk::backdrop { background: rgba(31, 20, 12, 0.32); backdrop-filter: blur(3px); }
+  .cmdk[open] .cmdk-box { animation: cmdk-in 180ms cubic-bezier(0.2, 0.7, 0.1, 1); }
+  .cmdk[open]::backdrop { animation: cmdk-fade 180ms ease-out; }
+  @keyframes cmdk-in { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: none; } }
+  @keyframes cmdk-fade { from { opacity: 0; } }
+  .cmdk-box {
+    display: flex; flex-direction: column;
+    max-height: min(560px, calc(100vh - 120px));
+    background: #FBF7EE;
+    border: 1px solid var(--hairline-strong);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px -12px rgba(31, 20, 12, 0.4);
+    overflow: hidden;
+    color: var(--canyon-ink);
+  }
+  .cmdk-search { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--hairline); color: var(--canyon-fade); }
+  .cmdk-search input {
+    flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
+    font-family: var(--font-display); font-size: 16px; color: var(--canyon-ink);
+  }
+  .cmdk-search input::placeholder { color: var(--canyon-fade); opacity: 0.8; }
+  .cmdk-list { overflow-y: auto; padding: 6px 8px 8px; overscroll-behavior: contain; }
+  .cmdk-group-label {
+    padding: 10px 10px 4px;
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: var(--tr-caps); text-transform: uppercase;
+    color: var(--canyon-fade);
+  }
+  .cmdk-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 8px;
+    color: var(--canyon-ink); text-decoration: none;
+    font-family: var(--font-display); font-size: 14px; font-weight: 500;
+  }
+  .cmdk-item[hidden], .cmdk-group[hidden], .cmdk-empty[hidden] { display: none; }
+  .cmdk-item .ci-hint { color: var(--canyon-fade); font-size: 12.5px; font-weight: 400; }
+  .cmdk-item .ci-enter { margin-left: auto; font-family: var(--font-mono); font-size: 12px; color: var(--rust); opacity: 0; }
+  .cmdk-item.is-active { background: color-mix(in oklab, var(--rust) 11%, transparent); }
+  .cmdk-item.is-active .ci-label { color: var(--rust-deep); }
+  .cmdk-item.is-active .ci-enter { opacity: 1; }
+  .cmdk-item mark { background: none; color: var(--rust); font-weight: 700; }
+  .cmdk-empty { padding: 24px 12px; text-align: center; color: var(--canyon-fade); font-size: 14px; }
+  .cmdk-foot {
+    display: flex; gap: 16px; align-items: center;
+    padding: 10px 16px; border-top: 1px solid var(--hairline);
+    font-family: var(--font-mono); font-size: 11px; color: var(--canyon-fade);
+  }
+  .cmdk-foot kbd { margin-right: 3px; }
+  .cmdk-toast { margin-left: auto; color: var(--status-pass); font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) {
+    .cmdk[open] .cmdk-box, .cmdk[open]::backdrop { animation: none; }
+  }
+</style>
+
+<script>
+  import { navigate } from 'astro:transitions/client';
+
+  const EMAIL = 'mab05k@gmail.com';
+  const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+
+  // Subsequence match: every query character must appear in order. Earlier,
+  // contiguous, word-start matches score higher.
+  function score(hay: string, q: string): number {
+    if (!q) return 1;
+    let s = 0, last = -1, run = 0;
+    for (const ch of q) {
+      const at = hay.indexOf(ch, last + 1);
+      if (at < 0) return 0;
+      run = at === last + 1 ? run + 1 : 0;
+      s += 1 + run * 2 + (at === 0 || hay[at - 1] === ' ' ? 3 : 0) - at * 0.01;
+      last = at;
+    }
+    return s;
+  }
+
+  function highlight(label: string, q: string) {
+    if (!q) return label;
+    const lower = label.toLowerCase();
+    let out = '', last = -1, qi = 0;
+    for (let i = 0; i < label.length; i++) {
+      if (qi < q.length && lower[i] === q[qi] && i > last) { out += `<mark>${label[i]}</mark>`; qi++; last = i; }
+      else out += label[i];
+    }
+    return qi === q.length ? out : label;
+  }
+
+  function setup() {
+    const dlg = document.querySelector<HTMLDialogElement>('[data-cmdk]');
+    if (!dlg || dlg.dataset.ready) return;
+    dlg.dataset.ready = '1';
+    const input = dlg.querySelector<HTMLInputElement>('[data-cmdk-input]')!;
+    const items = [...dlg.querySelectorAll<HTMLAnchorElement>('.cmdk-item')];
+    const groups = [...dlg.querySelectorAll<HTMLElement>('.cmdk-group')];
+    const empty = dlg.querySelector<HTMLElement>('[data-cmdk-empty]')!;
+    const toast = dlg.querySelector<HTMLElement>('[data-cmdk-toast]')!;
+    const labels = new Map(items.map(a => [a, a.querySelector('.ci-label')!.textContent || '']));
+    let visible: HTMLAnchorElement[] = items;
+    let active = 0;
+
+    document.querySelectorAll<HTMLElement>('[data-cmdk-kbd]').forEach(k => { k.textContent = isMac ? '⌘K' : 'Ctrl K'; });
+
+    function setActive(n: number) {
+      visible.forEach(a => a.classList.remove('is-active'));
+      if (!visible.length) { input.removeAttribute('aria-activedescendant'); return; }
+      active = (n + visible.length) % visible.length;
+      const a = visible[active];
+      a.classList.add('is-active');
+      input.setAttribute('aria-activedescendant', a.id);
+      a.scrollIntoView({ block: 'nearest' });
+    }
+
+    function filter() {
+      const q = input.value.trim().toLowerCase();
+      const ranked = items
+        // A hit in the visible label beats a hit that only lands in keywords
+        .map(a => ({ a, s: Math.max(score(labels.get(a)!.toLowerCase(), q) * 1.5, score(a.dataset.search || '', q)) }))
+        .filter(x => x.s > 0);
+      const keep = new Set(ranked.map(x => x.a));
+      items.forEach(a => {
+        a.hidden = !keep.has(a);
+        a.querySelector('.ci-label')!.innerHTML = highlight(labels.get(a)!, q);
+      });
+      groups.forEach(g => { g.hidden = !g.querySelector('.cmdk-item:not([hidden])'); });
+      // With a query, order by score; otherwise keep the authored order.
+      visible = q ? ranked.sort((x, y) => y.s - x.s).map(x => x.a) : items.slice();
+      empty.hidden = visible.length > 0;
+      setActive(0);
+    }
+
+    function open() {
+      if (dlg!.open) return;
+      input.value = '';
+      toast.textContent = '';
+      filter();
+      dlg!.showModal();
+      input.focus();
+    }
+
+    async function run(a: HTMLAnchorElement) {
+      if (a.dataset.action === 'copy-email') {
+        try { await navigator.clipboard.writeText(EMAIL); toast.textContent = 'Copied'; }
+        catch { toast.textContent = EMAIL; }
+        setTimeout(() => dlg!.close(), 700);
+        return;
+      }
+      const href = a.getAttribute('href') || '/';
+      dlg!.close();
+      if (a.target === '_blank') { window.open(href, '_blank', 'noopener'); return; }
+      if (href.startsWith('mailto:')) { location.href = href; return; }
+      const url = new URL(href, location.href);
+      if (url.pathname.replace(/\/$/, '') === location.pathname.replace(/\/$/, '') && url.hash) {
+        document.querySelector(url.hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', url.hash);
+        return;
+      }
+      navigate(url.pathname + url.hash);
+    }
+
+    input.addEventListener('input', filter);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(active + 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(active - 1); }
+      else if (e.key === 'Enter') { e.preventDefault(); if (visible[active]) run(visible[active]); }
+    });
+    items.forEach(a => {
+      a.addEventListener('click', (e) => { e.preventDefault(); run(a); });
+      a.addEventListener('mousemove', () => { const i = visible.indexOf(a); if (i !== active && i >= 0) setActive(i); });
+    });
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+    document.querySelectorAll<HTMLButtonElement>('[data-cmdk-open]').forEach(b => b.addEventListener('click', open));
+    (window as any).__cmdkOpen = open;
+  }
+
+  // One global shortcut listener for the life of the tab; the dialog itself is
+  // re-rendered with every page, so `setup` runs again after each navigation.
+  if (!(window as any).__cmdkKeys) {
+    (window as any).__cmdkKeys = true;
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        (window as any).__cmdkOpen?.();
+      }
+    });
+  }
+  document.addEventListener('astro:page-load', setup);
+  // Pages without the ClientRouter (the biography) never fire astro:page-load.
+  if (document.readyState !== 'loading') setup(); else document.addEventListener('DOMContentLoaded', setup);
+</script>

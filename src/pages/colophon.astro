@@ -1,0 +1,206 @@
+---
+import InnerLayout from '../layouts/InnerLayout.astro';
+
+const islands = [
+  { name: 'Resume timeline', where: '/resume', what: 'Fills the rail beside the experience section as you scroll, lights each employer, and fades roles in once.' },
+  { name: 'Command menu', where: 'Every page', what: 'Opens with ⌘K or Ctrl+K and searches pages, sections, and contact links with a small subsequence matcher.' },
+  { name: 'Biography stage', where: '/biography', what: 'Shows one chapter at a time with a timeline rail, remembers the last chapter, and grows the climbing grade chart into view.' },
+  { name: 'Daybourne tour', where: '/portfolio', what: 'Auto-advances through features, plays each clip only while it is on screen, and stops when you pick a tab.' },
+  { name: 'Candle replay', where: '/portfolio', what: 'Adds a class that starts CSS animations on a chart that was already rendered to SVG at build time.' },
+  { name: 'Zone Recovery simulator', where: '/portfolio', what: 'Generates a price path, simulates the order ladder, and animates it with requestAnimationFrame.' },
+  { name: 'Architecture walkthroughs', where: '/portfolio/daybourne', what: 'Moves a packet along the SVG edges of the selected request path and highlights each step.' },
+];
+
+const buildTime = [
+  { t: 'Climbing ticks', d: 'The biography fetches my Mountain Project tick feed during the build with a ten-second timeout. If the feed is down, the build continues and the page leaves the list out. The grade chart is counted from the same data.' },
+  { t: 'Forex chart', d: 'A seeded random generator produces the same ninety candles on every build, and the moving average and crossing markers are calculated and written out as plain SVG.' },
+  { t: 'Topographic lines', d: 'The contour lines behind the homepage come from seeded fractal noise traced with marching squares, chained into paths, simplified, and smoothed. The result is served as a separate SVG file so the page HTML stays small.' },
+  { t: 'App media', d: 'The Daybourne screenshots and clips come from that app’s Playwright capture suite. I cropped them with ffmpeg and trimmed the blank lead-in from each clip.' },
+];
+---
+<InnerLayout
+  title="Colophon"
+  activePage=""
+  description="How michael-bos.com is built: Astro, hand-written CSS, build-time data, and a small amount of plain TypeScript."
+>
+  <style is:global>
+    .colo { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+    .colo-head { margin-top: 32px; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 40px; align-items: end; }
+    .colo-head h1 { margin: 12px 0 18px; font-family: var(--font-display); font-size: 56px; font-weight: 500; letter-spacing: -0.03em; line-height: 1; color: var(--canyon-ink); }
+    .colo-head p { margin: 0 0 12px; font-size: 17px; line-height: 1.65; color: var(--canyon-shadow); max-width: 62ch; text-wrap: pretty; }
+
+    .topo-lab { border-radius: var(--r-lg); border: 1px solid var(--hairline); background: #FBF7EE; overflow: hidden; }
+    .topo-lab svg { display: block; width: 100%; height: 220px; }
+    .topo-lab svg path { fill: none; stroke: var(--rust); stroke-linejoin: round; }
+    .topo-lab .c { stroke-opacity: 0.22; stroke-width: 1; }
+    .topo-lab .ix { stroke-opacity: 0.45; stroke-width: 1.5; }
+    .topo-lab-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-top: 1px solid var(--hairline); }
+    .topo-lab-bar span { font-family: var(--font-mono); font-size: 11px; color: var(--canyon-fade); letter-spacing: 0.04em; }
+    .topo-lab-bar button {
+      height: 28px; padding: 0 12px; border-radius: var(--r-pill); cursor: pointer;
+      border: 1px solid var(--hairline-strong); background: var(--bg-bone);
+      font-family: var(--font-display); font-size: 12.5px; font-weight: 600; color: var(--canyon-shadow);
+    }
+    .topo-lab-bar button:hover { color: var(--rust); border-color: var(--rust); }
+    .topo-lab-bar button:focus-visible { outline: 2px solid var(--rust); outline-offset: 2px; }
+
+    .colo-sec { margin-top: 72px; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; }
+    .colo-sec > h2 { margin: 0; font-family: var(--font-mono); font-size: var(--fs-12); font-weight: 600; letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--rust); padding-top: 4px; }
+    .colo-sec p { margin: 0 0 14px; font-size: 16px; line-height: 1.65; color: var(--canyon-shadow); max-width: 70ch; text-wrap: pretty; }
+    .colo-sec code { font-family: var(--font-mono); font-size: 0.88em; background: var(--card-bg); padding: 1px 6px; border-radius: var(--r-sm); font-variant-ligatures: none; }
+
+    .colo-stack { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .colo-stack span {
+      height: 28px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: var(--r-sm);
+      border: 1px solid var(--hairline-strong); background: var(--card-bg);
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--canyon-shadow);
+    }
+
+    .colo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .colo-card { padding: 18px 20px; border-radius: var(--r-lg); background: var(--card-bg); border: 1px solid var(--hairline); }
+    .colo-card h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 15px; font-weight: 600; color: var(--canyon-ink); }
+    .colo-card p { margin: 0; font-size: 14px; line-height: 1.55; }
+
+    .colo-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .colo-table th { text-align: left; font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; letter-spacing: var(--tr-caps); text-transform: uppercase; color: var(--canyon-fade); padding: 0 12px 8px 0; border-bottom: 1px solid var(--hairline-strong); }
+    .colo-table td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--hairline); vertical-align: top; color: var(--canyon-shadow); line-height: 1.5; }
+    .colo-table td:first-child { font-weight: 600; color: var(--canyon-ink); white-space: nowrap; }
+    .colo-table td:nth-child(2) { font-family: var(--font-mono); font-size: 12px; color: var(--canyon-fade); white-space: nowrap; }
+
+    @media (max-width: 900px) {
+      .colo-head { grid-template-columns: 1fr; }
+      .colo-head h1 { font-size: 42px; }
+      .colo-sec { grid-template-columns: 1fr; gap: 12px; margin-top: 52px; }
+      .colo-grid { grid-template-columns: 1fr; }
+      .colo-sec > div { min-width: 0; }
+      .colo-table thead { display: none; }
+      .colo-table, .colo-table tbody, .colo-table tr, .colo-table td { display: block; }
+      .colo-table tr { padding: 12px 0; border-bottom: 1px solid var(--hairline); }
+      .colo-table td { padding: 0; border: 0; }
+      .colo-table td:nth-child(2) { margin: 2px 0 6px; }
+    }
+  </style>
+
+  <article class="colo">
+    <header class="colo-head">
+      <div>
+        <div class="eyebrow">Colophon</div>
+        <h1>How this site is built.</h1>
+        <p>
+          This site is a static Astro build. Every page is rendered to HTML ahead of time,
+          the styles are hand-written CSS on top of a small set of design tokens, and the
+          few interactive pieces are plain TypeScript modules with no UI framework. Each
+          page works without JavaScript, and every animation respects the reduced motion
+          setting.
+        </p>
+      </div>
+      <figure class="topo-lab" data-topo-lab style="margin:0">
+        <svg viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="A generated contour map" data-topo-svg></svg>
+        <figcaption class="topo-lab-bar">
+          <span data-topo-seed>seed 5104</span>
+          <button type="button" data-topo-new>Generate terrain</button>
+        </figcaption>
+      </figure>
+    </header>
+
+    <section class="colo-sec">
+      <h2>Stack</h2>
+      <div>
+        <p>
+          The site uses Astro 6 with TypeScript in strict mode. Fonts are Inter and
+          JetBrains Mono, self-hosted through Fontsource, and the icons are Lucide. Moving
+          between pages uses Astro's client router and the View Transitions API, and the
+          scripts start on its <code>astro:page-load</code> event so they work after both a
+          full load and a client-side navigation.
+        </p>
+        <div class="colo-stack">
+          <span>Astro 6</span><span>TypeScript</span><span>Hand-written CSS</span><span>View Transitions</span>
+          <span>Scroll-driven animations</span><span>Inter</span><span>JetBrains Mono</span><span>Lucide</span>
+          <span>GitHub Pages</span><span>GitHub Actions</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="colo-sec">
+      <h2>Build time</h2>
+      <div>
+        <p>
+          Anything that does not need to change while you are reading is computed during the
+          build. The box at the top of this page runs the same contour code in your browser,
+          so you can generate new terrain with it.
+        </p>
+        <div class="colo-grid">
+          {buildTime.map(b => (
+            <div class="colo-card"><h3>{b.t}</h3><p>{b.d}</p></div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="colo-sec">
+      <h2>JavaScript</h2>
+      <div>
+        <p>
+          These are the only scripts on the site. Each one starts from markup that already
+          works, and each one stops its timers and observers when you navigate away.
+        </p>
+        <table class="colo-table">
+          <thead><tr><th>Piece</th><th>Where</th><th>What it does</th></tr></thead>
+          <tbody>
+            {islands.map(i => (<tr><td>{i.name}</td><td>{i.where}</td><td>{i.what}</td></tr>))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="colo-sec">
+      <h2>Motion</h2>
+      <div>
+        <p>
+          The case study sections use CSS scroll-driven animations, so the browser ties them
+          to the scroll position without any JavaScript, and browsers that do not support them
+          show the finished page. The resume timeline uses a short script instead, because it
+          needs to behave the same in every browser. With reduced motion turned on, the
+          tour stops auto-advancing and shows video controls, the charts render in their final
+          state, and the background contours stay still.
+        </p>
+      </div>
+    </section>
+
+    <section class="colo-sec">
+      <h2>Hosting</h2>
+      <div>
+        <p>
+          GitHub Actions builds the site and deploys it to GitHub Pages on every push to the
+          main branch. A scheduled build also runs once a week, so the climbing data stays
+          current when nothing else has changed.
+        </p>
+      </div>
+    </section>
+  </article>
+
+  <script>
+    import { buildContours } from '../lib/topo';
+
+    function initLab() {
+      const lab = document.querySelector<HTMLElement>('[data-topo-lab]');
+      if (!lab || lab.dataset.ready) return;
+      lab.dataset.ready = '1';
+      const svg = lab.querySelector<SVGSVGElement>('[data-topo-svg]')!;
+      const seedEl = lab.querySelector<HTMLElement>('[data-topo-seed]')!;
+      const btn = lab.querySelector<HTMLButtonElement>('[data-topo-new]')!;
+
+      function draw(seed: number) {
+        const t0 = performance.now();
+        const contours = buildContours({ width: 600, height: 300, cols: 90, rows: 45, levels: 16, seed, scale: 0.0042 });
+        const ms = performance.now() - t0;
+        svg.innerHTML = contours.map(c => `<path class="${c.index ? 'ix' : 'c'}" d="${c.d}"/>`).join('');
+        seedEl.textContent = `seed ${seed} · ${contours.length} paths · ${ms.toFixed(0)} ms`;
+      }
+
+      draw(5104);
+      btn.addEventListener('click', () => draw(Math.floor(Math.random() * 1e6)));
+    }
+    document.addEventListener('astro:page-load', initLab);
+  </script>
+</InnerLayout>

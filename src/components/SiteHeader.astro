@@ -1,4 +1,5 @@
 ---
+import CommandPalette from './CommandPalette.astro';
 const { activePage } = Astro.props;
 ---
 <header class="site-header">
@@ -19,9 +20,15 @@ const { activePage } = Astro.props;
       <a class={`topnav-link${activePage === 'portfolio' ? ' is-active' : ''}`} href="/portfolio">Portfolio</a>
     </nav>
     <div class="topbar-right-wrapper">
+      <button type="button" class="cmdk-trigger" data-cmdk-open aria-haspopup="dialog">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <span class="cmdk-trigger-label">Jump to</span>
+        <kbd data-cmdk-kbd>⌘K</kbd>
+      </button>
       <slot name="right">
         <span class="loc"><span class="pin"></span>Las Vegas, NV</span>
       </slot>
     </div>
   </div>
+  <CommandPalette />
 </header>
