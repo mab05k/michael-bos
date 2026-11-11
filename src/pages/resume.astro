@@ -375,6 +375,8 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       margin-bottom: 20px;
       border-bottom: 1px solid var(--rule-strong);
     }
+    .lower section .head.head-follow { margin-top: 36px; }
+    .row-item .a .title a { color: inherit; text-decoration-color: var(--clay-600); text-underline-offset: 3px; }
     .lower section .head h2 {
       font-family: var(--font-sans);
       font-size: 22px;
@@ -546,9 +548,9 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       ground up. Experienced in Kubernetes, CI/CD, distributed systems, and the
       cross-functional collaboration required to turn internal developer
       infrastructure into a force multiplier for an engineering organization.
-      Currently leading architecture and delivery for an enterprise
-      <strong>agentic platform</strong> &mdash; MCP tooling, integration with the core CRM,
-      and the auth and reliability patterns production AI needs.
+      Currently leading the rebuild of an enterprise <strong>agentic platform</strong> on
+      Catalyst (Dapr), along with its MCP tooling, its integration with the core CRM,
+      and the auth and reliability patterns that production AI needs.
     </p>
   </section>
 
@@ -573,8 +575,8 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       <article class="role">
         <div class="role-meta">
           <span class="dates">Jan 2026 — Present</span>
-          <span class="fact">Agentic platform · MCP</span>
-          <span class="fact">Architecture &amp; delivery</span>
+          <span class="fact">15 people · 3 teams</span>
+          <span class="fact">Agentic platform</span>
           <div class="pill-row">
             <span class="pill active"><span class="dot"></span>Current role</span>
           </div>
@@ -582,17 +584,17 @@ import InnerLayout from '../layouts/InnerLayout.astro';
         <div class="role-body">
           <div class="title">Senior Software Engineering Manager</div>
           <p class="desc">
-            Leading architecture and engineering delivery for Guidepoint&rsquo;s
-            next-generation agentic platform as part of the company&rsquo;s AI
-            transformation initiatives.
+            Lead <strong>15 people across three engineering teams</strong>. My two
+            original teams have two Team Leads and nine engineers. In Q4 2026 I also
+            took on a third team of <strong>four senior engineers building
+            Guidepoint&rsquo;s new agentic platform</strong>.
           </p>
           <ul class="actions-list">
-            <li><span class="num">01</span><span>Defined the <strong>integration architecture</strong> between Guidepoint&rsquo;s agentic platform and core CRM.</span></li>
-            <li><span class="num">02</span><span>Designing <strong>MCP-based tooling</strong> as a model-agnostic interface layer serving both internal and third-party LLM consumers.</span></li>
-            <li><span class="num">03</span><span>Leading a team building production MCP tools that abstract CRM operations for agent-driven workflows.</span></li>
-            <li><span class="num">04</span><span>Scoping tool boundaries, defining input/output contracts, and establishing <strong>reliability patterns for non-deterministic callers</strong>.</span></li>
-            <li><span class="num">05</span><span>Partnering on auth strategies for agentic systems &mdash; <strong>OAuth2-based delegation</strong> and scoped service credentials for tool-level access control.</span></li>
-            <li><span class="num">06</span><span>Collaborating cross-functionally with product and leadership to sequence AI-driven initiatives against business constraints and operational readiness.</span></li>
+            <li><span class="num">01</span><span>Leading the rebuild of Guidepoint&rsquo;s <strong>agentic platform on Catalyst (Dapr)</strong>. The platform will run the Request lifecycle, with agents that each manage a discrete workflow, and is designed around the CTO&rsquo;s requirements for <strong>agent reusability and extensibility</strong>.</span></li>
+            <li><span class="num">02</span><span>Planning the migration of all existing agents onto the platform in <span class="clay">Q1 2027</span>.</span></li>
+            <li><span class="num">03</span><span>Staffing the platform work with engineers from my two existing teams and hiring a <strong>senior AI engineer</strong> for the platform team.</span></li>
+            <li><span class="num">04</span><span>Defined the <strong>integration architecture</strong> between the agentic platform and Guidepoint&rsquo;s core CRM, including <strong>MCP tools</strong> that expose CRM operations to agents through defined input and output contracts.</span></li>
+            <li><span class="num">05</span><span>Partnered on auth for agentic systems, using <strong>OAuth2-based delegation</strong> and scoped service credentials to control access at the tool level.</span></li>
           </ul>
         </div>
       </article>
@@ -600,20 +602,20 @@ import InnerLayout from '../layouts/InnerLayout.astro';
       <article class="role">
         <div class="role-meta">
           <span class="dates">Jan 2025 — Dec 2025</span>
-          <span class="fact">11 direct reports</span>
+          <span class="fact">2 Team Leads · 9 engineers</span>
           <span class="fact">2 teams · US &amp; India</span>
         </div>
         <div class="role-body">
           <div class="title">Software Engineering Manager</div>
           <p class="desc">
-            Led two engineering teams (<strong>11 direct reports</strong>) delivering
-            AI-powered features and platform modernization initiatives as part of a
-            broader transformation effort.
+            Led two engineering teams of 11 people, <strong>two Team Leads and nine
+            engineers</strong>, delivering AI-powered features and platform
+            modernization as part of a broader transformation effort.
           </p>
           <ul class="actions-list">
-            <li><span class="num">01</span><span>Delivered <strong>LLM-powered features</strong> to automate Request intake workflows; reduced <span class="clay">time-to-market by 67%</span> while addressing prompt reliability and output consistency.</span></li>
-            <li><span class="num">02</span><span>Redesigned the employee-facing Request interface, streamlining Advisor workflows and contributing to a <span class="clay">30–40% increase in revenue per Request</span>.</span></li>
-            <li><span class="num">03</span><span><strong>Established engineering on-call from scratch</strong> &mdash; ownership models, alerting thresholds, escalation paths, and postmortem practices via Datadog and Squadcast. Reduced mean time to response across distributed systems at scale.</span></li>
+            <li><span class="num">01</span><span>Delivered <strong>LLM-powered features</strong> to automate Request intake workflows, which reduced <span class="clay">time-to-market by about 70%</span>. The work included making prompt output reliable and consistent.</span></li>
+            <li><span class="num">02</span><span>Redesigned the employee-facing Request interface to streamline Advisor workflows, contributing to an <span class="clay">increase of about 35% in revenue per Request</span>.</span></li>
+            <li><span class="num">03</span><span><strong>Established engineering on-call from scratch</strong>, including service ownership, alerting thresholds, escalation paths, and a postmortem practice, using Datadog and Squadcast.</span></li>
             <li><span class="num">04</span><span>Hired and developed a globally distributed team across the U.S. and India &mdash; <span class="clay">3 strategic hires, 2 internal promotions</span>, performance management with full retention.</span></li>
             <li><span class="num">05</span><span>Mentored engineers on designing systems that integrate external services and AI components.</span></li>
           </ul>
@@ -842,6 +844,8 @@ import InnerLayout from '../layouts/InnerLayout.astro';
           <span class="skill-tag primary">LLM integrations</span>
           <span class="skill-tag primary">Prompt reliability</span>
           <span class="skill-tag primary">Tool / contract design</span>
+          <span class="skill-tag primary">Dapr / Catalyst</span>
+          <span class="skill-tag primary">Claude Code agent workflows</span>
         </div>
       </div>
 
@@ -940,6 +944,22 @@ import InnerLayout from '../layouts/InnerLayout.astro';
         <div class="b">Virginia Beach, VA<br><span class="accent">2010 — 2016</span></div>
       </div>
 
+      <div class="head head-follow">
+        <h2>Independent Work</h2>
+      </div>
+
+      <div class="row-item">
+        <div class="a">
+          <div class="title"><a href="/portfolio/daybourne">Daybourne</a></div>
+          <div class="sub">
+            A recurring-service management platform built with Symfony, React, and
+            Keycloak. I build it through a pipeline of Claude Code agents, and every
+            change is verified by unit, integration, and end-to-end tests.
+          </div>
+        </div>
+        <div class="b">Side project<br><span class="accent">2026</span></div>
+      </div>
+
       <!--<div class="row-item">-->
       <!--  <div class="a">-->
       <!--    <div class="title">Open source · <code style="font-family: var(&#45;&#45;font-mono); background: var(&#45;&#45;site-paper-deep); padding: 2px 6px; border-radius: 3px; font-size: var(&#45;&#45;fs-12);">mab05k/oanda-client</code></div>-->
@@ -950,7 +970,7 @@ import InnerLayout from '../layouts/InnerLayout.astro';
     </section>
   </section>
 
-  <div class="notes">Last revised May 2026</div>
+  <div class="notes">Last revised November 2026</div>
 
   <script>
     // Drives the experience timeline: rail fill follows the reading line
