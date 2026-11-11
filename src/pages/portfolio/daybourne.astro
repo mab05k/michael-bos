@@ -14,32 +14,32 @@ const decisions = [
   {
     k: 'Scheduling',
     title: 'A series is stored once, and its dates are computed',
-    body: 'A recurring job is one record with a recurrence rule. The dates it produces are calculated when someone looks at the calendar, and a date becomes its own record only when someone changes, confirms, or invoices it. This keeps a weekly client from turning into hundreds of rows, and editing the series reaches every date that has not been changed on its own. Most of the test effort goes here, along with timezones and daylight saving time, because that is where the bugs have been.',
+    body: 'A recurring job is stored as one record with a recurrence rule. The calendar calculates each date from that rule when someone opens it, and a date becomes its own record only when someone changes, confirms, or invoices it. I chose this design so that a weekly client does not turn into hundreds of rows, and so that an edit to the series reaches every date that has not already been changed by itself. Recurrence is the most complex logic in the app, especially where timezones and daylight saving time are involved, so I gave it the most thorough test coverage.',
   },
   {
     k: 'Identity',
     title: 'Keycloak handles sign-in, so the API only checks tokens',
-    body: 'I did not want to build password storage, passkeys, social sign-in, and session handling myself. Keycloak provides all of them, and the web app, phone, and CLI share one OpenID Connect flow. The API validates the token on every request and scopes the data to the user’s organization, and the role model decides what an owner, a dispatcher, and a technician can each see.',
+    body: 'I did not want to build password storage, passkeys, social sign-in, and session handling myself, so I chose Keycloak, which provides all of them. The web app, the phone app, and the CLI share one OpenID Connect sign-in flow. The API validates the token on every request and limits the data to the user’s organization, and the role model decides what an owner, a dispatcher, and a technician can each see.',
   },
   {
     k: 'Data',
     title: 'Nothing disappears',
-    body: 'Records are soft-deleted, settings changes are written to an audit log, and an issued invoice has a locked total. When a client says that is not what we agreed, the owner can see what changed, when, and who changed it. Every resource also uses a typed, prefixed identifier, so an ID in a log or a support message says what kind of record it is.',
+    body: 'Records are soft-deleted, changes to settings are written to an audit log, and an issued invoice has a locked total. I designed it this way so that when a client disputes what was agreed, the owner can see what changed, when it changed, and who changed it. Every resource also uses a typed, prefixed identifier, so an ID that appears in a log or a support message shows what kind of record it is.',
   },
   {
     k: 'Messaging',
     title: 'Client messages go through a queue and a set of rules',
-    body: 'The API never sends a message during a request. It queues the message on RabbitMQ, and a worker checks the delivery rules before sending: quiet hours, a daily cap per client, the owner’s send window, and fixed contact hours in the client’s own timezone. A message that is not allowed yet is held, not dropped.',
+    body: 'The API never sends a message while it is handling a request. Instead, it places the message on a RabbitMQ queue, and a worker checks the delivery rules before sending it. The rules cover quiet hours, a daily limit for each client, the owner’s send window, and fixed contact hours in the client’s own timezone. When a message is not allowed yet, the worker holds it until it is allowed instead of dropping it.',
   },
   {
     k: 'Money',
     title: 'Daybourne drafts, and the owner issues',
-    body: 'Invoices are drafted automatically on the billing day, but a person always issues them. The first beta tester keeps their books in QuickBooks Online, so the planned QuickBooks sync follows the same rule: Daybourne drafts the invoice, QuickBooks issues it, and the same invoice or payment is never entered twice.',
+    body: 'Daybourne drafts invoices automatically on the billing day, but a person always issues them. The first beta tester keeps their books in QuickBooks Online, so I planned the QuickBooks sync around the same rule. Daybourne will draft the invoice, QuickBooks will issue it, and no invoice or payment will be entered twice.',
   },
   {
     k: 'Testing',
     title: 'Functional tests against a real database',
-    body: 'I prefer functional tests that run against a real container and database over unit tests with mocks. Each layer tests only what it can see: PHPUnit covers the HTTP contract and permissions, Vitest covers component logic, Playwright covers user flows across pages, and the Go suite runs the CLI against the live API.',
+    body: 'I prefer functional tests that run against a real container and database over unit tests that rely on mocks. Each test layer covers only what it can see. PHPUnit covers the HTTP contract and permissions, Vitest covers component logic, Playwright covers user flows across pages, and the Go suite runs the CLI against the live API.',
   },
 ];
 
@@ -133,7 +133,7 @@ const guardrails = [
       display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: var(--r-pill);
       background: #5C6B3E; color: #F4F5EC; text-decoration: none; font-weight: 600; font-size: 14px; white-space: nowrap;
     }
-    .cs-back:hover { background: #4C5933; }
+    .cs-back:hover { background: #4C5933; color: #F4F5EC; text-decoration: none; }
 
     /* Sections rise in as they scroll into view, where the browser supports it */
     @supports (animation-timeline: view()) {
