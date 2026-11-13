@@ -14,43 +14,43 @@ const features: Feature[] = [
     id: 'recurring', title: 'Recurring work', line: 'Define a schedule once', path: '/jobs/new',
     video: 'recurrence.mp4', image: 'recurrence-poster.webp',
     alt: 'Building a weekly Monday, Wednesday and Friday schedule on a new job',
-    body: 'A repeating job is stored once as a series with a recurrence rule. Each date the rule produces shows up on the calendar and on Today without being saved as its own record until someone changes, confirms, or invoices it.',
+    body: 'An owner sets up a repeating job once, such as every Monday, Wednesday, and Friday at 9 a.m., and every future visit appears on the calendar automatically. A single visit can still be changed without affecting the rest of the series.',
   },
   {
     id: 'calendar', title: 'Calendar', line: 'Five views, one schedule', path: '/calendar',
     video: 'calendar.mp4', image: 'calendar-poster.webp',
     alt: 'Dragging a recurring series to a new time on the week view',
-    body: 'Day, week, month, resource, and list views all read from the same schedule. Dragging a visit can move just that date or the whole series, including moving it to a different day of the week.',
+    body: 'The schedule can be viewed by day, week, or month, by team member, or as a list. Dragging a visit to a new time can move just that one visit or every visit in the series, including moving it to a different day of the week.',
   },
   {
     id: 'invoicing', title: 'Monthly invoicing', line: 'A month of work, one invoice', path: '/invoices',
     video: 'invoice.mp4', image: 'invoice-poster.webp',
     alt: 'Reviewing drafted monthly invoices and issuing them in one batch',
-    body: 'On the billing day, Daybourne drafts one invoice per client from the month\'s confirmed visits. The owner reviews the drafts, issues them in a batch, and records payments as they arrive, so client balances stay current.',
+    body: 'At the end of the month, Daybourne prepares one bill for each client from the visits that were completed. The owner looks them over, sends them all at once, and marks payments as they come in, so it is always clear who still owes money.',
   },
   {
     id: 'expenses', title: 'Expenses & mileage', line: 'The cost side of the books', path: '/expenses',
     image: 'expenses.webp', phone: 'expense-capture.webp',
     alt: 'The expenses list by month, with the quick-capture receipt form on a phone',
-    body: 'Expenses are recorded against Schedule C categories, so the Profit & Loss report lines up with the owner\'s tax return. Quick capture on a phone saves the receipt photo right away and leaves the amount and category for later.',
+    body: 'Expenses and miles driven are sorted into the same categories the owner uses on their tax return, which makes tax time easier. On a phone, the owner can snap a photo of a receipt right away and fill in the details later.',
   },
   {
     id: 'import', title: 'Client import', line: 'Bring the client list along', path: '/settings/import-clients',
     image: 'import.webp',
     alt: 'Matching spreadsheet columns to client fields during an import',
-    body: 'Owners can bring their client list over from a spreadsheet or a QuickBooks Online export. The importer recognizes common column names, flags phone numbers it cannot read, and catches duplicates before anything is saved.',
+    body: 'Owners can bring their existing client list over from a spreadsheet or from QuickBooks. Daybourne matches up the columns, points out phone numbers it cannot read, and catches clients that were entered twice before anything is saved.',
   },
   {
     id: 'messaging', title: 'Client messaging', line: 'Reminders without the 6 a.m. text', path: '/settings/notifications',
     image: 'messaging.webp',
     alt: 'Notification delivery rules: sender identity, send window and protected contact hours',
-    body: 'Reminders and schedule changes go out to clients automatically. Quiet hours, a daily cap per client, and fixed contact hours in each client\'s own timezone keep a business from messaging people at night.',
+    body: 'Clients get reminder texts and notices about schedule changes automatically. Daybourne limits how many messages a client gets in a day and only sends them during reasonable hours in the client\'s own time zone, so nobody gets a text at night.',
   },
   {
     id: 'help', title: 'In-app help', line: 'Documentation that ships with the code', path: '/settings/invoicing',
     image: 'help.webp',
     alt: 'The help panel open beside the invoicing settings, explaining the billing day',
-    body: 'Every screen has a help guide that opens beside the work. The screenshots and clips in those guides, including every one on this page, are captured automatically by Playwright against a seeded demo business.',
+    body: 'Every screen has a help guide that opens beside the work. The screenshots and clips in those guides, including every one on this page, are recorded automatically from a made-up demo business, so the help always matches the current app.',
   },
 ];
 
@@ -572,18 +572,21 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
             <img src="/daybourne-mark.svg" alt="" class="featured-icon" />
             <span class="featured-appname">Daybourne</span>
           </div>
-          <div class="featured-tagline">Recurring service management · Private beta in preparation</div>
+          <div class="featured-tagline">Scheduling and billing for recurring service businesses · In progress</div>
           <p class="featured-desc">
-            Daybourne runs the business side of recurring service work for owner-operators
-            with one to three people, such as pool service companies and music teachers.
-            It keeps the schedule, the client list, client messages, invoices, and expenses
-            in one place, and it is designed for the owner who does the work during the day
-            and the paperwork at night.
+            Daybourne is an app for small businesses that provide recurring services, where
+            the same clients are visited on a regular schedule. Examples include pool service,
+            lawn care and landscaping, and music lessons. Most of these businesses have one to
+            three people, and the owner does the work during the day and the scheduling and
+            billing at night. Daybourne keeps the recurring schedule, the client list, reminder
+            texts to clients, monthly bills, and business expenses in one place, so the owner
+            spends less time on paperwork.
           </p>
           <p class="featured-desc">
-            I am building it by myself. Claude Code agents write much of the code, and
-            they work inside a product, design, and review process that I set up for the
-            project. The case study covers how that process works.
+            I am building it by myself and preparing it for a small group of early users.
+            I use Claude Code, an AI coding assistant, to write much of the code, and I set up
+            the planning, design, and review steps it works within. The case study covers the
+            technical details and how that process works.
           </p>
         </div>
         <div class="featured-side">
@@ -624,12 +627,20 @@ const gridX = [15, 30, 45, 60, 75].map(i => +(PX + step * i).toFixed(1));
         <div class="forex-identity">
           <span class="forex-appname">Forex Algo Trader</span>
         </div>
-        <p class="forex-tagline">Autonomous trend-following · Live forex via Oanda API</p>
+        <p class="forex-tagline">Automated currency trading · Ran on a live brokerage account</p>
         <p class="forex-desc">
-          Autonomous trend-following system for live forex trading via the Oanda API.
-          Evaluates Heiken Ashi candles, 20-period moving averages, and Renko charts for market entry.
-          Implements Zone Recovery — a counter-trend hedging strategy that layers opposing orders
-          to recover from losing positions without closing at a loss.
+          I wrote a program that traded foreign currencies, such as the US dollar against the
+          euro, on its own without me placing the trades. It connected to Oanda, an online
+          currency broker, and watched prices around the clock. When the price started moving
+          steadily in one direction, the program bought or sold in that direction and aimed to
+          close the trade at a small profit.
+        </p>
+        <p class="forex-desc">
+          When a trade went the wrong way, the program did not simply accept the loss. It used
+          a strategy called Zone Recovery, which places a larger trade in the opposite direction
+          so that the combined trades end in a small gain once the price moves far enough either
+          way. The simulator below shows how this works and why it carries real risk. I no longer
+          run or maintain the program.
         </p>
         <div class="forex-stack">
           <span class="forex-chip">PHP / Symfony</span>
